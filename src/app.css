@@ -6,6 +6,18 @@
 @source '../index.html';
 
 /*
+ * The design's breakpoints are max-width based, so they are exposed as
+ * custom variants rather than Tailwind's min-width scale. Tailwind's own
+ * `max-*` variants are exclusive (`width < N`), which would shift every
+ * boundary by one pixel.
+ */
+@custom-variant shell (@media (max-width: 1100px));
+@custom-variant narrow (@media (max-width: 760px));
+@custom-variant tight (@media (max-width: 480px));
+@custom-variant tiny (@media (max-width: 380px));
+@custom-variant short (@media (max-height: 820px));
+
+/*
  * Design tokens. Single source of truth: the @theme block below.
  * The legacy custom properties in :root alias these, so existing
  * `var(--ink)`-style references and Tailwind utilities agree.
