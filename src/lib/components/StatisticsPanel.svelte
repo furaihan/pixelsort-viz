@@ -95,22 +95,19 @@
         <div>
           <dt>Reads</dt>
           <dd>
-            Every algorithmic array access, including auxiliary reads. Rendering reads are
-            excluded.
+            Every algorithmic array access, including auxiliary reads. Rendering reads are excluded.
           </dd>
         </div>
         <div>
           <dt>Total ops</dt>
           <dd>
-            Comparisons + reads + writes. Swaps are not added again because their reads and
-            writes are already counted.
+            Comparisons + reads + writes. Swaps are not added again because their reads and writes
+            are already counted.
           </dd>
         </div>
         <div>
           <dt>Active compute</dt>
-          <dd>
-            Time the worker spent computing. Paused time and playback time are excluded.
-          </dd>
+          <dd>Time the worker spent computing. Paused time and playback time are excluded.</dd>
         </div>
         <div>
           <dt>Aux writes</dt>
@@ -118,7 +115,9 @@
         </div>
         <div>
           <dt>Passes / depth</dt>
-          <dd>Algorithm-specific passes, partitions, or merge operations, and maximum recursion depth.</dd>
+          <dd>
+            Algorithm-specific passes, partitions, or merge operations, and maximum recursion depth.
+          </dd>
         </div>
       </dl>
     </details>

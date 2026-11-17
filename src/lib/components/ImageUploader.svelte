@@ -77,7 +77,11 @@
         <span class="compact-icon"><Icon name="upload" size={16} /></span>
         <span class="compact-copy">
           <strong>
-            {app.isLoadingImage ? 'Decoding image…' : app.hasImage ? 'Replace image' : 'Choose image'}
+            {app.isLoadingImage
+              ? 'Decoding image…'
+              : app.hasImage
+                ? 'Replace image'
+                : 'Choose image'}
           </strong>
           <span>PNG, JPEG, or WebP · stays local</span>
         </span>
@@ -159,9 +163,7 @@
     padding: 34px;
     border: 1px dashed rgba(198, 255, 0, 0.42);
     border-radius: 12px;
-    background:
-      linear-gradient(135deg, rgba(198, 255, 0, 0.035), transparent 45%),
-      var(--ink);
+    background: linear-gradient(135deg, rgba(198, 255, 0, 0.035), transparent 45%), var(--ink);
     cursor: pointer;
     transition:
       border-color 180ms ease,
@@ -172,9 +174,7 @@
   .dropzone:hover,
   .dropzone.dragging {
     border-color: var(--lime);
-    background:
-      linear-gradient(135deg, rgba(198, 255, 0, 0.08), transparent 55%),
-      var(--ink);
+    background: linear-gradient(135deg, rgba(198, 255, 0, 0.08), transparent 55%), var(--ink);
   }
 
   .dropzone.dragging {

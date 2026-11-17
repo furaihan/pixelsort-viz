@@ -6,10 +6,7 @@ import type { WorkerRequest, WorkerResponse } from './workerMessages';
 
 interface WorkerScope {
   postMessage(message: WorkerResponse, transfer?: Transferable[]): void;
-  addEventListener(
-    type: 'message',
-    listener: (event: MessageEvent<WorkerRequest>) => void,
-  ): void;
+  addEventListener(type: 'message', listener: (event: MessageEvent<WorkerRequest>) => void): void;
 }
 
 const scope = self as unknown as WorkerScope;

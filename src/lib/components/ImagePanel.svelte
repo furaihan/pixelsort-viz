@@ -51,7 +51,13 @@
     {#if app.imageInfo}
       <div class="image-summary">
         <div class="thumb-frame">
-          <canvas bind:this={thumbCanvas} class="thumb" width="88" height="88" aria-label="Original image thumbnail"></canvas>
+          <canvas
+            bind:this={thumbCanvas}
+            class="thumb"
+            width="88"
+            height="88"
+            aria-label="Original image thumbnail"
+          ></canvas>
         </div>
         <div class="image-copy">
           <strong class="file-name" title={app.imageInfo.fileName}>{app.imageInfo.fileName}</strong>

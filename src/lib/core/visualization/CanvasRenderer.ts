@@ -36,7 +36,11 @@ export class CanvasRenderer {
   private cssHeight = 0;
   private dpr = 1;
 
-  attach(mainCanvas: HTMLCanvasElement, overlayCanvas: HTMLCanvasElement, wrapper: HTMLElement): void {
+  attach(
+    mainCanvas: HTMLCanvasElement,
+    overlayCanvas: HTMLCanvasElement,
+    wrapper: HTMLElement,
+  ): void {
     this.destroy();
     this.mainCanvas = mainCanvas;
     this.overlayCanvas = overlayCanvas;
@@ -58,7 +62,11 @@ export class CanvasRenderer {
       image.data.byteOffset,
       image.data.byteLength >>> 2,
     );
-    this.output = new ImageData(new Uint8ClampedArray(image.data.length), image.width, image.height);
+    this.output = new ImageData(
+      new Uint8ClampedArray(image.data.length),
+      image.width,
+      image.height,
+    );
     this.output32 = new Uint32Array(this.output.data.buffer);
 
     if (this.mainCanvas) {

@@ -17,12 +17,7 @@ export function* mergeSort(ctx: SortContext): SortGenerator {
   ctx.mark([0], 'sorted', [0, n]);
 }
 
-function* mergeRange(
-  ctx: SortContext,
-  aux: Uint32Array,
-  lo: number,
-  hi: number,
-): SortGenerator {
+function* mergeRange(ctx: SortContext, aux: Uint32Array, lo: number, hi: number): SortGenerator {
   if (hi - lo < 2) return;
   const mid = (lo + hi) >>> 1;
   ctx.enterDepth();

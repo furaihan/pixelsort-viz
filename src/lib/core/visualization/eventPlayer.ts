@@ -5,10 +5,7 @@ import type { SortEvent } from '../sorting/types';
  * when the permutation changed. Compare, read, mark, pass, and auxiliary
  * writes do not change the visible arrangement.
  */
-export function applyEventToPermutation(
-  permutation: Uint32Array,
-  event: SortEvent,
-): boolean {
+export function applyEventToPermutation(permutation: Uint32Array, event: SortEvent): boolean {
   switch (event.type) {
     case 'swap': {
       if (event.i === event.j) return false;

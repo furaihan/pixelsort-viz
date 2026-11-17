@@ -225,7 +225,11 @@ export const ALGORITHMS: Record<AlgorithmId, AlgorithmDefinition> = {
 
 export const ALGORITHM_LIST: AlgorithmDefinition[] = Object.values(ALGORITHMS);
 
-export const ALGORITHM_GROUPS: { category: AlgorithmCategory; label: string; algorithms: AlgorithmDefinition[] }[] = [
+export const ALGORITHM_GROUPS: {
+  category: AlgorithmCategory;
+  label: string;
+  algorithms: AlgorithmDefinition[];
+}[] = [
   {
     category: 'beginner',
     label: 'Beginner',
@@ -234,7 +238,9 @@ export const ALGORITHM_GROUPS: { category: AlgorithmCategory; label: string; alg
   {
     category: 'intermediate',
     label: 'Intermediate',
-    algorithms: ALGORITHM_LIST.filter((algorithm) => algorithm.metadata.category === 'intermediate'),
+    algorithms: ALGORITHM_LIST.filter(
+      (algorithm) => algorithm.metadata.category === 'intermediate',
+    ),
   },
   {
     category: 'advanced',

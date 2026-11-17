@@ -30,9 +30,7 @@ const dropped = await page.evaluate(async () => {
   dropzone.dispatchEvent(
     new DragEvent('dragover', { bubbles: true, cancelable: true, dataTransfer }),
   );
-  dropzone.dispatchEvent(
-    new DragEvent('drop', { bubbles: true, cancelable: true, dataTransfer }),
-  );
+  dropzone.dispatchEvent(new DragEvent('drop', { bubbles: true, cancelable: true, dataTransfer }));
   return true;
 });
 

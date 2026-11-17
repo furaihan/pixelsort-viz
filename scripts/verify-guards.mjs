@@ -28,16 +28,12 @@ await page.waitForTimeout(300);
 await page.getByRole('button', { name: 'Educational' }).click();
 await page.waitForTimeout(300);
 
-const educationalDisabled = await page
-  .getByRole('button', { name: /start sorting/i })
-  .isDisabled();
+const educationalDisabled = await page.getByRole('button', { name: /start sorting/i }).isDisabled();
 const educationalWarning = await page.locator('.alert').first().innerText();
 
 await page.getByRole('button', { name: 'Performance' }).click();
 await page.waitForTimeout(300);
-const performanceEnabled = await page
-  .getByRole('button', { name: /start sorting/i })
-  .isEnabled();
+const performanceEnabled = await page.getByRole('button', { name: /start sorting/i }).isEnabled();
 
 console.log(
   JSON.stringify(

@@ -1,16 +1,8 @@
 import { computeGrid } from '../core/image/grid';
 import type { BlockSize, GridSpec, ImageSource } from '../core/image/imageTypes';
-import {
-  ImageLoadError,
-  WARN_IMAGE_PIXELS,
-  decodeImageFile,
-} from '../core/image/decodeImage';
+import { ImageLoadError, WARN_IMAGE_PIXELS, decodeImageFile } from '../core/image/decodeImage';
 import { createSampleImage } from '../core/image/sampleImage';
-import {
-  fisherYates,
-  identityPermutation,
-  randomSeed,
-} from '../core/image/shuffle';
+import { fisherYates, identityPermutation, randomSeed } from '../core/image/shuffle';
 import { getAlgorithm } from '../core/sorting/registry';
 import {
   emptyCounters,
@@ -135,7 +127,9 @@ export class AppState {
   }
 
   get canStart(): boolean {
-    return Boolean(this.permutation) && (this.workload?.canStart ?? false) && this.status !== 'running';
+    return (
+      Boolean(this.permutation) && (this.workload?.canStart ?? false) && this.status !== 'running'
+    );
   }
 
   get isRunning(): boolean {
@@ -405,7 +399,9 @@ export class AppState {
       this.status = this.image ? 'image-loaded' : 'empty';
     }
     this.resetRunStats();
-    this.currentLabel = this.permutation ? 'Reset to the initial shuffle.' : 'Drop an image to begin.';
+    this.currentLabel = this.permutation
+      ? 'Reset to the initial shuffle.'
+      : 'Drop an image to begin.';
     this.currentDetail = this.permutation
       ? 'The same shuffled arrangement is ready to run again.'
       : 'PNG, JPEG, or WebP. Everything stays in this browser.';
@@ -597,10 +593,7 @@ export class AppState {
     if (message.type === 'batch') {
       this.awaitingBatch = false;
       this.workerElapsed = message.elapsedMs;
-      this.liveCounters.maxDepth = Math.max(
-        this.liveCounters.maxDepth,
-        message.counters.maxDepth,
-      );
+      this.liveCounters.maxDepth = Math.max(this.liveCounters.maxDepth, message.counters.maxDepth);
       if (this.mode === 'performance') {
         this.pendingCounters = message.counters;
       }
@@ -683,8 +676,7 @@ export class AppState {
       ...this.eventLog,
     ].slice(0, 6);
     if (!done.validated) {
-      this.error =
-        'The final permutation did not validate. Reset and try again.';
+      this.error = 'The final permutation did not validate. Reset and try again.';
     }
     this.flushStats();
     this.terminateWorker();
@@ -847,8 +839,7 @@ export class AppState {
     indices: number[],
     options: { role?: MarkRole; range?: [number, number]; ttl?: number; label?: string } = {},
   ): void {
-    const ttl =
-      options.ttl ?? (this.status === 'paused' ? Number.POSITIVE_INFINITY : 140);
+    const ttl = options.ttl ?? (this.status === 'paused' ? Number.POSITIVE_INFINITY : 140);
     this.highlights.push({
       kind,
       indices,
@@ -871,8 +862,7 @@ export class AppState {
     if (this.highlights.length === 0) return;
     this.highlights = this.highlights.filter(
       (highlight) =>
-        highlight.ttl === Number.POSITIVE_INFINITY ||
-        now - highlight.createdAt <= highlight.ttl,
+        highlight.ttl === Number.POSITIVE_INFINITY || now - highlight.createdAt <= highlight.ttl,
     );
   }
 

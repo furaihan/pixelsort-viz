@@ -2,7 +2,12 @@ import { describe, expect, it } from 'vitest';
 import { ALGORITHMS } from '../../src/lib/core/sorting/registry';
 import { SortContext } from '../../src/lib/core/sorting/instrumentation';
 import type { AlgorithmId, Counters, SortEvent } from '../../src/lib/core/sorting/types';
-import { fisherYates, identityPermutation, isPermutation, isSorted } from '../../src/lib/core/image/shuffle';
+import {
+  fisherYates,
+  identityPermutation,
+  isPermutation,
+  isSorted,
+} from '../../src/lib/core/image/shuffle';
 import { applyEventToPermutation } from '../../src/lib/core/visualization/eventPlayer';
 
 const algorithmIds = Object.keys(ALGORITHMS) as AlgorithmId[];

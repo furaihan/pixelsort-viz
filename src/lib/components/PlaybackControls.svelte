@@ -23,8 +23,7 @@
   let primaryIcon = $derived((app.status === 'running' ? 'pause' : 'play') as IconName);
 
   let primaryDisabled = $derived(
-    !app.hasImage ||
-      (app.status !== 'running' && app.status !== 'paused' && !app.canStart),
+    !app.hasImage || (app.status !== 'running' && app.status !== 'paused' && !app.canStart),
   );
 
   let stepDisabled = $derived(!app.hasImage || app.mode === 'performance');
@@ -33,13 +32,9 @@
   let warning = $derived(app.workload?.blockers[0] ?? app.workload?.warnings[0] ?? null);
   let warningIsBlocker = $derived((app.workload?.blockers.length ?? 0) > 0);
 
-  let speedText = $derived(
-    app.mode === 'performance' ? `${app.sampleFps} fps` : app.speedLabel,
-  );
+  let speedText = $derived(app.mode === 'performance' ? `${app.sampleFps} fps` : app.speedLabel);
 
-  let speedCaption = $derived(
-    app.mode === 'performance' ? 'Sample rate' : 'Playback speed',
-  );
+  let speedCaption = $derived(app.mode === 'performance' ? 'Sample rate' : 'Playback speed');
 
   function primaryAction(): void {
     if (app.status === 'running') {
@@ -90,7 +85,9 @@
       type="button"
       onclick={() => app.step()}
       disabled={stepDisabled}
-      title={app.mode === 'performance' ? 'Step is available in educational mode' : 'Advance one event'}
+      title={app.mode === 'performance'
+        ? 'Step is available in educational mode'
+        : 'Advance one event'}
     >
       <Icon name="step" size={16} />
       Step
@@ -179,7 +176,11 @@
       <div class="speed-ticks mono" aria-hidden="true">
         {#each SPEED_PRESETS as preset, index}
           <span class:active={index === speedIndex}>
-            {app.mode === 'performance' ? performanceFps[index] : preset >= 32 ? 'TURBO' : `${preset}×`}
+            {app.mode === 'performance'
+              ? performanceFps[index]
+              : preset >= 32
+                ? 'TURBO'
+                : `${preset}×`}
           </span>
         {/each}
       </div>
@@ -189,7 +190,13 @@
   <div class="playback-foot">
     <span class="mono shortcut-hint">SPACE play/pause · → step · R reset</span>
     <span class="mono run-state">
-      {app.modeLabel} · {app.isRunning ? 'LIVE' : app.isPaused ? 'PAUSED' : app.isComplete ? 'DONE' : 'READY'}
+      {app.modeLabel} · {app.isRunning
+        ? 'LIVE'
+        : app.isPaused
+          ? 'PAUSED'
+          : app.isComplete
+            ? 'DONE'
+            : 'READY'}
     </span>
   </div>
 </section>

@@ -74,8 +74,8 @@
           <div>
             <strong>Shuffle the elements.</strong>
             <p>
-              Fisher–Yates creates a uniform permutation. The same shuffled arrangement is kept
-              when you switch algorithms, so comparisons are fair.
+              Fisher–Yates creates a uniform permutation. The same shuffled arrangement is kept when
+              you switch algorithms, so comparisons are fair.
             </p>
           </div>
         </li>
