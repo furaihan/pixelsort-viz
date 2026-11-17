@@ -1,0 +1,112 @@
+export type AlgorithmId =
+  | 'bubble'
+  | 'selection'
+  | 'insertion'
+  | 'merge'
+  | 'quick'
+  | 'shell'
+  | 'heap'
+  | 'counting'
+  | 'radix'
+  | 'bucket';
+
+export type AlgorithmCategory = 'beginner' | 'intermediate' | 'advanced';
+
+export type SortMode = 'step' | 'sample';
+
+export type MarkRole = 'pivot' | 'sorted' | 'active' | 'range' | 'aux';
+
+export interface Counters {
+  comparisons: number;
+  swaps: number;
+  writes: number;
+  reads: number;
+  auxWrites: number;
+  passes: number;
+  maxDepth: number;
+}
+
+export function emptyCounters(): Counters {
+  return {
+    comparisons: 0,
+    swaps: 0,
+    writes: 0,
+    reads: 0,
+    auxWrites: 0,
+    passes: 0,
+    maxDepth: 0,
+  };
+}
+
+/**
+ * Per-event operation deltas. The main thread accumulates these so the
+ * displayed counters match the displayed event exactly, even while stepping.
+ */
+export interface OpDelta {
+  c: number;
+  r: number;
+  w: number;
+  s: number;
+  aw: number;
+  p: number;
+}
+
+export function zeroOps(): OpDelta {
+  return { c: 0, r: 0, w: 0, s: 0, aw: 0, p: 0 };
+}
+
+export type SortEvent =
+  | {
+      type: 'compare';
+      i: number;
+      j: number;
+      a: number;
+      b: number;
+      aux?: boolean;
+      ops: OpDelta;
+    }
+  | {
+      type: 'compare-value';
+      index: number;
+      value: number;
+      against: number;
+      aux?: boolean;
+      ops: OpDelta;
+    }
+  | { type: 'read'; index: number; value: number; aux?: boolean; ops: OpDelta }
+  | { type: 'swap'; i: number; j: number; ops: OpDelta }
+  | { type: 'write'; index: number; value: number; aux?: boolean; ops: OpDelta }
+  | {
+      type: 'mark';
+      indices: number[];
+      role: MarkRole;
+      range?: [number, number];
+      ops: OpDelta;
+    }
+  | { type: 'pass'; label: string; ops: OpDelta }
+  | { type: 'delta'; indices: Uint32Array; values: Uint32Array }
+  | { type: 'snapshot'; data: Uint32Array }
+  | { type: 'complete'; counters: Counters; elapsedMs: number; validated: boolean };
+
+export interface AlgorithmMetadata {
+  id: AlgorithmId;
+  name: string;
+  category: AlgorithmCategory;
+  description: string;
+  bestTime: string;
+  averageTime: string;
+  worstTime: string;
+  spaceComplexity: string;
+  stable: boolean | 'depends';
+  inPlace: boolean | 'depends';
+  notes?: string[];
+  /** Used by the workload guard. */
+  quadratic: boolean;
+}
+
+export type SortGenerator = Generator<void, void, void>;
+
+export interface AlgorithmDefinition {
+  metadata: AlgorithmMetadata;
+  run: (context: import('./instrumentation').SortContext) => SortGenerator;
+}
