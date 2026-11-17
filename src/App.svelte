@@ -47,19 +47,25 @@
   });
 </script>
 
-<a class="skip-link" href="#workspace">Skip to workspace</a>
+<a
+  class="fixed top-2 left-2 z-100 -translate-y-[160%] rounded-[6px] bg-lime px-3 py-2 text-[12px] font-bold text-ink no-underline transition-transform duration-150 focus:translate-y-0"
+  href="#workspace">Skip to workspace</a
+>
 <h1 class="sr-only">Pixel Sort Visualizer</h1>
 
-<div class="app-shell">
+<div class="flex min-h-screen flex-col">
   <Header onopenGuide={() => (guideOpen = true)} />
 
-  <main class="workspace" id="workspace">
-    <section class="stage" aria-label="Visualization and playback">
+  <main
+    class="mx-auto grid w-[min(1600px,100%)] min-w-0 flex-1 grid-cols-[minmax(0,1.55fr)_minmax(340px,0.9fr)] items-start gap-5 px-6 pt-5 pb-7 shell:grid-cols-1 compact:gap-3.5 compact:p-3.5"
+    id="workspace"
+  >
+    <section class="sticky top-5 grid min-w-0 gap-3.5 shell:static short:static" aria-label="Visualization and playback">
       <ImageWorkspace />
       <PlaybackControls />
     </section>
 
-    <aside class="rail" aria-label="Configuration and statistics">
+    <aside class="grid min-w-0 gap-3.5" aria-label="Configuration and statistics">
       <ImagePanel />
       <GranularitySelector />
       <AlgorithmSelector onopenGuide={() => (guideOpen = true)} />
@@ -68,12 +74,14 @@
     </aside>
   </main>
 
-  <footer class="footer">
-    <div class="footer-left">
-      <span class="footer-dot" aria-hidden="true"></span>
+  <footer
+    class="flex items-center justify-between gap-3.5 border-t border-line px-6 py-[13px] text-[8px] font-bold tracking-[0.1em] text-muted-2 compact:px-3.5 compact:py-3"
+  >
+    <div class="flex items-center gap-[7px]">
+      <span class="size-[5px] rounded-full bg-lime" aria-hidden="true"></span>
       <span class="mono">100% LOCAL · NO UPLOADS</span>
     </div>
-    <div class="footer-right mono">
+    <div class="mono flex gap-3.5 compact:hidden">
       <span>SVELTE 5</span>
       <span>CANVAS 2D</span>
       <span>WEB WORKER</span>
@@ -82,119 +90,3 @@
 
   <GuideDialog bind:open={guideOpen} />
 </div>
-
-<style>
-  .app-shell {
-    display: flex;
-    min-height: 100vh;
-    flex-direction: column;
-  }
-
-  .skip-link {
-    position: fixed;
-    top: 8px;
-    left: 8px;
-    z-index: 100;
-    padding: 8px 12px;
-    border-radius: 6px;
-    background: var(--lime);
-    color: var(--ink);
-    font-size: 12px;
-    font-weight: 700;
-    text-decoration: none;
-    transform: translateY(-160%);
-    transition: transform 150ms ease;
-  }
-
-  .skip-link:focus {
-    transform: translateY(0);
-  }
-
-  .workspace {
-    display: grid;
-    width: min(1600px, 100%);
-    min-width: 0;
-    flex: 1;
-    grid-template-columns: minmax(0, 1.55fr) minmax(340px, 0.9fr);
-    gap: 20px;
-    align-items: start;
-    margin: 0 auto;
-    padding: 20px 24px 28px;
-  }
-
-  .stage {
-    position: sticky;
-    top: 20px;
-    display: grid;
-    min-width: 0;
-    gap: 14px;
-  }
-
-  .rail {
-    display: grid;
-    min-width: 0;
-    gap: 14px;
-  }
-
-  .footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 14px;
-    padding: 13px 24px;
-    border-top: 1px solid var(--line);
-    color: var(--muted-2);
-    font-size: 8px;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-  }
-
-  .footer-left {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-  }
-
-  .footer-dot {
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
-    background: var(--lime);
-  }
-
-  .footer-right {
-    display: flex;
-    gap: 14px;
-  }
-
-  @media (max-width: 1100px) {
-    .workspace {
-      grid-template-columns: 1fr;
-    }
-
-    .stage {
-      position: static;
-    }
-  }
-
-  @media (max-height: 820px) {
-    .stage {
-      position: static;
-    }
-  }
-
-  @media (max-width: 700px) {
-    .workspace {
-      gap: 14px;
-      padding: 14px;
-    }
-
-    .footer {
-      padding: 12px 14px;
-    }
-
-    .footer-right {
-      display: none;
-    }
-  }
-</style>
