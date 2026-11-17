@@ -49,53 +49,66 @@
 
   <div class="panel-body">
     {#if app.imageInfo}
-      <div class="image-summary">
-        <div class="thumb-frame">
+      <div class="flex items-center gap-3">
+        <div
+          class="checkerboard size-[88px] flex-none overflow-hidden rounded-[7px] border border-line-strong"
+        >
           <canvas
             bind:this={thumbCanvas}
-            class="thumb"
+            class="block h-full w-full"
             width="88"
             height="88"
             aria-label="Original image thumbnail"
           ></canvas>
         </div>
-        <div class="image-copy">
-          <strong class="file-name" title={app.imageInfo.fileName}>{app.imageInfo.fileName}</strong>
-          <span class="mono image-dims">
+        <div class="grid min-w-0 gap-[3px]">
+          <strong class="truncate text-[13px] font-bold" title={app.imageInfo.fileName}
+            >{app.imageInfo.fileName}</strong
+          >
+          <span class="mono text-[10px] text-muted">
             {app.imageInfo.width} × {app.imageInfo.height} · {app.imageInfo.megapixels.toFixed(1)} MP
           </span>
-          <span class="mono image-size">{formatBytes(app.imageInfo.fileSize)}</span>
+          <span class="mono text-[10px] text-muted">{formatBytes(app.imageInfo.fileSize)}</span>
         </div>
       </div>
 
-      <dl class="image-facts">
+      <dl class="mt-3.5 grid grid-cols-3 gap-2.5 border-t border-line pt-3">
         <div>
           <dt class="label">Format</dt>
-          <dd class="mono">{app.imageInfo.mimeType.replace('image/', '').toUpperCase()}</dd>
+          <dd class="mono mt-[3px] text-[11px] font-semibold text-soft-lime">
+            {app.imageInfo.mimeType.replace('image/', '').toUpperCase()}
+          </dd>
         </div>
         <div>
           <dt class="label">Grid</dt>
-          <dd class="mono">
+          <dd class="mono mt-[3px] text-[11px] font-semibold text-soft-lime">
             {app.gridInfo ? `${app.gridInfo.columns} × ${app.gridInfo.rows}` : '—'}
           </dd>
         </div>
         <div>
           <dt class="label">Shuffle</dt>
-          <dd class="mono">{app.seed ? formatSeed(app.seed) : '—'}</dd>
+          <dd class="mono mt-[3px] text-[11px] font-semibold text-soft-lime">
+            {app.seed ? formatSeed(app.seed) : '—'}
+          </dd>
         </div>
       </dl>
 
-      <p class="privacy-line">
+      <p
+        class="mt-3 flex items-center gap-1.5 text-[10.5px] text-muted [&_svg]:flex-none [&_svg]:text-lime"
+      >
         <Icon name="lock" size={13} />
         Stays in this browser. No image data is uploaded.
       </p>
 
       {#if app.notice}
-        <div class="alert alert-warning notice" role="status">
+        <div
+          class="alert alert-warning mt-3 items-center [&>span]:flex-1"
+          role="status"
+        >
           <Icon name="info" size={15} />
           <span>{app.notice}</span>
           <button
-            class="dismiss"
+            class="inline-flex size-[22px] flex-none cursor-pointer items-center justify-center rounded border-0 bg-transparent p-0 text-inherit hover:bg-white/8"
             type="button"
             aria-label="Dismiss image notice"
             onclick={() => app.dismissNotice()}
@@ -105,10 +118,10 @@
         </div>
       {/if}
 
-      <div class="image-actions">
+      <div class="mt-3 grid gap-2">
         <ImageUploader compact showError={app.hasImage} />
         <button
-          class="btn btn-ghost btn-small remove-btn"
+          class="btn btn-ghost btn-small justify-self-start text-muted hover:border-danger/50 hover:text-danger"
           type="button"
           onclick={() => app.clearImage()}
           title="Remove the image and start over"
@@ -118,144 +131,10 @@
         </button>
       </div>
     {:else}
-      <div class="empty-image">
+      <div class="grid gap-2.5">
         <p class="panel-note">Load an image to see its dimensions, grid, and shuffle ID.</p>
         <ImageUploader compact showError={false} />
       </div>
     {/if}
   </div>
 </section>
-
-<style>
-  .image-summary {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .thumb-frame {
-    flex: none;
-    width: 88px;
-    height: 88px;
-    overflow: hidden;
-    border: 1px solid var(--line-strong);
-    border-radius: 7px;
-    background-color: #0b0b0b;
-    background-image:
-      linear-gradient(45deg, #171717 25%, transparent 25%),
-      linear-gradient(-45deg, #171717 25%, transparent 25%),
-      linear-gradient(45deg, transparent 75%, #171717 75%),
-      linear-gradient(-45deg, transparent 75%, #171717 75%);
-    background-size: 12px 12px;
-    background-position:
-      0 0,
-      0 6px,
-      6px -6px,
-      -6px 0;
-  }
-
-  .thumb {
-    display: block;
-    width: 100%;
-    height: 100%;
-  }
-
-  .image-copy {
-    display: grid;
-    gap: 3px;
-    min-width: 0;
-  }
-
-  .file-name {
-    overflow: hidden;
-    font-size: 13px;
-    font-weight: 700;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .image-dims,
-  .image-size {
-    color: var(--muted);
-    font-size: 10px;
-  }
-
-  .image-facts {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 10px;
-    margin-top: 14px;
-    padding-top: 12px;
-    border-top: 1px solid var(--line);
-  }
-
-  .image-facts dd {
-    margin-top: 3px;
-    color: var(--soft-lime);
-    font-size: 11px;
-    font-weight: 600;
-  }
-
-  .privacy-line {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin-top: 12px;
-    color: var(--muted);
-    font-size: 10.5px;
-  }
-
-  .privacy-line :global(svg) {
-    flex: none;
-    color: var(--lime);
-  }
-
-  .notice {
-    align-items: center;
-    margin-top: 12px;
-  }
-
-  .notice span {
-    flex: 1;
-  }
-
-  .dismiss {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 22px;
-    height: 22px;
-    flex: none;
-    padding: 0;
-    border: 0;
-    border-radius: 4px;
-    background: transparent;
-    color: inherit;
-    cursor: pointer;
-  }
-
-  .dismiss:hover {
-    background: rgba(255, 255, 255, 0.08);
-  }
-
-  .image-actions {
-    display: grid;
-    gap: 8px;
-    margin-top: 12px;
-  }
-
-  .remove-btn {
-    justify-self: start;
-    color: var(--muted);
-  }
-
-  .remove-btn:hover:not(:disabled) {
-    color: var(--danger);
-    border-color: rgba(255, 92, 92, 0.5);
-  }
-
-  .empty-image {
-    display: grid;
-    gap: 10px;
-  }
-</style>
