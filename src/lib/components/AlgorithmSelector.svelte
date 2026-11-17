@@ -39,8 +39,10 @@
   <div class="panel-body">
     <label
       class="mb-1.5 block font-mono text-[9px] font-bold tracking-[0.1em] text-muted uppercase"
-      for="algorithm-select">Choose an algorithm</label
+      for="algorithm-select"
     >
+      Choose an algorithm
+    </label>
     <div class="relative">
       <select
         id="algorithm-select"
@@ -72,25 +74,25 @@
     >
       <div class="bg-ink-3 px-2.5 py-[9px]">
         <dt class="label">Best</dt>
-        <dd class="mono mt-[3px] text-[10.5px] leading-[1.35] font-semibold text-soft-lime">
+        <dd class="mt-[3px] mono text-[10.5px] leading-[1.35] font-semibold text-soft-lime">
           {app.algorithm.metadata.bestTime}
         </dd>
       </div>
       <div class="bg-ink-3 px-2.5 py-[9px]">
         <dt class="label">Average</dt>
-        <dd class="mono mt-[3px] text-[10.5px] leading-[1.35] font-semibold text-soft-lime">
+        <dd class="mt-[3px] mono text-[10.5px] leading-[1.35] font-semibold text-soft-lime">
           {app.algorithm.metadata.averageTime}
         </dd>
       </div>
       <div class="bg-ink-3 px-2.5 py-[9px]">
         <dt class="label">Worst</dt>
-        <dd class="mono mt-[3px] text-[10.5px] leading-[1.35] font-semibold text-soft-lime">
+        <dd class="mt-[3px] mono text-[10.5px] leading-[1.35] font-semibold text-soft-lime">
           {app.algorithm.metadata.worstTime}
         </dd>
       </div>
       <div class="bg-ink-3 px-2.5 py-[9px]">
         <dt class="label">Space</dt>
-        <dd class="mono mt-[3px] text-[10.5px] leading-[1.35] font-semibold text-soft-lime">
+        <dd class="mt-[3px] mono text-[10.5px] leading-[1.35] font-semibold text-soft-lime">
           {app.algorithm.metadata.spaceComplexity}
         </dd>
       </div>

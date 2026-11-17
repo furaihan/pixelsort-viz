@@ -120,7 +120,9 @@ const audit = await page.evaluate(() => {
 await page.emulateMedia({ reducedMotion: 'reduce' });
 await page.waitForTimeout(200);
 const reducedMotion = await page.evaluate(() => {
-  const element = document.querySelector('[aria-label="Image workspace"] .animate-pulse-soft') ?? document.querySelector('header [role="status"] span');
+  const element =
+    document.querySelector('[aria-label="Image workspace"] .animate-pulse-soft') ??
+    document.querySelector('header [role="status"] span');
   if (!element) return null;
   const style = getComputedStyle(element);
   return {

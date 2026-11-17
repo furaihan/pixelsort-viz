@@ -229,6 +229,17 @@ The brand mark is two overlapping 20px squares with 2px black borders: lime on t
 
 **The Metric Cell.** A raised-black cell with a 9px mono label and a 19px mono value. The total-ops and active-compute cells use lime. The secondary row (aux writes, passes, max depth) uses soft lime and shows an em dash when the metric does not apply.
 
+## Implementation
+
+The YAML frontmatter above is the human-readable spec. The executable copy lives in `src/app.css`:
+
+- Colors, radii, spacing, fonts and the type scale are `@theme` entries, which generate the utilities (`bg-lime`, `rounded-md`, `text-label`, `p-3.5`).
+- The design's max-width breakpoints are `@custom-variant`s (`shell` 1100, `narrow` 760, `compact` 700, `tight` 480, `tiny` 380) plus `short` for `max-height: 820px`.
+- Shared primitives are `@utility` blocks: `panel`, `panel-head`, `panel-title`, `panel-body`, `panel-note`, `label`, `btn`, `btn-primary`, `btn-ghost`, `btn-small`, `chip`, `chip-lime`, `chip-pink`, `chip-soft`, `alert`, `alert-warning`, `mono`, `checkerboard`, `speed-range`.
+- `--radius-sm` and `--radius-md` are overridden to 9px and 14px, so `rounded-sm`/`rounded-md` follow this system rather than Tailwind's defaults.
+
+When a value here changes, change it in `@theme` first; the frontmatter should follow.
+
 ## Do's and Don'ts
 
 ### Do:

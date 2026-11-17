@@ -6,7 +6,8 @@
 
   const segmentBase =
     'relative flex cursor-pointer items-baseline justify-center gap-[3px] min-h-11 rounded-[7px] border px-1.5 py-2 transition-colors duration-150';
-  const segmentIdle = 'border-line-strong bg-ink-3 text-muted hover:border-soft-lime hover:text-text';
+  const segmentIdle =
+    'border-line-strong bg-ink-3 text-muted hover:border-soft-lime hover:text-text';
   const segmentActive = 'border-lime bg-lime text-ink';
   const segmentFocus =
     'has-[input:focus-visible]:outline-2 has-[input:focus-visible]:outline-offset-2 has-[input:focus-visible]:outline-lime';
@@ -48,7 +49,9 @@
       </div>
     </fieldset>
 
-    <div class="mt-3.5 grid grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] gap-2.5 border-t border-line pt-3">
+    <div
+      class="mt-3.5 grid grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] gap-2.5 border-t border-line pt-3"
+    >
       <div class="grid gap-[3px]">
         <span class="label">Grid</span>
         <strong class="mono text-[15px] font-bold text-text">
@@ -63,7 +66,7 @@
       </div>
     </div>
 
-    <p class="panel-note mt-3">
+    <p class="mt-3 panel-note">
       {#if app.gridInfo}
         Larger blocks mean fewer elements and a faster run. Edge tiles may be smaller; they keep
         their natural size and never stretch.

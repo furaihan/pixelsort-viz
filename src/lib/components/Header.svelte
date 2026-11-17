@@ -18,28 +18,26 @@
   >
     <span class="relative block size-[30px] flex-none" aria-hidden="true">
       <span class="absolute top-0 left-0 size-5 border-2 border-ink bg-lime"></span>
-      <span
-        class="absolute right-0 bottom-0 size-5 border-2 border-ink bg-pink mix-blend-screen"
+      <span class="absolute right-0 bottom-0 size-5 border-2 border-ink bg-pink mix-blend-screen"
       ></span>
     </span>
     <span class="grid gap-px leading-none">
       <span class="text-[17px] font-black tracking-[-0.025em]">PIXEL SORT</span>
-      <span
-        class="font-mono text-[8px] font-bold tracking-[0.24em] text-muted tight:hidden"
-        >VISUALIZER</span
-      >
+      <span class="font-mono text-[8px] font-bold tracking-[0.24em] text-muted tight:hidden">
+        VISUALIZER
+      </span>
     </span>
   </a>
 
   <div class="flex items-center gap-2.5">
     <span
-      class="mono inline-flex items-center gap-[5px] text-[9px] font-bold tracking-[0.1em] text-muted [&_svg]:text-lime narrow:hidden"
+      class="inline-flex items-center gap-[5px] mono text-[9px] font-bold tracking-[0.1em] text-muted narrow:hidden [&_svg]:text-lime"
     >
       <Icon name="lock" size={12} />
       100% LOCAL
     </span>
     <span
-      class="mono group inline-flex min-h-[26px] items-center gap-1.5 rounded-full border border-line-strong px-[9px] text-[9px] font-bold tracking-[0.1em] text-muted tight:px-[7px] tight:text-[8px] {statusTone}"
+      class="group inline-flex min-h-[26px] items-center gap-1.5 rounded-full border border-line-strong px-[9px] mono text-[9px] font-bold tracking-[0.1em] text-muted tight:px-[7px] tight:text-[8px] {statusTone}"
       data-tone={app.statusTone}
       role="status"
       aria-live="polite"
@@ -51,7 +49,7 @@
       {app.statusLabel}
     </span>
     <button
-      class="btn btn-ghost btn-small narrow:w-[34px] narrow:gap-0 narrow:p-0 narrow:text-[0px] narrow:[&_svg]:size-4"
+      class="btn btn-small btn-ghost narrow:w-[34px] narrow:gap-0 narrow:p-0 narrow:text-[0px] narrow:[&_svg]:size-4"
       type="button"
       onclick={onopenGuide}
     >

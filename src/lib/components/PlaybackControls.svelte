@@ -59,7 +59,7 @@
   }
 </script>
 
-<section class="panel grid gap-3 p-3" aria-label="Playback controls">
+<section class="grid gap-3 panel p-3" aria-label="Playback controls">
   {#if app.error}
     <div class="alert" role="alert">
       <Icon name="alert" size={16} />
@@ -76,7 +76,7 @@
 
   <div class="flex flex-wrap items-center gap-[7px]">
     <button
-      class="btn btn-primary min-w-[142px] compact:flex-1"
+      class="btn min-w-[142px] btn-primary compact:flex-1"
       type="button"
       onclick={primaryAction}
       disabled={primaryDisabled}
@@ -184,7 +184,10 @@
         aria-label={speedCaption}
         aria-valuetext={speedText}
       />
-      <div class="mono flex justify-between gap-0.5 text-[8px] font-bold text-muted-2" aria-hidden="true">
+      <div
+        class="flex justify-between gap-0.5 mono text-[8px] font-bold text-muted-2"
+        aria-hidden="true"
+      >
         {#each SPEED_PRESETS as preset, index}
           <span class={index === speedIndex ? 'text-soft-lime' : ''}>
             {app.mode === 'performance'
@@ -199,9 +202,9 @@
   </div>
 
   <div class="flex items-center justify-between gap-2.5 border-t border-line pt-[9px]">
-    <span class="mono text-[8px] font-semibold tracking-[0.04em] text-muted-2 compact:hidden"
-      >SPACE play/pause · → step · R reset</span
-    >
+    <span class="mono text-[8px] font-semibold tracking-[0.04em] text-muted-2 compact:hidden">
+      SPACE play/pause · → step · R reset
+    </span>
     <span class="mono text-[8px] font-bold tracking-[0.1em] text-muted">
       {app.modeLabel} · {app.isRunning
         ? 'LIVE'

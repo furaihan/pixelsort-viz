@@ -51,7 +51,7 @@
     {#if app.imageInfo}
       <div class="flex items-center gap-3">
         <div
-          class="checkerboard size-[88px] flex-none overflow-hidden rounded-[7px] border border-line-strong"
+          class="size-[88px] flex-none overflow-hidden rounded-[7px] border border-line-strong checkerboard"
         >
           <canvas
             bind:this={thumbCanvas}
@@ -62,9 +62,9 @@
           ></canvas>
         </div>
         <div class="grid min-w-0 gap-[3px]">
-          <strong class="truncate text-[13px] font-bold" title={app.imageInfo.fileName}
-            >{app.imageInfo.fileName}</strong
-          >
+          <strong class="truncate text-[13px] font-bold" title={app.imageInfo.fileName}>
+            {app.imageInfo.fileName}
+          </strong>
           <span class="mono text-[10px] text-muted">
             {app.imageInfo.width} × {app.imageInfo.height} · {app.imageInfo.megapixels.toFixed(1)} MP
           </span>
@@ -75,19 +75,19 @@
       <dl class="mt-3.5 grid grid-cols-3 gap-2.5 border-t border-line pt-3">
         <div>
           <dt class="label">Format</dt>
-          <dd class="mono mt-[3px] text-[11px] font-semibold text-soft-lime">
+          <dd class="mt-[3px] mono text-[11px] font-semibold text-soft-lime">
             {app.imageInfo.mimeType.replace('image/', '').toUpperCase()}
           </dd>
         </div>
         <div>
           <dt class="label">Grid</dt>
-          <dd class="mono mt-[3px] text-[11px] font-semibold text-soft-lime">
+          <dd class="mt-[3px] mono text-[11px] font-semibold text-soft-lime">
             {app.gridInfo ? `${app.gridInfo.columns} × ${app.gridInfo.rows}` : '—'}
           </dd>
         </div>
         <div>
           <dt class="label">Shuffle</dt>
-          <dd class="mono mt-[3px] text-[11px] font-semibold text-soft-lime">
+          <dd class="mt-[3px] mono text-[11px] font-semibold text-soft-lime">
             {app.seed ? formatSeed(app.seed) : '—'}
           </dd>
         </div>
@@ -101,10 +101,7 @@
       </p>
 
       {#if app.notice}
-        <div
-          class="alert alert-warning mt-3 items-center [&>span]:flex-1"
-          role="status"
-        >
+        <div class="alert mt-3 items-center alert-warning [&>span]:flex-1" role="status">
           <Icon name="info" size={15} />
           <span>{app.notice}</span>
           <button
@@ -121,7 +118,7 @@
       <div class="mt-3 grid gap-2">
         <ImageUploader compact showError={app.hasImage} />
         <button
-          class="btn btn-ghost btn-small justify-self-start text-muted hover:border-danger/50 hover:text-danger"
+          class="btn btn-small justify-self-start text-muted btn-ghost hover:border-danger/50 hover:text-danger"
           type="button"
           onclick={() => app.clearImage()}
           title="Remove the image and start over"

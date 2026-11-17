@@ -144,7 +144,9 @@
           <Icon name="upload" size={17} />
           {app.isLoadingImage ? 'Decoding image…' : 'Choose image'}
         </span>
-        <span class="mono text-[9px] font-bold tracking-[0.1em] text-muted-2">MAX 20 MP / 40 MB</span>
+        <span class="mono text-[9px] font-bold tracking-[0.1em] text-muted-2">
+          MAX 20 MP / 40 MB
+        </span>
       </div>
     {/if}
   </div>
@@ -152,7 +154,7 @@
   {#if !compact}
     <div class="flex flex-wrap items-center gap-2.5">
       <button
-        class="btn btn-ghost btn-small"
+        class="btn btn-small btn-ghost"
         type="button"
         onclick={() => void app.loadSample()}
         disabled={app.isLoadingImage}

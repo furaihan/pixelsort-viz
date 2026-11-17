@@ -44,13 +44,15 @@ If you prefer npm, the same scripts work with `npm install` and `npm run dev`, b
 | `bun run check` | Run `svelte-check` and the TypeScript project check. |
 | `bun run test` | Run the Vitest unit suite. |
 | `bun run test:watch` | Run Vitest in watch mode. |
+| `bun run format` | Format with Prettier (Svelte + Tailwind class sorting). |
+| `bun run format:check` | Verify formatting without writing. |
 
 ## Architecture
 
 ```text
 src/
   App.svelte                     page shell, keyboard shortcuts, layout
-  app.css                        global tokens, reset, shared controls
+  app.css                        design tokens (@theme), base layer, shared utilities
   lib/
     components/                  Svelte 5 UI components
     core/
@@ -129,7 +131,18 @@ The unit suite covers:
 - Instrumentation counters and per-event deltas.
 - Event application to the working permutation.
 
-The optional `scripts/verify-*.mjs` files drive the app in headless Chrome with `playwright-core` for visual and integration checks. They require a local Chrome install and a running dev server. They are not part of the unit test suite.
+The optional `scripts/verify-*.mjs` files drive the app in headless Chrome with `playwright-core` for visual and integration checks. They require a local Chrome install and a dev server on `127.0.0.1:5173` (`bun run dev --host 127.0.0.1`). They are not part of the unit test suite. `verify-upload`, `verify-state` and `verify-interrupt` currently fail on stale expectations that predate the current UI.
+
+## Styling
+
+Tailwind 4 is the styling layer, configured entirely in `src/app.css` (no `tailwind.config.js`):
+
+- `@theme` holds the design tokens from `DESIGN.md`. The legacy `:root` custom properties alias them, so `var(--lime)` and `bg-lime` resolve to the same value.
+- `@custom-variant` defines the design's max-width breakpoints (`shell`, `narrow`, `compact`, `tight`, `tiny`) plus `short` for `max-height: 820px`. Tailwind's own `max-*` variants are exclusive, which would shift each boundary by a pixel.
+- `@utility` holds the shared primitives (`panel`, `btn`, `chip`, `alert`, `label`, `mono`, `checkerboard`, `speed-range`). Component markup uses utilities directly; there are no component `<style>` blocks.
+- `@source` is explicit because the project's content detection cannot rely on git metadata.
+
+Two conventions worth knowing: overlapping utilities of the same property resolve by stylesheet order, not class order, so state variants are built as whole class strings rather than layered on top of a base; and `--radius-sm`/`--radius-md` are overridden to the design's 9px/14px, so `rounded-sm`/`rounded-md` are not Tailwind's defaults.
 
 ## Known limitations and post-MVP work
 

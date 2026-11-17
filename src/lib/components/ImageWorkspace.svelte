@@ -89,12 +89,11 @@
         <circle cx="8" cy="8" r="4.5" fill="none" stroke="currentColor" stroke-width="1" />
         <path d="M8 0v5M8 11v5M0 8h5M11 8h5" stroke="currentColor" stroke-width="1" />
       </svg>
-      <span
-        class="mono truncate text-[9px] font-bold tracking-[0.12em] text-muted tiny:text-[8px]"
-        >PROOF 01 / LIVE IMPRESSION</span
-      >
+      <span class="truncate mono text-[9px] font-bold tracking-[0.12em] text-muted tiny:text-[8px]">
+        PROOF 01 / LIVE IMPRESSION
+      </span>
       {#if app.isRunning}
-        <span class="animate-pulse-soft size-1.5 flex-none rounded-full bg-lime" aria-hidden="true"
+        <span class="size-1.5 flex-none animate-pulse-soft rounded-full bg-lime" aria-hidden="true"
         ></span>
       {/if}
     </div>
@@ -113,7 +112,7 @@
 
   <div class={app.hasImage ? 'grid gap-2' : 'hidden'}>
     <div
-      class="checkerboard relative mx-auto w-[min(100%,calc(48vh*var(--aspect)))] overflow-hidden rounded-lg border border-line-strong [--checker-fg:#151515] [--checker-size:16px] compact:w-[min(100%,calc(52vh*var(--aspect)))]"
+      class="relative mx-auto w-[min(100%,calc(48vh*var(--aspect)))] overflow-hidden rounded-lg border border-line-strong checkerboard [--checker-fg:#151515] [--checker-size:16px] compact:w-[min(100%,calc(52vh*var(--aspect)))]"
       bind:this={wrapper}
       role="img"
       aria-label={canvasLabel}
@@ -131,7 +130,7 @@
 
     <div class="flex items-center justify-between gap-2.5 px-0.5">
       <button
-        class="btn btn-ghost btn-small"
+        class="btn btn-small btn-ghost"
         type="button"
         onclick={() => app.toggleGhost()}
         aria-pressed={app.ghostOriginal}
@@ -140,9 +139,10 @@
         {app.ghostOriginal ? 'Hide original ghost' : 'Show original ghost'}
       </button>
       <span
-        class="mono text-right text-[8px] font-bold tracking-[0.1em] text-muted-2 compact:hidden"
-        >SOURCE RESOLUTION / NEAREST NEIGHBOR</span
+        class="text-right mono text-[8px] font-bold tracking-[0.1em] text-muted-2 compact:hidden"
       >
+        SOURCE RESOLUTION / NEAREST NEIGHBOR
+      </span>
     </div>
   </div>
 
@@ -155,7 +155,7 @@
     aria-live={app.isRunning ? 'off' : 'polite'}
   >
     <span
-      class="mono flex-none -rotate-[1.5deg] rounded-[4px] bg-soft-lime px-2 py-1 text-[9px] font-extrabold tracking-[0.08em] text-ink data-[tone=pink]:bg-pink data-[tone=lime]:bg-lime"
+      class="flex-none -rotate-[1.5deg] rounded-[4px] bg-soft-lime px-2 py-1 mono text-[9px] font-extrabold tracking-[0.08em] text-ink data-[tone=lime]:bg-lime data-[tone=pink]:bg-pink"
       data-tone={stampTone(app.currentEvent)}
     >
       {eventTypeLabel(app.currentEvent)}
@@ -166,7 +166,7 @@
     </div>
     {#if app.gridInfo}
       <span
-        class="mono grid flex-none justify-items-end text-[12px] leading-[1.1] font-bold text-soft-lime compact:hidden"
+        class="grid flex-none justify-items-end mono text-[12px] leading-[1.1] font-bold text-soft-lime compact:hidden"
       >
         {formatNumber(app.gridInfo.elementCount)}
         <small class="text-[7px] font-bold tracking-[0.12em] text-muted-2">ELEMENTS</small>

@@ -40,7 +40,9 @@ const result = await page.evaluate(() => {
     [100, 100],
     [640, 400],
   ];
-  const stats = Array.from(document.querySelectorAll('section[aria-labelledby="stats-title"] .bg-ink-3')).map((metric) => ({
+  const stats = Array.from(
+    document.querySelectorAll('section[aria-labelledby="stats-title"] .bg-ink-3'),
+  ).map((metric) => ({
     label: metric.querySelector('.label')?.textContent?.trim(),
     value: metric.querySelector('strong')?.textContent?.trim(),
   }));

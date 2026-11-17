@@ -11,7 +11,8 @@
   const headTh =
     'border-b border-line-strong bg-ink-3 px-2.5 py-[9px] text-left font-mono text-[8px] font-bold tracking-[0.08em] text-muted uppercase';
   const bodyTh = 'border-b border-line px-2.5 py-[9px] text-left align-top';
-  const bodyTd = 'border-b border-line px-2.5 py-[9px] text-left align-top whitespace-normal [overflow-wrap:anywhere]';
+  const bodyTd =
+    'border-b border-line px-2.5 py-[9px] text-left align-top whitespace-normal [overflow-wrap:anywhere]';
   const groupTh =
     'border-b border-line bg-lime/6 px-2.5 py-[7px] text-left font-mono text-[8px] font-extrabold tracking-[0.12em] text-lime uppercase';
 
@@ -49,7 +50,7 @@
 
 <dialog
   bind:this={dialog}
-  class="m-auto w-[min(980px,calc(100vw-28px))] max-h-[88vh] rounded-2xl border border-line-strong bg-ink-2 p-0 text-text shadow-[0_30px_90px_rgba(0,0,0,0.6)] backdrop:bg-black/72 backdrop:backdrop-blur-[4px]"
+  class="m-auto max-h-[88vh] w-[min(980px,calc(100vw-28px))] rounded-2xl border border-line-strong bg-ink-2 p-0 text-text shadow-[0_30px_90px_rgba(0,0,0,0.6)] backdrop:bg-black/72 backdrop:backdrop-blur-[4px]"
   aria-labelledby="guide-title"
   aria-describedby="guide-intro"
   onclose={handleClose}
@@ -60,8 +61,10 @@
       class="flex items-start justify-between gap-4 border-b border-line px-[22px] pt-5 pb-4 compact:px-4 compact:pt-4 compact:pb-[13px]"
     >
       <div>
-        <h2 class="text-[28px] font-black tracking-[-0.04em] compact:text-[23px]">How this works</h2>
-        <p class="mono mt-1 text-[9px] font-bold tracking-[0.14em] text-muted">
+        <h2 class="text-[28px] font-black tracking-[-0.04em] compact:text-[23px]">
+          How this works
+        </h2>
+        <p class="mt-1 mono text-[9px] font-bold tracking-[0.14em] text-muted">
           PIXEL SORT / FIELD GUIDE
         </p>
       </div>
@@ -76,7 +79,10 @@
     </header>
 
     <div class="overflow-auto px-[22px] pt-5 pb-[26px] compact:p-4">
-      <p class="max-w-[72ch] text-[14px] leading-[1.6] text-muted [&_strong]:text-soft-lime" id="guide-intro">
+      <p
+        class="max-w-[72ch] text-[14px] leading-[1.6] text-muted [&_strong]:text-soft-lime"
+        id="guide-intro"
+      >
         The image is the data structure. The algorithm sorts each element by its
         <strong>original position</strong>, not by color. When the permutation is sorted, the
         original image is reconstructed exactly.
@@ -85,9 +91,10 @@
       <ol class="mt-5 mb-0 grid list-none gap-3.5 p-0">
         <li class="flex items-start gap-3">
           <span
-            class="mono inline-flex size-7 flex-none items-center justify-center rounded-[5px] border border-line-strong text-[9px] font-extrabold text-lime"
-            >01</span
+            class="inline-flex size-7 flex-none items-center justify-center rounded-[5px] border border-line-strong mono text-[9px] font-extrabold text-lime"
           >
+            01
+          </span>
           <div>
             <strong class="text-[13px] font-bold">Load an image and choose a block size.</strong>
             <p class="mt-[3px] max-w-[70ch] text-[12px] leading-[1.5] text-muted">
@@ -98,9 +105,10 @@
         </li>
         <li class="flex items-start gap-3">
           <span
-            class="mono inline-flex size-7 flex-none items-center justify-center rounded-[5px] border border-line-strong text-[9px] font-extrabold text-lime"
-            >02</span
+            class="inline-flex size-7 flex-none items-center justify-center rounded-[5px] border border-line-strong mono text-[9px] font-extrabold text-lime"
           >
+            02
+          </span>
           <div>
             <strong class="text-[13px] font-bold">Shuffle the elements.</strong>
             <p class="mt-[3px] max-w-[70ch] text-[12px] leading-[1.5] text-muted">
@@ -111,13 +119,14 @@
         </li>
         <li class="flex items-start gap-3">
           <span
-            class="mono inline-flex size-7 flex-none items-center justify-center rounded-[5px] border border-line-strong text-[9px] font-extrabold text-lime"
-            >03</span
+            class="inline-flex size-7 flex-none items-center justify-center rounded-[5px] border border-line-strong mono text-[9px] font-extrabold text-lime"
           >
+            03
+          </span>
           <div>
-            <strong class="text-[13px] font-bold"
-              >Pick an algorithm and watch the proof sheet re-register.</strong
-            >
+            <strong class="text-[13px] font-bold">
+              Pick an algorithm and watch the proof sheet re-register.
+            </strong>
             <p class="mt-[3px] max-w-[70ch] text-[12px] leading-[1.5] text-muted">
               Compare, swap, write, pivot, and sorted events are highlighted as they happen. The
               inspector names the operation currently on screen.
@@ -176,7 +185,9 @@
                 {#each group.algorithms as algorithm}
                   <tr>
                     <th class={bodyTh} scope="row">
-                      <span class="text-[11.5px] font-bold text-text">{algorithm.metadata.name}</span>
+                      <span class="text-[11.5px] font-bold text-text">
+                        {algorithm.metadata.name}
+                      </span>
                       {#if algorithm.metadata.notes?.length}
                         <ul class="mt-1 mb-0 grid list-none gap-0.5 p-0">
                           {#each algorithm.metadata.notes as note}

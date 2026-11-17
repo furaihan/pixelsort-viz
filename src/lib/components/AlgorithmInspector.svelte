@@ -94,18 +94,17 @@
 
   <div class="panel-body">
     <div
-      class="group grid gap-[5px] rounded-lg border border-line-strong bg-ink-3 px-3 py-[11px] data-[tone=pink]:border-pink/45 data-[tone=lime]:border-lime/45"
+      class="group grid gap-[5px] rounded-lg border border-line-strong bg-ink-3 px-3 py-[11px] data-[tone=lime]:border-lime/45 data-[tone=pink]:border-pink/45"
       data-tone={eventTone(app.currentEvent)}
       aria-live={app.isRunning ? 'off' : 'polite'}
     >
       <div class="flex items-center justify-between gap-2">
         <span
-          class="mono inline-flex min-h-5 items-center rounded-[3px] bg-soft-lime px-1.5 text-[8px] font-extrabold tracking-[0.08em] text-ink group-data-[tone=pink]:bg-pink group-data-[tone=lime]:bg-lime"
-          >{eventTypeLabel(app.currentEvent)}</span
+          class="inline-flex min-h-5 items-center rounded-[3px] bg-soft-lime px-1.5 mono text-[8px] font-extrabold tracking-[0.08em] text-ink group-data-[tone=lime]:bg-lime group-data-[tone=pink]:bg-pink"
         >
-        <span class="mono text-[9px] font-semibold text-muted"
-          >{eventIndex(app.currentEvent)}</span
-        >
+          {eventTypeLabel(app.currentEvent)}
+        </span>
+        <span class="mono text-[9px] font-semibold text-muted">{eventIndex(app.currentEvent)}</span>
       </div>
       <strong class="text-[12.5px] font-bold">{app.currentLabel}</strong>
       <p class="text-[11px] leading-[1.45] text-muted">{app.currentDetail}</p>
@@ -157,9 +156,11 @@
           {#each app.eventLog as entry (entry.id)}
             <li class="flex min-w-0 items-baseline gap-[7px]">
               <span
-                class="mono w-12 flex-none text-[8px] font-bold tracking-[0.04em] text-muted-2 uppercase {logTypeTone}"
-                data-type={entry.type}>{entry.type}</span
+                class="w-12 flex-none mono text-[8px] font-bold tracking-[0.04em] text-muted-2 uppercase {logTypeTone}"
+                data-type={entry.type}
               >
+                {entry.type}
+              </span>
               <span class="truncate text-[10px] text-muted">{entry.text}</span>
             </li>
           {/each}

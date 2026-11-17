@@ -69,7 +69,9 @@ await page.evaluate(() => {
 });
 await page.waitForTimeout(300);
 const notice = await page.evaluate(() => {
-  const element = document.querySelector('section[aria-labelledby="image-panel-title"] [role="status"]');
+  const element = document.querySelector(
+    'section[aria-labelledby="image-panel-title"] [role="status"]',
+  );
   return { visible: Boolean(element), text: (element?.textContent ?? '').trim().slice(0, 80) };
 });
 await page.screenshot({ path: '.impeccable/review/desktop-notice.png', fullPage: true });
@@ -100,7 +102,9 @@ const errorState = await page.evaluate(() => {
       ?.closest('.panel')
       ?.querySelector('.panel-head .chip')
       ?.textContent?.trim(),
-    nowLabel: document.querySelector('[aria-label="Image workspace"] [aria-live] strong')?.textContent?.trim(),
+    nowLabel: document
+      .querySelector('[aria-label="Image workspace"] [aria-live] strong')
+      ?.textContent?.trim(),
     alerts,
   };
 });
@@ -122,9 +126,15 @@ await page.evaluate(() => {
 });
 await page.waitForTimeout(400);
 const validationTone = await page.evaluate(() => ({
-  nowTone: document.querySelector('[aria-label="Image workspace"] [data-tone]')?.getAttribute('data-tone'),
-  nowStamp: document.querySelector('[aria-label="Image workspace"] [data-tone]')?.textContent?.trim(),
-  inspectorTone: document.querySelector('section[aria-labelledby="inspector-title"] [data-tone]')?.getAttribute('data-tone'),
+  nowTone: document
+    .querySelector('[aria-label="Image workspace"] [data-tone]')
+    ?.getAttribute('data-tone'),
+  nowStamp: document
+    .querySelector('[aria-label="Image workspace"] [data-tone]')
+    ?.textContent?.trim(),
+  inspectorTone: document
+    .querySelector('section[aria-labelledby="inspector-title"] [data-tone]')
+    ?.getAttribute('data-tone'),
 }));
 await page.screenshot({
   path: '.impeccable/review/desktop-validation-failed.png',

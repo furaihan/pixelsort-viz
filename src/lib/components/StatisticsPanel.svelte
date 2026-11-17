@@ -14,8 +14,8 @@
       Live statistics
     </h2>
     {#if app.isRunning}
-      <span class="chip chip-lime gap-[5px]">
-        <span class="animate-pulse-soft size-[5px] rounded-full bg-lime" aria-hidden="true"></span>
+      <span class="chip gap-[5px] chip-lime">
+        <span class="size-[5px] animate-pulse-soft rounded-full bg-lime" aria-hidden="true"></span>
         LIVE
       </span>
     {:else}
@@ -54,31 +54,31 @@
     <div class="mt-3 grid grid-cols-3 gap-2.5 border-t border-line pt-[11px]">
       <div>
         <span class="label">Aux writes</span>
-        <strong class="mono mt-[3px] block text-[12px] font-semibold text-soft-lime">
+        <strong class="mt-[3px] block mono text-[12px] font-semibold text-soft-lime">
           {app.counters.auxWrites > 0 ? formatNumber(app.counters.auxWrites) : '—'}
         </strong>
       </div>
       <div>
         <span class="label">Passes</span>
-        <strong class="mono mt-[3px] block text-[12px] font-semibold text-soft-lime">
+        <strong class="mt-[3px] block mono text-[12px] font-semibold text-soft-lime">
           {app.counters.passes > 0 ? formatNumber(app.counters.passes) : '—'}
         </strong>
       </div>
       <div>
         <span class="label">Max depth</span>
-        <strong class="mono mt-[3px] block text-[12px] font-semibold text-soft-lime">
+        <strong class="mt-[3px] block mono text-[12px] font-semibold text-soft-lime">
           {app.counters.maxDepth > 0 ? formatNumber(app.counters.maxDepth) : '—'}
         </strong>
       </div>
     </div>
 
-    <p class="mono mt-3 text-[8px] font-bold tracking-[0.08em] text-muted-2">
+    <p class="mt-3 mono text-[8px] font-bold tracking-[0.08em] text-muted-2">
       TOTAL = COMPARISONS + READS + WRITES
     </p>
 
     <details class="group mt-2.5 border-t border-line">
       <summary
-        class="flex cursor-pointer list-none items-center justify-between gap-2 px-0 pt-2.5 pb-0 text-[11px] font-[650] text-muted [&::-webkit-details-marker]:hidden [&_svg]:text-bubblegum"
+        class="flex cursor-pointer list-none items-center justify-between gap-2 px-0 pt-2.5 pb-0 text-[11px] font-[650] text-muted [&_svg]:text-bubblegum [&::-webkit-details-marker]:hidden"
       >
         <span class="inline-flex items-center gap-1.5">
           <Icon name="info" size={13} />
@@ -90,7 +90,9 @@
       </summary>
       <dl class="mt-2.5 grid gap-2">
         <div class="grid grid-cols-[82px_minmax(0,1fr)] gap-2">
-          <dt class="font-mono text-[9px] font-bold tracking-[0.04em] text-soft-lime">Comparisons</dt>
+          <dt class="font-mono text-[9px] font-bold tracking-[0.04em] text-soft-lime">
+            Comparisons
+          </dt>
           <dd class="text-[10.5px] leading-[1.45] text-muted">
             Every key comparison made by the algorithm.
           </dd>
@@ -129,7 +131,9 @@
           </dd>
         </div>
         <div class="grid grid-cols-[82px_minmax(0,1fr)] gap-2">
-          <dt class="font-mono text-[9px] font-bold tracking-[0.04em] text-soft-lime">Aux writes</dt>
+          <dt class="font-mono text-[9px] font-bold tracking-[0.04em] text-soft-lime">
+            Aux writes
+          </dt>
           <dd class="text-[10.5px] leading-[1.45] text-muted">
             Writes into an auxiliary buffer, such as merge sort's temporary array.
           </dd>
