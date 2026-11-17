@@ -140,7 +140,7 @@ Tailwind 4 is the styling layer, configured entirely in `src/app.css` (no `tailw
 - `@theme` holds the design tokens from `DESIGN.md`. The legacy `:root` custom properties alias them, so `var(--lime)` and `bg-lime` resolve to the same value.
 - `@custom-variant` defines the design's max-width breakpoints (`shell`, `narrow`, `compact`, `tight`, `tiny`) plus `short` for `max-height: 820px`. Tailwind's own `max-*` variants are exclusive, which would shift each boundary by a pixel.
 - `@utility` holds the shared primitives (`panel`, `btn`, `chip`, `alert`, `label`, `mono`, `checkerboard`, `speed-range`). Component markup uses utilities directly; there are no component `<style>` blocks.
-- `@source` is explicit because the project's content detection cannot rely on git metadata.
+- `@source` is explicit and automatic detection is off (`@import 'tailwindcss' source(none)`), so only `src/` and `index.html` are scanned. Without that, class names mentioned in `README.md`, `DESIGN.md` or the verify scripts would generate dead utilities.
 
 Two conventions worth knowing: overlapping utilities of the same property resolve by stylesheet order, not class order, so state variants are built as whole class strings rather than layered on top of a base; and `--radius-sm`/`--radius-md` are overridden to the design's 9px/14px, so `rounded-sm`/`rounded-md` are not Tailwind's defaults.
 
