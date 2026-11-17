@@ -1,30 +1,99 @@
+@import 'tailwindcss';
 @import '@fontsource-variable/archivo';
 @import '@fontsource-variable/jetbrains-mono';
+
+@source './**/*.{svelte,ts}';
+@source '../index.html';
+
+/*
+ * Design tokens. Single source of truth: the @theme block below.
+ * The legacy custom properties in :root alias these, so existing
+ * `var(--ink)`-style references and Tailwind utilities agree.
+ */
+@theme {
+  --color-ink: #111111;
+  --color-ink-2: #171717;
+  --color-ink-3: #1d1d1d;
+  --color-ink-4: #242424;
+  --color-line: #2b2b2b;
+  --color-line-strong: #3a3a3a;
+
+  --color-lime: #c6ff00;
+  --color-pink: #ff1493;
+  --color-soft-lime: #e6ff80;
+  --color-bubblegum: #ff75bd;
+
+  --color-text: #f4f4ec;
+  --color-muted: #a6a69a;
+  --color-muted-2: #8a8a80;
+  --color-danger: #ff5c5c;
+  --color-warning: #ffc857;
+
+  --radius-sm: 9px;
+  --radius-md: 14px;
+
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 14px;
+  --spacing-lg: 20px;
+  --spacing-xl: 28px;
+
+  --font-ui: 'Archivo Variable', Archivo, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, 'Cascadia Code', monospace;
+
+  --text-display: clamp(28px, 3.2vw, 42px);
+  --text-display--line-height: 0.98;
+  --text-display--font-weight: 900;
+  --text-display--letter-spacing: -0.04em;
+
+  --text-headline: 28px;
+  --text-headline--line-height: 1.05;
+  --text-headline--font-weight: 900;
+  --text-headline--letter-spacing: -0.04em;
+
+  --text-title: 18px;
+  --text-title--line-height: 1.1;
+  --text-title--font-weight: 800;
+  --text-title--letter-spacing: -0.03em;
+
+  --text-body: 15px;
+  --text-body--line-height: 1.5;
+  --text-body--font-weight: 400;
+  --text-body--letter-spacing: 0em;
+
+  --text-label: 9px;
+  --text-label--line-height: 1.2;
+  --text-label--font-weight: 700;
+  --text-label--letter-spacing: 0.12em;
+
+  --text-data: 19px;
+  --text-data--line-height: 1.1;
+  --text-data--font-weight: 700;
+  --text-data--letter-spacing: -0.03em;
+}
 
 :root {
   color-scheme: dark;
 
-  --ink: #111111;
-  --ink-2: #171717;
-  --ink-3: #1d1d1d;
-  --ink-4: #242424;
-  --line: #2b2b2b;
-  --line-strong: #3a3a3a;
+  --ink: var(--color-ink);
+  --ink-2: var(--color-ink-2);
+  --ink-3: var(--color-ink-3);
+  --ink-4: var(--color-ink-4);
+  --line: var(--color-line);
+  --line-strong: var(--color-line-strong);
 
-  --lime: #c6ff00;
-  --pink: #ff1493;
-  --soft-lime: #e6ff80;
-  --bubblegum: #ff75bd;
+  --lime: var(--color-lime);
+  --pink: var(--color-pink);
+  --soft-lime: var(--color-soft-lime);
+  --bubblegum: var(--color-bubblegum);
 
-  --text: #f4f4ec;
-  --muted: #a6a69a;
-  --muted-2: #8a8a80;
-  --danger: #ff5c5c;
-  --warning: #ffc857;
+  --text: var(--color-text);
+  --muted: var(--color-muted);
+  --muted-2: var(--color-muted-2);
+  --danger: var(--color-danger);
+  --warning: var(--color-warning);
 
-  --radius: 14px;
-  --radius-sm: 9px;
-
+  --radius: var(--radius-md);
   --font-ui: 'Archivo Variable', Archivo, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, 'Cascadia Code', monospace;
 }
