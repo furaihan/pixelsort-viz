@@ -54,7 +54,7 @@ const audit = await page.evaluate(() => {
   const selectors = [
     '.panel-note',
     '.label',
-    '.metric .label',
+    'section[aria-labelledby="stats-title"] .bg-ink-3 .label',
     '.definitions dd',
     '.algo-notes li',
     '.now-copy span',
@@ -120,7 +120,7 @@ const audit = await page.evaluate(() => {
 await page.emulateMedia({ reducedMotion: 'reduce' });
 await page.waitForTimeout(200);
 const reducedMotion = await page.evaluate(() => {
-  const element = document.querySelector('.live-dot') ?? document.querySelector('.status-dot');
+  const element = document.querySelector('[aria-label="Image workspace"] .animate-pulse-soft') ?? document.querySelector('header [role="status"] span');
   if (!element) return null;
   const style = getComputedStyle(element);
   return {

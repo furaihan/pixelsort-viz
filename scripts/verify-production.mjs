@@ -16,7 +16,7 @@ const debugGlobal = await page.evaluate(() => typeof window.__pixelSort);
 
 await page.getByRole('button', { name: /try a sample/i }).click();
 await page.waitForTimeout(1500);
-await page.locator('label.segment').nth(5).click();
+await page.locator('section[aria-labelledby="granularity-title"] label').nth(5).click();
 await page.waitForTimeout(500);
 await page.getByLabel('Choose an algorithm').selectOption('merge');
 await page.waitForTimeout(300);
@@ -32,7 +32,7 @@ await page.waitForFunction(() => document.body.innerText.includes('COMPLETE'), {
 await page.waitForTimeout(500);
 
 const result = await page.evaluate(() => {
-  const canvas = document.querySelector('.main-canvas');
+  const canvas = document.querySelector('[role="img"] canvas');
   const context = canvas.getContext('2d');
   const points = [
     [930, 300],
@@ -40,12 +40,12 @@ const result = await page.evaluate(() => {
     [100, 100],
     [640, 400],
   ];
-  const stats = Array.from(document.querySelectorAll('.metric')).map((metric) => ({
+  const stats = Array.from(document.querySelectorAll('section[aria-labelledby="stats-title"] .bg-ink-3')).map((metric) => ({
     label: metric.querySelector('.label')?.textContent?.trim(),
     value: metric.querySelector('strong')?.textContent?.trim(),
   }));
   return {
-    status: document.querySelector('.status-pill')?.textContent?.trim(),
+    status: document.querySelector('header [role="status"]')?.textContent?.trim(),
     completeText: document.body.innerText.includes('Complete — original arrangement restored.'),
     stats,
     pixels: points.map(([x, y]) => Array.from(context.getImageData(x, y, 1, 1).data)),

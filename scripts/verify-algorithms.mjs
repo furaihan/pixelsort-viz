@@ -14,7 +14,7 @@ page.on('pageerror', (error) => errors.push(`pageerror: ${error.message}`));
 await page.goto('http://127.0.0.1:5173', { waitUntil: 'networkidle' });
 await page.getByRole('button', { name: /try a sample/i }).click();
 await page.waitForTimeout(1500);
-await page.locator('label.segment').nth(5).click();
+await page.locator('section[aria-labelledby="granularity-title"] label').nth(5).click();
 await page.waitForTimeout(500);
 await page.locator('input[type="range"]').evaluate((element) => {
   element.value = '6';

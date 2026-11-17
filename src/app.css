@@ -105,7 +105,6 @@
   --ink: var(--color-ink);
   --ink-2: var(--color-ink-2);
   --ink-3: var(--color-ink-3);
-  --ink-4: var(--color-ink-4);
   --line: var(--color-line);
   --line-strong: var(--color-line-strong);
 
@@ -116,7 +115,6 @@
 
   --text: var(--color-text);
   --muted: var(--color-muted);
-  --muted-2: var(--color-muted-2);
   --danger: var(--color-danger);
   --warning: var(--color-warning);
 
@@ -249,10 +247,6 @@
   font-variant-numeric: tabular-nums;
 }
 
-@utility muted {
-  color: var(--muted);
-}
-
 @utility panel {
   background: var(--ink-2);
   border: 1px solid var(--line);
@@ -372,11 +366,6 @@
   font-size: 11.5px;
 }
 
-@utility btn-icon {
-  width: var(--btn-icon-width, 38px);
-  padding: 0;
-}
-
 @utility chip {
   display: inline-flex;
   align-items: center;
@@ -435,21 +424,6 @@
   & svg {
     color: var(--warning);
   }
-}
-
-@utility alert-info {
-  border-color: rgba(230, 255, 128, 0.3);
-  background: rgba(230, 255, 128, 0.05);
-  color: var(--soft-lime);
-
-  & svg {
-    color: var(--lime);
-  }
-}
-
-@utility divider {
-  height: 1px;
-  background: var(--line);
 }
 
 /* Transparency checkerboard behind image surfaces. */

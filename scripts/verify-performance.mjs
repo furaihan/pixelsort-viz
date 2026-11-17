@@ -24,7 +24,7 @@ await page.getByRole('button', { name: /try a sample/i }).click();
 await page.waitForTimeout(1500);
 
 // 8x8 blocks: 40,000 elements. Bubble Sort should be blocked by the O(n^2) guard.
-await page.locator('label.segment').nth(1).click();
+await page.locator('section[aria-labelledby="granularity-title"] label').nth(1).click();
 await page.waitForTimeout(500);
 await page.getByLabel('Choose an algorithm').selectOption('bubble');
 await page.waitForTimeout(300);
@@ -64,7 +64,7 @@ const eightPx = await page.evaluate(() => {
 });
 
 // Pixel mode: 1,024,000 elements. Performance mode should handle it.
-await page.locator('label.segment').nth(0).click();
+await page.locator('section[aria-labelledby="granularity-title"] label').nth(0).click();
 await page.waitForTimeout(800);
 const pixelMode = await page.evaluate(() => {
   const app = window.__pixelSort;
@@ -95,7 +95,7 @@ const pixelResult = await page.evaluate(() => {
       break;
     }
   }
-  const canvas = document.querySelector('.main-canvas');
+  const canvas = document.querySelector('[role="img"] canvas');
   const context = canvas.getContext('2d');
   const points = [
     [930, 300],

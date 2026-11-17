@@ -25,7 +25,7 @@ const afterStep = await page.evaluate(() => ({
 }));
 
 // Keyboard: Space should resume, ArrowRight should step, R should reset.
-await page.locator('.footer').click({ position: { x: 10, y: 10 } });
+await page.locator('footer').click({ position: { x: 10, y: 10 } });
 await page.keyboard.press('Space');
 await page.waitForTimeout(500);
 const afterSpace = await page.evaluate(() => window.__pixelSort.status);
@@ -46,7 +46,7 @@ const afterR = await page.evaluate(() => ({
 }));
 
 // Replay from a completed run.
-await page.locator('label.segment').nth(5).click();
+await page.locator('section[aria-labelledby="granularity-title"] label').nth(5).click();
 await page.waitForTimeout(500);
 await page.getByLabel('Choose an algorithm').selectOption('merge');
 await page.waitForTimeout(300);

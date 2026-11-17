@@ -20,8 +20,8 @@ await page.goto('http://127.0.0.1:5173', { waitUntil: 'networkidle' });
 await page.getByRole('button', { name: /try a sample/i }).click();
 await page.waitForTimeout(1500);
 const desktopStage = await page.evaluate(() => {
-  const stage = document.querySelector('.stage');
-  const playback = document.querySelector('.playback');
+  const stage = document.querySelector('section[aria-label="Visualization and playback"]');
+  const playback = document.querySelector('section[aria-label="Playback controls"]');
   return {
     viewportHeight: window.innerHeight,
     stageHeight: Math.round(stage.getBoundingClientRect().height),
@@ -35,8 +35,8 @@ const desktopStage = await page.evaluate(() => {
 await page.setViewportSize({ width: 1366, height: 768 });
 await page.waitForTimeout(400);
 const laptopStage = await page.evaluate(() => {
-  const stage = document.querySelector('.stage');
-  const playback = document.querySelector('.playback');
+  const stage = document.querySelector('section[aria-label="Visualization and playback"]');
+  const playback = document.querySelector('section[aria-label="Playback controls"]');
   playback.scrollIntoView({ block: 'center' });
   return {
     viewportHeight: window.innerHeight,
@@ -69,7 +69,7 @@ await page.evaluate(() => {
 });
 await page.waitForTimeout(300);
 const notice = await page.evaluate(() => {
-  const element = document.querySelector('.notice');
+  const element = document.querySelector('section[aria-labelledby="image-panel-title"] [role="status"]');
   return { visible: Boolean(element), text: (element?.textContent ?? '').trim().slice(0, 80) };
 });
 await page.screenshot({ path: '.impeccable/review/desktop-notice.png', fullPage: true });
@@ -93,14 +93,14 @@ const errorState = await page.evaluate(() => {
   return {
     status: app.status,
     error: app.error,
-    statusPill: document.querySelector('.status-pill')?.textContent?.trim(),
-    primary: document.querySelector('.primary')?.textContent?.trim(),
+    statusPill: document.querySelector('header [role="status"]')?.textContent?.trim(),
+    primary: document.querySelector('.btn-primary')?.textContent?.trim(),
     inspectorBadge: document
       .querySelector('#inspector-title')
       ?.closest('.panel')
       ?.querySelector('.panel-head .chip')
       ?.textContent?.trim(),
-    nowLabel: document.querySelector('.now-copy strong')?.textContent?.trim(),
+    nowLabel: document.querySelector('[aria-label="Image workspace"] [aria-live] strong')?.textContent?.trim(),
     alerts,
   };
 });
@@ -122,9 +122,9 @@ await page.evaluate(() => {
 });
 await page.waitForTimeout(400);
 const validationTone = await page.evaluate(() => ({
-  nowTone: document.querySelector('.now-stamp')?.getAttribute('data-tone'),
-  nowStamp: document.querySelector('.now-stamp')?.textContent?.trim(),
-  inspectorTone: document.querySelector('.current')?.getAttribute('data-tone'),
+  nowTone: document.querySelector('[aria-label="Image workspace"] [data-tone]')?.getAttribute('data-tone'),
+  nowStamp: document.querySelector('[aria-label="Image workspace"] [data-tone]')?.textContent?.trim(),
+  inspectorTone: document.querySelector('section[aria-labelledby="inspector-title"] [data-tone]')?.getAttribute('data-tone'),
 }));
 await page.screenshot({
   path: '.impeccable/review/desktop-validation-failed.png',
@@ -135,12 +135,12 @@ await page.screenshot({
 await page.goto('http://127.0.0.1:5173', { waitUntil: 'networkidle' });
 await page.getByRole('button', { name: /try a sample/i }).click();
 await page.waitForTimeout(1500);
-await page.locator('label.segment').nth(0).click();
+await page.locator('section[aria-labelledby="granularity-title"] label').nth(0).click();
 await page.waitForTimeout(500);
 await page.getByLabel('Choose an algorithm').selectOption('bubble');
 await page.waitForTimeout(300);
 const blocker = await page.evaluate(() => ({
-  disabled: document.querySelector('.primary')?.disabled,
+  disabled: document.querySelector('.btn-primary')?.disabled,
   warning: document.querySelector('.alert')?.textContent?.trim().slice(0, 120),
 }));
 await page.screenshot({ path: '.impeccable/review/desktop-large-blocker.png', fullPage: true });

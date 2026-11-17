@@ -17,7 +17,7 @@ await page.waitForTimeout(1500);
 
 const readPixel = () =>
   page.evaluate(() => {
-    const canvas = document.querySelector('.main-canvas');
+    const canvas = document.querySelector('[role="img"] canvas');
     const context = canvas.getContext('2d');
     return Array.from(context.getImageData(930, 300, 1, 1).data);
   });

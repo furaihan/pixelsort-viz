@@ -72,7 +72,7 @@ const afterAlgorithm = await page.evaluate(() => ({
   status: window.__pixelSort.status,
 }));
 
-await page.locator('label.segment').nth(2).click();
+await page.locator('section[aria-labelledby="granularity-title"] label').nth(2).click();
 await page.waitForTimeout(300);
 const seed3 = await page.evaluate(() => window.__pixelSort.seed);
 

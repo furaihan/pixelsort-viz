@@ -23,7 +23,7 @@ await page.goto('http://127.0.0.1:5173', { waitUntil: 'networkidle' });
 await page.getByRole('button', { name: /try a sample/i }).click();
 await page.waitForTimeout(1500);
 
-await page.locator('label.segment').nth(5).click();
+await page.locator('section[aria-labelledby="granularity-title"] label').nth(5).click();
 await page.waitForTimeout(500);
 await page.getByLabel('Choose an algorithm').selectOption('merge');
 await page.waitForTimeout(300);
@@ -51,7 +51,7 @@ const debug = await page.evaluate(() => {
       break;
     }
   }
-  const canvas = document.querySelector('.main-canvas');
+  const canvas = document.querySelector('[role="img"] canvas');
   const context = canvas.getContext('2d');
   const points = [
     [930, 300],
@@ -79,7 +79,7 @@ delete debug.dataUrl;
 await page.evaluate(() => window.__pixelSort.forceRender());
 await page.waitForTimeout(100);
 const forcedDataUrl = await page.evaluate(() =>
-  document.querySelector('.main-canvas').toDataURL('image/png'),
+  document.querySelector('[role="img"] canvas').toDataURL('image/png'),
 );
 writeFileSync(
   '.impeccable/review/main-canvas-forced.png',
