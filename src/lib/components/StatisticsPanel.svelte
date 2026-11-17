@@ -2,6 +2,9 @@
   import Icon from './Icon.svelte';
   import { app } from '../stores/appState.svelte';
   import { formatNumber, formatTime } from '../utils/format';
+
+  const metricCell = 'grid gap-[3px] bg-ink-3 px-[11px] py-2.5';
+  const metricValue = 'mono text-data';
 </script>
 
 <section class="panel" aria-labelledby="stats-title">
@@ -11,8 +14,8 @@
       Live statistics
     </h2>
     {#if app.isRunning}
-      <span class="chip chip-lime live-chip">
-        <span class="live-dot" aria-hidden="true"></span>
+      <span class="chip chip-lime gap-[5px]">
+        <span class="animate-pulse-soft size-[5px] rounded-full bg-lime" aria-hidden="true"></span>
         LIVE
       </span>
     {:else}
@@ -21,101 +24,121 @@
   </div>
 
   <div class="panel-body">
-    <div class="metrics">
-      <div class="metric">
+    <div class="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-line bg-line">
+      <div class={metricCell}>
         <span class="label">Comparisons</span>
-        <strong class="mono">{formatNumber(app.counters.comparisons)}</strong>
+        <strong class="{metricValue} text-text">{formatNumber(app.counters.comparisons)}</strong>
       </div>
-      <div class="metric">
+      <div class={metricCell}>
         <span class="label">Swaps</span>
-        <strong class="mono">{formatNumber(app.counters.swaps)}</strong>
+        <strong class="{metricValue} text-text">{formatNumber(app.counters.swaps)}</strong>
       </div>
-      <div class="metric">
+      <div class={metricCell}>
         <span class="label">Writes</span>
-        <strong class="mono">{formatNumber(app.counters.writes)}</strong>
+        <strong class="{metricValue} text-text">{formatNumber(app.counters.writes)}</strong>
       </div>
-      <div class="metric">
+      <div class={metricCell}>
         <span class="label">Reads</span>
-        <strong class="mono">{formatNumber(app.counters.reads)}</strong>
+        <strong class="{metricValue} text-text">{formatNumber(app.counters.reads)}</strong>
       </div>
-      <div class="metric metric-emphasis">
+      <div class={metricCell}>
         <span class="label">Total ops</span>
-        <strong class="mono">{formatNumber(app.totalOps)}</strong>
+        <strong class="{metricValue} text-lime">{formatNumber(app.totalOps)}</strong>
       </div>
-      <div class="metric metric-emphasis">
+      <div class={metricCell}>
         <span class="label">Active compute</span>
-        <strong class="mono">{formatTime(app.activeMs)}</strong>
+        <strong class="{metricValue} text-lime">{formatTime(app.activeMs)}</strong>
       </div>
     </div>
 
-    <div class="secondary-metrics">
+    <div class="mt-3 grid grid-cols-3 gap-2.5 border-t border-line pt-[11px]">
       <div>
         <span class="label">Aux writes</span>
-        <strong class="mono">
+        <strong class="mono mt-[3px] block text-[12px] font-semibold text-soft-lime">
           {app.counters.auxWrites > 0 ? formatNumber(app.counters.auxWrites) : '—'}
         </strong>
       </div>
       <div>
         <span class="label">Passes</span>
-        <strong class="mono">
+        <strong class="mono mt-[3px] block text-[12px] font-semibold text-soft-lime">
           {app.counters.passes > 0 ? formatNumber(app.counters.passes) : '—'}
         </strong>
       </div>
       <div>
         <span class="label">Max depth</span>
-        <strong class="mono">
+        <strong class="mono mt-[3px] block text-[12px] font-semibold text-soft-lime">
           {app.counters.maxDepth > 0 ? formatNumber(app.counters.maxDepth) : '—'}
         </strong>
       </div>
     </div>
 
-    <p class="formula mono">TOTAL = COMPARISONS + READS + WRITES</p>
+    <p class="mono mt-3 text-[8px] font-bold tracking-[0.08em] text-muted-2">
+      TOTAL = COMPARISONS + READS + WRITES
+    </p>
 
-    <details class="definitions">
-      <summary>
-        <span>
+    <details class="group mt-2.5 border-t border-line">
+      <summary
+        class="flex cursor-pointer list-none items-center justify-between gap-2 px-0 pt-2.5 pb-0 text-[11px] font-[650] text-muted [&::-webkit-details-marker]:hidden [&_svg]:text-bubblegum"
+      >
+        <span class="inline-flex items-center gap-1.5">
           <Icon name="info" size={13} />
           How counters work
         </span>
-        <span class="summary-chevron"><Icon name="chevron-down" size={14} /></span>
+        <span class="inline-flex transition-transform duration-[160ms] group-open:rotate-180">
+          <Icon name="chevron-down" size={14} />
+        </span>
       </summary>
-      <dl>
-        <div>
-          <dt>Comparisons</dt>
-          <dd>Every key comparison made by the algorithm.</dd>
+      <dl class="mt-2.5 grid gap-2">
+        <div class="grid grid-cols-[82px_minmax(0,1fr)] gap-2">
+          <dt class="font-mono text-[9px] font-bold tracking-[0.04em] text-soft-lime">Comparisons</dt>
+          <dd class="text-[10.5px] leading-[1.45] text-muted">
+            Every key comparison made by the algorithm.
+          </dd>
         </div>
-        <div>
-          <dt>Swaps</dt>
-          <dd>Every exchange of two positions. A swap counts as two reads and two writes.</dd>
+        <div class="grid grid-cols-[82px_minmax(0,1fr)] gap-2">
+          <dt class="font-mono text-[9px] font-bold tracking-[0.04em] text-soft-lime">Swaps</dt>
+          <dd class="text-[10.5px] leading-[1.45] text-muted">
+            Every exchange of two positions. A swap counts as two reads and two writes.
+          </dd>
         </div>
-        <div>
-          <dt>Writes</dt>
-          <dd>Every array-position write, including auxiliary-buffer writes.</dd>
+        <div class="grid grid-cols-[82px_minmax(0,1fr)] gap-2">
+          <dt class="font-mono text-[9px] font-bold tracking-[0.04em] text-soft-lime">Writes</dt>
+          <dd class="text-[10.5px] leading-[1.45] text-muted">
+            Every array-position write, including auxiliary-buffer writes.
+          </dd>
         </div>
-        <div>
-          <dt>Reads</dt>
-          <dd>
+        <div class="grid grid-cols-[82px_minmax(0,1fr)] gap-2">
+          <dt class="font-mono text-[9px] font-bold tracking-[0.04em] text-soft-lime">Reads</dt>
+          <dd class="text-[10.5px] leading-[1.45] text-muted">
             Every algorithmic array access, including auxiliary reads. Rendering reads are excluded.
           </dd>
         </div>
-        <div>
-          <dt>Total ops</dt>
-          <dd>
+        <div class="grid grid-cols-[82px_minmax(0,1fr)] gap-2">
+          <dt class="font-mono text-[9px] font-bold tracking-[0.04em] text-soft-lime">Total ops</dt>
+          <dd class="text-[10.5px] leading-[1.45] text-muted">
             Comparisons + reads + writes. Swaps are not added again because their reads and writes
             are already counted.
           </dd>
         </div>
-        <div>
-          <dt>Active compute</dt>
-          <dd>Time the worker spent computing. Paused time and playback time are excluded.</dd>
+        <div class="grid grid-cols-[82px_minmax(0,1fr)] gap-2">
+          <dt class="font-mono text-[9px] font-bold tracking-[0.04em] text-soft-lime">
+            Active compute
+          </dt>
+          <dd class="text-[10.5px] leading-[1.45] text-muted">
+            Time the worker spent computing. Paused time and playback time are excluded.
+          </dd>
         </div>
-        <div>
-          <dt>Aux writes</dt>
-          <dd>Writes into an auxiliary buffer, such as merge sort's temporary array.</dd>
+        <div class="grid grid-cols-[82px_minmax(0,1fr)] gap-2">
+          <dt class="font-mono text-[9px] font-bold tracking-[0.04em] text-soft-lime">Aux writes</dt>
+          <dd class="text-[10.5px] leading-[1.45] text-muted">
+            Writes into an auxiliary buffer, such as merge sort's temporary array.
+          </dd>
         </div>
-        <div>
-          <dt>Passes / depth</dt>
-          <dd>
+        <div class="grid grid-cols-[82px_minmax(0,1fr)] gap-2">
+          <dt class="font-mono text-[9px] font-bold tracking-[0.04em] text-soft-lime">
+            Passes / depth
+          </dt>
+          <dd class="text-[10.5px] leading-[1.45] text-muted">
             Algorithm-specific passes, partitions, or merge operations, and maximum recursion depth.
           </dd>
         </div>
@@ -123,150 +146,3 @@
     </details>
   </div>
 </section>
-
-<style>
-  .live-chip {
-    gap: 5px;
-  }
-
-  .live-dot {
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
-    background: var(--lime);
-    animation: pulse 1.4s ease-in-out infinite;
-  }
-
-  .metrics {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1px;
-    overflow: hidden;
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    background: var(--line);
-  }
-
-  .metric {
-    display: grid;
-    gap: 3px;
-    padding: 10px 11px;
-    background: var(--ink-3);
-  }
-
-  .metric strong {
-    color: var(--text);
-    font-size: 19px;
-    font-weight: 700;
-    letter-spacing: -0.03em;
-    line-height: 1.1;
-  }
-
-  .metric-emphasis strong {
-    color: var(--lime);
-  }
-
-  .secondary-metrics {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 10px;
-    margin-top: 12px;
-    padding-top: 11px;
-    border-top: 1px solid var(--line);
-  }
-
-  .secondary-metrics strong {
-    display: block;
-    margin-top: 3px;
-    color: var(--soft-lime);
-    font-size: 12px;
-    font-weight: 600;
-  }
-
-  .formula {
-    margin-top: 12px;
-    color: var(--muted-2);
-    font-size: 8px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-  }
-
-  .definitions {
-    margin-top: 10px;
-    border-top: 1px solid var(--line);
-  }
-
-  .definitions summary {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    padding: 10px 0 0;
-    color: var(--muted);
-    font-size: 11px;
-    font-weight: 650;
-    cursor: pointer;
-    list-style: none;
-  }
-
-  .definitions summary::-webkit-details-marker {
-    display: none;
-  }
-
-  .definitions summary span {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .definitions summary :global(svg) {
-    color: var(--bubblegum);
-  }
-
-  .definitions[open] .summary-chevron {
-    transform: rotate(180deg);
-  }
-
-  .summary-chevron {
-    display: inline-flex;
-    transition: transform 160ms ease;
-  }
-
-  .definitions dl {
-    display: grid;
-    gap: 8px;
-    margin-top: 10px;
-  }
-
-  .definitions dl > div {
-    display: grid;
-    grid-template-columns: 82px minmax(0, 1fr);
-    gap: 8px;
-  }
-
-  .definitions dt {
-    color: var(--soft-lime);
-    font-family: var(--font-mono);
-    font-size: 9px;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-  }
-
-  .definitions dd {
-    color: var(--muted);
-    font-size: 10.5px;
-    line-height: 1.45;
-  }
-
-  @keyframes pulse {
-    0%,
-    100% {
-      opacity: 1;
-      transform: scale(1);
-    }
-    50% {
-      opacity: 0.35;
-      transform: scale(0.7);
-    }
-  }
-</style>

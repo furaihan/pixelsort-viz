@@ -70,6 +70,20 @@
   --text-data--line-height: 1.1;
   --text-data--font-weight: 700;
   --text-data--letter-spacing: -0.03em;
+
+  --animate-pulse-soft: pulse 1.4s ease-in-out infinite;
+
+  @keyframes pulse {
+    0%,
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.35;
+      transform: scale(0.7);
+    }
+  }
 }
 
 :root {
