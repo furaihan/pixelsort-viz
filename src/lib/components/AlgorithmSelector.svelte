@@ -10,6 +10,12 @@
     return value === 'depends' ? 'DEPENDS' : value ? 'YES' : 'NO';
   }
 
+  function chipTone(value: boolean | 'depends'): string {
+    if (value === true) return 'chip-lime';
+    if (value === false) return 'chip-pink';
+    return '';
+  }
+
   function handleChange(event: Event): void {
     const select = event.currentTarget as HTMLSelectElement;
     app.setAlgorithm(select.value as AlgorithmId);
@@ -22,7 +28,7 @@
       <Icon name="code" size={15} />
       Algorithm
     </h2>
-    <div class="head-chips">
+    <div class="flex flex-wrap items-center justify-end gap-[5px]">
       {#if app.algorithm.metadata.quadratic}
         <span class="chip chip-pink">QUADRATIC</span>
       {/if}
@@ -31,9 +37,17 @@
   </div>
 
   <div class="panel-body">
-    <label class="select-label" for="algorithm-select">Choose an algorithm</label>
-    <div class="select-wrap">
-      <select id="algorithm-select" value={app.algorithmId} onchange={handleChange}>
+    <label
+      class="mb-1.5 block font-mono text-[9px] font-bold tracking-[0.1em] text-muted uppercase"
+      for="algorithm-select">Choose an algorithm</label
+    >
+    <div class="relative">
+      <select
+        id="algorithm-select"
+        value={app.algorithmId}
+        onchange={handleChange}
+        class="min-h-[42px] w-full cursor-pointer appearance-none rounded-lg border border-line-strong bg-ink-3 py-0 pr-[38px] pl-3 text-[13px] font-[650] text-text hover:border-soft-lime focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lime"
+      >
         {#each ALGORITHM_GROUPS as group}
           <optgroup label={group.label}>
             {#each group.algorithms as algorithm}
@@ -42,51 +56,61 @@
           </optgroup>
         {/each}
       </select>
-      <span class="select-chevron"><Icon name="chevron-down" size={16} /></span>
+      <span
+        class="pointer-events-none absolute top-1/2 right-3 inline-flex -translate-y-1/2 text-muted"
+      >
+        <Icon name="chevron-down" size={16} />
+      </span>
     </div>
 
-    <p class="algorithm-description">{app.algorithm.metadata.description}</p>
+    <p class="mt-3 text-[12.5px] leading-[1.55] text-muted">
+      {app.algorithm.metadata.description}
+    </p>
 
-    <dl class="complexity">
-      <div>
+    <dl
+      class="mt-3.5 grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-line bg-line"
+    >
+      <div class="bg-ink-3 px-2.5 py-[9px]">
         <dt class="label">Best</dt>
-        <dd class="mono">{app.algorithm.metadata.bestTime}</dd>
+        <dd class="mono mt-[3px] text-[10.5px] leading-[1.35] font-semibold text-soft-lime">
+          {app.algorithm.metadata.bestTime}
+        </dd>
       </div>
-      <div>
+      <div class="bg-ink-3 px-2.5 py-[9px]">
         <dt class="label">Average</dt>
-        <dd class="mono">{app.algorithm.metadata.averageTime}</dd>
+        <dd class="mono mt-[3px] text-[10.5px] leading-[1.35] font-semibold text-soft-lime">
+          {app.algorithm.metadata.averageTime}
+        </dd>
       </div>
-      <div>
+      <div class="bg-ink-3 px-2.5 py-[9px]">
         <dt class="label">Worst</dt>
-        <dd class="mono">{app.algorithm.metadata.worstTime}</dd>
+        <dd class="mono mt-[3px] text-[10.5px] leading-[1.35] font-semibold text-soft-lime">
+          {app.algorithm.metadata.worstTime}
+        </dd>
       </div>
-      <div>
+      <div class="bg-ink-3 px-2.5 py-[9px]">
         <dt class="label">Space</dt>
-        <dd class="mono">{app.algorithm.metadata.spaceComplexity}</dd>
+        <dd class="mono mt-[3px] text-[10.5px] leading-[1.35] font-semibold text-soft-lime">
+          {app.algorithm.metadata.spaceComplexity}
+        </dd>
       </div>
     </dl>
 
-    <div class="properties">
-      <span
-        class="chip"
-        class:chip-lime={app.algorithm.metadata.stable === true}
-        class:chip-pink={app.algorithm.metadata.stable === false}
-      >
+    <div class="mt-2.5 flex flex-wrap gap-1.5">
+      <span class="chip {chipTone(app.algorithm.metadata.stable)}">
         STABLE: {propertyLabel(app.algorithm.metadata.stable)}
       </span>
-      <span
-        class="chip"
-        class:chip-lime={app.algorithm.metadata.inPlace === true}
-        class:chip-pink={app.algorithm.metadata.inPlace === false}
-      >
+      <span class="chip {chipTone(app.algorithm.metadata.inPlace)}">
         IN-PLACE: {propertyLabel(app.algorithm.metadata.inPlace)}
       </span>
     </div>
 
     {#if app.algorithm.metadata.notes?.length}
-      <ul class="notes">
+      <ul class="mt-3 mb-0 grid list-none gap-[7px] p-0">
         {#each app.algorithm.metadata.notes as note}
-          <li>
+          <li
+            class="flex items-start gap-[7px] text-[11.5px] leading-[1.45] text-muted [&_svg]:mt-px [&_svg]:flex-none [&_svg]:text-bubblegum"
+          >
             <Icon name="info" size={13} />
             <span>{note}</span>
           </li>
@@ -94,146 +118,13 @@
       </ul>
     {/if}
 
-    <button class="reference-link" type="button" onclick={onopenGuide}>
+    <button
+      class="mt-[13px] inline-flex cursor-pointer items-center gap-[5px] border-0 bg-transparent p-0 text-[11.5px] font-[650] text-soft-lime hover:text-lime"
+      type="button"
+      onclick={onopenGuide}
+    >
       Full algorithm reference
       <Icon name="arrow-right" size={14} />
     </button>
   </div>
 </section>
-
-<style>
-  .head-chips {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-  }
-
-  .select-label {
-    display: block;
-    margin-bottom: 6px;
-    color: var(--muted);
-    font-family: var(--font-mono);
-    font-size: 9px;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-  }
-
-  .select-wrap {
-    position: relative;
-  }
-
-  .select-wrap select {
-    width: 100%;
-    min-height: 42px;
-    appearance: none;
-    padding: 0 38px 0 12px;
-    border: 1px solid var(--line-strong);
-    border-radius: 8px;
-    background: var(--ink-3);
-    color: var(--text);
-    font-size: 13px;
-    font-weight: 650;
-    cursor: pointer;
-  }
-
-  .select-wrap select:hover {
-    border-color: var(--soft-lime);
-  }
-
-  .select-wrap select:focus-visible {
-    outline: 2px solid var(--lime);
-    outline-offset: 2px;
-  }
-
-  .select-chevron {
-    position: absolute;
-    top: 50%;
-    right: 12px;
-    display: inline-flex;
-    color: var(--muted);
-    pointer-events: none;
-    transform: translateY(-50%);
-  }
-
-  .algorithm-description {
-    margin-top: 12px;
-    color: var(--muted);
-    font-size: 12.5px;
-    line-height: 1.55;
-  }
-
-  .complexity {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1px;
-    margin-top: 14px;
-    overflow: hidden;
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    background: var(--line);
-  }
-
-  .complexity > div {
-    padding: 9px 10px;
-    background: var(--ink-3);
-  }
-
-  .complexity dd {
-    margin-top: 3px;
-    color: var(--soft-lime);
-    font-size: 10.5px;
-    font-weight: 600;
-    line-height: 1.35;
-  }
-
-  .properties {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-    margin-top: 10px;
-  }
-
-  .notes {
-    display: grid;
-    gap: 7px;
-    margin: 12px 0 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .notes li {
-    display: flex;
-    align-items: flex-start;
-    gap: 7px;
-    color: var(--muted);
-    font-size: 11.5px;
-    line-height: 1.45;
-  }
-
-  .notes :global(svg) {
-    flex: none;
-    margin-top: 1px;
-    color: var(--bubblegum);
-  }
-
-  .reference-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    margin-top: 13px;
-    padding: 0;
-    border: 0;
-    background: transparent;
-    color: var(--soft-lime);
-    font-size: 11.5px;
-    font-weight: 650;
-    cursor: pointer;
-  }
-
-  .reference-link:hover {
-    color: var(--lime);
-  }
-</style>
