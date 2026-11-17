@@ -6,6 +6,15 @@
 
   let dialog = $state<HTMLDialogElement | null>(null);
 
+  const tableClass =
+    'w-full min-w-0 table-fixed border-collapse text-[11px] compact:min-w-[680px] [&>tbody>tr:last-child>*]:border-b-0';
+  const headTh =
+    'border-b border-line-strong bg-ink-3 px-2.5 py-[9px] text-left font-mono text-[8px] font-bold tracking-[0.08em] text-muted uppercase';
+  const bodyTh = 'border-b border-line px-2.5 py-[9px] text-left align-top';
+  const bodyTd = 'border-b border-line px-2.5 py-[9px] text-left align-top whitespace-normal [overflow-wrap:anywhere]';
+  const groupTh =
+    'border-b border-line bg-lime/6 px-2.5 py-[7px] text-left font-mono text-[8px] font-extrabold tracking-[0.12em] text-lime uppercase';
+
   $effect(() => {
     if (!dialog) return;
     if (open && !dialog.open) {
@@ -30,60 +39,86 @@
   function propertyLabel(value: boolean | 'depends'): string {
     return value === 'depends' ? 'Depends' : value ? 'Yes' : 'No';
   }
+
+  function propertyTone(value: boolean | 'depends'): string {
+    if (value === true) return 'text-lime';
+    if (value === false) return 'text-bubblegum';
+    return 'text-muted';
+  }
 </script>
 
 <dialog
   bind:this={dialog}
-  class="guide-dialog"
+  class="m-auto w-[min(980px,calc(100vw-28px))] max-h-[88vh] rounded-2xl border border-line-strong bg-ink-2 p-0 text-text shadow-[0_30px_90px_rgba(0,0,0,0.6)] backdrop:bg-black/72 backdrop:backdrop-blur-[4px]"
   aria-labelledby="guide-title"
   aria-describedby="guide-intro"
   onclose={handleClose}
   onclick={handleDialogClick}
 >
-  <div class="dialog-inner">
-    <header class="dialog-head">
+  <div class="grid max-h-[88vh] grid-rows-[auto_minmax(0,1fr)]">
+    <header
+      class="flex items-start justify-between gap-4 border-b border-line px-[22px] pt-5 pb-4 compact:px-4 compact:pt-4 compact:pb-[13px]"
+    >
       <div>
-        <h2 id="guide-title">How this works</h2>
-        <p class="dialog-sub mono">PIXEL SORT / FIELD GUIDE</p>
+        <h2 class="text-[28px] font-black tracking-[-0.04em] compact:text-[23px]">How this works</h2>
+        <p class="mono mt-1 text-[9px] font-bold tracking-[0.14em] text-muted">
+          PIXEL SORT / FIELD GUIDE
+        </p>
       </div>
-      <button class="close-btn" type="button" aria-label="Close guide" onclick={close}>
+      <button
+        class="inline-flex size-[34px] flex-none cursor-pointer items-center justify-center rounded-[7px] border border-line-strong bg-ink-3 text-muted hover:border-soft-lime hover:text-text"
+        type="button"
+        aria-label="Close guide"
+        onclick={close}
+      >
         <Icon name="x" size={18} />
       </button>
     </header>
 
-    <div class="dialog-body">
-      <p class="intro" id="guide-intro">
+    <div class="overflow-auto px-[22px] pt-5 pb-[26px] compact:p-4">
+      <p class="max-w-[72ch] text-[14px] leading-[1.6] text-muted [&_strong]:text-soft-lime" id="guide-intro">
         The image is the data structure. The algorithm sorts each element by its
         <strong>original position</strong>, not by color. When the permutation is sorted, the
         original image is reconstructed exactly.
       </p>
 
-      <ol class="steps">
-        <li>
-          <span class="step-number mono">01</span>
+      <ol class="mt-5 mb-0 grid list-none gap-3.5 p-0">
+        <li class="flex items-start gap-3">
+          <span
+            class="mono inline-flex size-7 flex-none items-center justify-center rounded-[5px] border border-line-strong text-[9px] font-extrabold text-lime"
+            >01</span
+          >
           <div>
-            <strong>Load an image and choose a block size.</strong>
-            <p>
+            <strong class="text-[13px] font-bold">Load an image and choose a block size.</strong>
+            <p class="mt-[3px] max-w-[70ch] text-[12px] leading-[1.5] text-muted">
               The grid uses ceiling division, so the rightmost and bottommost tiles can be smaller.
               Edge tiles keep their natural size and never stretch.
             </p>
           </div>
         </li>
-        <li>
-          <span class="step-number mono">02</span>
+        <li class="flex items-start gap-3">
+          <span
+            class="mono inline-flex size-7 flex-none items-center justify-center rounded-[5px] border border-line-strong text-[9px] font-extrabold text-lime"
+            >02</span
+          >
           <div>
-            <strong>Shuffle the elements.</strong>
-            <p>
+            <strong class="text-[13px] font-bold">Shuffle the elements.</strong>
+            <p class="mt-[3px] max-w-[70ch] text-[12px] leading-[1.5] text-muted">
               Fisher–Yates creates a uniform permutation. The same shuffled arrangement is kept when
               you switch algorithms, so comparisons are fair.
             </p>
           </div>
         </li>
-        <li>
-          <span class="step-number mono">03</span>
+        <li class="flex items-start gap-3">
+          <span
+            class="mono inline-flex size-7 flex-none items-center justify-center rounded-[5px] border border-line-strong text-[9px] font-extrabold text-lime"
+            >03</span
+          >
           <div>
-            <strong>Pick an algorithm and watch the proof sheet re-register.</strong>
-            <p>
+            <strong class="text-[13px] font-bold"
+              >Pick an algorithm and watch the proof sheet re-register.</strong
+            >
+            <p class="mt-[3px] max-w-[70ch] text-[12px] leading-[1.5] text-muted">
               Compare, swap, write, pivot, and sorted events are highlighted as they happen. The
               inspector names the operation currently on screen.
             </p>
@@ -91,73 +126,77 @@
         </li>
       </ol>
 
-      <div class="guide-notes">
-        <div class="guide-note">
+      <div class="mt-5 grid grid-cols-2 gap-2.5 compact:grid-cols-1">
+        <div
+          class="flex items-start gap-2 rounded-lg border border-line bg-ink-3 px-3 py-[11px] [&_svg]:mt-px [&_svg]:flex-none [&_svg]:text-lime"
+        >
           <Icon name="info" size={15} />
-          <p>
+          <p class="text-[11px] leading-[1.5] text-muted">
             Counters come from the algorithm, not from animation frames. Total tracked operations =
             comparisons + reads + writes. Swaps are reported separately and are not added again.
           </p>
         </div>
-        <div class="guide-note">
+        <div
+          class="flex items-start gap-2 rounded-lg border border-line bg-ink-3 px-3 py-[11px] [&_svg]:mt-px [&_svg]:flex-none [&_svg]:text-lime"
+        >
           <Icon name="lock" size={15} />
-          <p>
+          <p class="text-[11px] leading-[1.5] text-muted">
             Everything runs in this browser. Image bytes, thumbnails, and pixel data are never sent
             to a server.
           </p>
         </div>
       </div>
 
-      <section class="reference" aria-labelledby="reference-title">
-        <div class="reference-head">
-          <h3 id="reference-title">Algorithm reference</h3>
+      <section class="mt-6" aria-labelledby="reference-title">
+        <div class="mb-2.5 flex items-center justify-between gap-3">
+          <h3 class="text-[18px] font-extrabold tracking-[-0.03em]" id="reference-title">
+            Algorithm reference
+          </h3>
           <span class="chip">10 ALGORITHMS</span>
         </div>
 
-        <div class="table-scroll">
-          <table>
+        <div class="overflow-x-auto rounded-[9px] border border-line">
+          <table class={tableClass}>
             <thead>
               <tr>
-                <th scope="col">Algorithm</th>
-                <th scope="col">Best</th>
-                <th scope="col">Average</th>
-                <th scope="col">Worst</th>
-                <th scope="col">Space</th>
-                <th scope="col">Stable</th>
-                <th scope="col">In-place</th>
+                <th class="{headTh} w-[26%]" scope="col">Algorithm</th>
+                <th class="{headTh} w-[14%]" scope="col">Best</th>
+                <th class="{headTh} w-[17%]" scope="col">Average</th>
+                <th class="{headTh} w-[14%]" scope="col">Worst</th>
+                <th class="{headTh} w-[12%]" scope="col">Space</th>
+                <th class="{headTh} w-[8.5%]" scope="col">Stable</th>
+                <th class="{headTh} w-[8.5%]" scope="col">In-place</th>
               </tr>
             </thead>
             <tbody>
               {#each ALGORITHM_GROUPS as group}
-                <tr class="group-row">
-                  <th colspan="7" scope="colgroup">{group.label}</th>
+                <tr>
+                  <th class={groupTh} colspan="7" scope="colgroup">{group.label}</th>
                 </tr>
                 {#each group.algorithms as algorithm}
                   <tr>
-                    <th scope="row">
-                      <span class="algo-name">{algorithm.metadata.name}</span>
+                    <th class={bodyTh} scope="row">
+                      <span class="text-[11.5px] font-bold text-text">{algorithm.metadata.name}</span>
                       {#if algorithm.metadata.notes?.length}
-                        <ul class="algo-notes">
+                        <ul class="mt-1 mb-0 grid list-none gap-0.5 p-0">
                           {#each algorithm.metadata.notes as note}
-                            <li>{note}</li>
+                            <li
+                              class="max-w-[30ch] text-[9.5px] leading-[1.4] font-normal whitespace-normal text-muted-2"
+                            >
+                              {note}
+                            </li>
                           {/each}
                         </ul>
                       {/if}
                     </th>
-                    <td class="mono">{algorithm.metadata.bestTime}</td>
-                    <td class="mono">{algorithm.metadata.averageTime}</td>
-                    <td class="mono">{algorithm.metadata.worstTime}</td>
-                    <td class="mono">{algorithm.metadata.spaceComplexity}</td>
-                    <td
-                      class:yes={algorithm.metadata.stable === true}
-                      class:no={algorithm.metadata.stable === false}
-                    >
+                    <td class="{bodyTd} mono text-muted">{algorithm.metadata.bestTime}</td>
+                    <td class="{bodyTd} mono text-muted">{algorithm.metadata.averageTime}</td>
+                    <td class="{bodyTd} mono text-muted">{algorithm.metadata.worstTime}</td>
+                    <td class="{bodyTd} mono text-muted">{algorithm.metadata.spaceComplexity}</td>
+                    <td class="{bodyTd} {propertyTone(algorithm.metadata.stable)}">
                       {propertyLabel(algorithm.metadata.stable)}
                     </td>
-                    <td
-                      class:yes={algorithm.metadata.inPlace === true}
-                      class:no={algorithm.metadata.inPlace === false}
-                    >
+                    <td class="{bodyTd} {propertyTone(algorithm.metadata.inPlace)}">
                       {propertyLabel(algorithm.metadata.inPlace)}
                     </td>
                   </tr>
@@ -170,308 +209,3 @@
     </div>
   </div>
 </dialog>
-
-<style>
-  .guide-dialog {
-    width: min(980px, calc(100vw - 28px));
-    max-height: 88vh;
-    padding: 0;
-    border: 1px solid var(--line-strong);
-    border-radius: 16px;
-    background: var(--ink-2);
-    color: var(--text);
-    box-shadow: 0 30px 90px rgba(0, 0, 0, 0.6);
-  }
-
-  .guide-dialog::backdrop {
-    background: rgba(0, 0, 0, 0.72);
-    backdrop-filter: blur(4px);
-  }
-
-  .dialog-inner {
-    display: grid;
-    max-height: 88vh;
-    grid-template-rows: auto minmax(0, 1fr);
-  }
-
-  .dialog-head {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 16px;
-    padding: 20px 22px 16px;
-    border-bottom: 1px solid var(--line);
-  }
-
-  .dialog-head h2 {
-    font-size: 28px;
-    font-weight: 900;
-    letter-spacing: -0.04em;
-  }
-
-  .dialog-sub {
-    margin-top: 4px;
-    color: var(--muted);
-    font-size: 9px;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-  }
-
-  .close-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 34px;
-    height: 34px;
-    flex: none;
-    border: 1px solid var(--line-strong);
-    border-radius: 7px;
-    background: var(--ink-3);
-    color: var(--muted);
-    cursor: pointer;
-  }
-
-  .close-btn:hover {
-    border-color: var(--soft-lime);
-    color: var(--text);
-  }
-
-  .dialog-body {
-    overflow: auto;
-    padding: 20px 22px 26px;
-  }
-
-  .intro {
-    max-width: 72ch;
-    color: var(--muted);
-    font-size: 14px;
-    line-height: 1.6;
-  }
-
-  .intro strong {
-    color: var(--soft-lime);
-  }
-
-  .steps {
-    display: grid;
-    gap: 14px;
-    margin: 20px 0 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .steps li {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-  }
-
-  .step-number {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 28px;
-    flex: none;
-    border: 1px solid var(--line-strong);
-    border-radius: 5px;
-    color: var(--lime);
-    font-size: 9px;
-    font-weight: 800;
-  }
-
-  .steps strong {
-    font-size: 13px;
-    font-weight: 700;
-  }
-
-  .steps p {
-    margin-top: 3px;
-    max-width: 70ch;
-    color: var(--muted);
-    font-size: 12px;
-    line-height: 1.5;
-  }
-
-  .guide-notes {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px;
-    margin-top: 20px;
-  }
-
-  .guide-note {
-    display: flex;
-    align-items: flex-start;
-    gap: 8px;
-    padding: 11px 12px;
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    background: var(--ink-3);
-  }
-
-  .guide-note :global(svg) {
-    flex: none;
-    margin-top: 1px;
-    color: var(--lime);
-  }
-
-  .guide-note p {
-    color: var(--muted);
-    font-size: 11px;
-    line-height: 1.5;
-  }
-
-  .reference {
-    margin-top: 24px;
-  }
-
-  .reference-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 10px;
-  }
-
-  .reference-head h3 {
-    font-size: 18px;
-    font-weight: 800;
-    letter-spacing: -0.03em;
-  }
-
-  .table-scroll {
-    overflow-x: auto;
-    border: 1px solid var(--line);
-    border-radius: 9px;
-  }
-
-  table {
-    width: 100%;
-    min-width: 0;
-    table-layout: fixed;
-    border-collapse: collapse;
-    font-size: 11px;
-  }
-
-  thead th:nth-child(1) {
-    width: 26%;
-  }
-
-  thead th:nth-child(2) {
-    width: 14%;
-  }
-
-  thead th:nth-child(3) {
-    width: 17%;
-  }
-
-  thead th:nth-child(4) {
-    width: 14%;
-  }
-
-  thead th:nth-child(5) {
-    width: 12%;
-  }
-
-  thead th:nth-child(6),
-  thead th:nth-child(7) {
-    width: 8.5%;
-  }
-
-  thead th {
-    padding: 9px 10px;
-    border-bottom: 1px solid var(--line-strong);
-    background: var(--ink-3);
-    color: var(--muted);
-    font-family: var(--font-mono);
-    font-size: 8px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-align: left;
-    text-transform: uppercase;
-  }
-
-  tbody th,
-  tbody td {
-    padding: 9px 10px;
-    border-bottom: 1px solid var(--line);
-    text-align: left;
-    vertical-align: top;
-  }
-
-  tbody tr:last-child th,
-  tbody tr:last-child td {
-    border-bottom: 0;
-  }
-
-  tbody td {
-    color: var(--muted);
-    white-space: normal;
-    overflow-wrap: anywhere;
-  }
-
-  .group-row th {
-    padding: 7px 10px;
-    background: rgba(198, 255, 0, 0.06);
-    color: var(--lime);
-    font-family: var(--font-mono);
-    font-size: 8px;
-    font-weight: 800;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-  }
-
-  .algo-name {
-    color: var(--text);
-    font-size: 11.5px;
-    font-weight: 700;
-  }
-
-  .algo-notes {
-    display: grid;
-    gap: 2px;
-    margin: 4px 0 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .algo-notes li {
-    max-width: 30ch;
-    color: var(--muted-2);
-    font-size: 9.5px;
-    font-weight: 400;
-    line-height: 1.4;
-    white-space: normal;
-  }
-
-  td.yes {
-    color: var(--lime);
-  }
-
-  td.no {
-    color: var(--bubblegum);
-  }
-
-  @media (max-width: 700px) {
-    .dialog-head {
-      padding: 16px 16px 13px;
-    }
-
-    .dialog-head h2 {
-      font-size: 23px;
-    }
-
-    .dialog-body {
-      padding: 16px;
-    }
-
-    .guide-notes {
-      grid-template-columns: 1fr;
-    }
-
-    table {
-      min-width: 680px;
-    }
-  }
-</style>
