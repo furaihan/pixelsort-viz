@@ -4,6 +4,11 @@
 
   const performanceFps = [4, 6, 10, 15, 20, 24, 30];
 
+  const modeButton =
+    'min-h-7 cursor-pointer rounded-[5px] border-0 px-[9px] text-[10.5px] font-bold disabled:cursor-not-allowed disabled:opacity-45';
+  const modeIdle = 'bg-transparent text-muted enabled:hover:text-text';
+  const modeActive = 'bg-lime text-ink';
+
   let speedIndex = $derived(
     Math.max(0, SPEED_PRESETS.indexOf(app.speed as (typeof SPEED_PRESETS)[number])),
   );
@@ -54,7 +59,7 @@
   }
 </script>
 
-<section class="playback panel" aria-label="Playback controls">
+<section class="panel grid gap-3 p-3" aria-label="Playback controls">
   {#if app.error}
     <div class="alert" role="alert">
       <Icon name="alert" size={16} />
@@ -63,15 +68,15 @@
   {/if}
 
   {#if warning}
-    <div class="alert" class:alert-warning={!warningIsBlocker} role="status">
+    <div class="alert {warningIsBlocker ? '' : 'alert-warning'}" role="status">
       <Icon name={warningIsBlocker ? 'alert' : 'info'} size={16} />
       <span>{warning}</span>
     </div>
   {/if}
 
-  <div class="transport">
+  <div class="flex flex-wrap items-center gap-[7px]">
     <button
-      class="btn btn-primary primary"
+      class="btn btn-primary min-w-[142px] compact:flex-1"
       type="button"
       onclick={primaryAction}
       disabled={primaryDisabled}
@@ -127,13 +132,19 @@
     </button>
   </div>
 
-  <div class="playback-lower">
-    <div class="mode-block">
+  <div
+    class="grid grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] gap-4 border-t border-line pt-3 compact:grid-cols-1 compact:gap-3"
+  >
+    <div class="grid content-start gap-1.5">
       <span class="label">Playback mode</span>
-      <div class="mode-toggle" role="group" aria-label="Playback mode">
+      <div
+        class="inline-flex w-fit rounded-[7px] border border-line-strong bg-ink p-0.5"
+        role="group"
+        aria-label="Playback mode"
+      >
         <button
           type="button"
-          class:active={app.mode === 'educational'}
+          class="{modeButton} {app.mode === 'educational' ? modeActive : modeIdle}"
           aria-pressed={app.mode === 'educational'}
           disabled={modeDisabled}
           onclick={() => app.setMode('educational')}
@@ -142,7 +153,7 @@
         </button>
         <button
           type="button"
-          class:active={app.mode === 'performance'}
+          class="{modeButton} {app.mode === 'performance' ? modeActive : modeIdle}"
           aria-pressed={app.mode === 'performance'}
           disabled={modeDisabled}
           onclick={() => app.setMode('performance')}
@@ -150,17 +161,17 @@
           Performance
         </button>
       </div>
-      <span class="mode-note">
+      <span class="text-[10px] leading-[1.4] text-muted-2">
         {app.mode === 'educational'
           ? 'One event at a time. Best for stepping and inspection.'
           : 'Batched updates. Best for large element counts.'}
       </span>
     </div>
 
-    <div class="speed-block">
-      <div class="speed-head">
+    <div class="grid content-start gap-1.5">
+      <div class="flex items-center justify-between gap-2">
         <span class="label">{speedCaption}</span>
-        <span class="mono speed-value">{speedText}</span>
+        <span class="mono text-[11px] font-bold text-lime">{speedText}</span>
       </div>
       <input
         class="speed-range"
@@ -173,9 +184,9 @@
         aria-label={speedCaption}
         aria-valuetext={speedText}
       />
-      <div class="speed-ticks mono" aria-hidden="true">
+      <div class="mono flex justify-between gap-0.5 text-[8px] font-bold text-muted-2" aria-hidden="true">
         {#each SPEED_PRESETS as preset, index}
-          <span class:active={index === speedIndex}>
+          <span class={index === speedIndex ? 'text-soft-lime' : ''}>
             {app.mode === 'performance'
               ? performanceFps[index]
               : preset >= 32
@@ -187,9 +198,11 @@
     </div>
   </div>
 
-  <div class="playback-foot">
-    <span class="mono shortcut-hint">SPACE play/pause · → step · R reset</span>
-    <span class="mono run-state">
+  <div class="flex items-center justify-between gap-2.5 border-t border-line pt-[9px]">
+    <span class="mono text-[8px] font-semibold tracking-[0.04em] text-muted-2 compact:hidden"
+      >SPACE play/pause · → step · R reset</span
+    >
+    <span class="mono text-[8px] font-bold tracking-[0.1em] text-muted">
       {app.modeLabel} · {app.isRunning
         ? 'LIVE'
         : app.isPaused
@@ -200,176 +213,3 @@
     </span>
   </div>
 </section>
-
-<style>
-  .playback {
-    display: grid;
-    gap: 12px;
-    padding: 12px;
-  }
-
-  .transport {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    flex-wrap: wrap;
-  }
-
-  .primary {
-    min-width: 142px;
-  }
-
-  .playback-lower {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
-    gap: 16px;
-    padding-top: 12px;
-    border-top: 1px solid var(--line);
-  }
-
-  .mode-block,
-  .speed-block {
-    display: grid;
-    gap: 6px;
-    align-content: start;
-  }
-
-  .mode-toggle {
-    display: inline-flex;
-    width: fit-content;
-    padding: 2px;
-    border: 1px solid var(--line-strong);
-    border-radius: 7px;
-    background: var(--ink);
-  }
-
-  .mode-toggle button {
-    min-height: 28px;
-    padding: 0 9px;
-    border: 0;
-    border-radius: 5px;
-    background: transparent;
-    color: var(--muted);
-    font-size: 10.5px;
-    font-weight: 700;
-    cursor: pointer;
-  }
-
-  .mode-toggle button:hover:not(:disabled) {
-    color: var(--text);
-  }
-
-  .mode-toggle button.active {
-    background: var(--lime);
-    color: var(--ink);
-  }
-
-  .mode-toggle button:disabled {
-    opacity: 0.45;
-    cursor: not-allowed;
-  }
-
-  .mode-note {
-    color: var(--muted-2);
-    font-size: 10px;
-    line-height: 1.4;
-  }
-
-  .speed-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-  }
-
-  .speed-value {
-    color: var(--lime);
-    font-size: 11px;
-    font-weight: 700;
-  }
-
-  .speed-range {
-    width: 100%;
-    height: 4px;
-    margin: 5px 0 2px;
-    appearance: none;
-    border-radius: 999px;
-    background: var(--line-strong);
-    cursor: pointer;
-  }
-
-  .speed-range::-webkit-slider-thumb {
-    width: 16px;
-    height: 16px;
-    appearance: none;
-    border: 2px solid var(--ink);
-    border-radius: 50%;
-    background: var(--pink);
-    box-shadow: 0 0 0 1px var(--pink);
-  }
-
-  .speed-range::-moz-range-thumb {
-    width: 14px;
-    height: 14px;
-    border: 2px solid var(--ink);
-    border-radius: 50%;
-    background: var(--pink);
-    box-shadow: 0 0 0 1px var(--pink);
-  }
-
-  .speed-range:focus-visible {
-    outline: 2px solid var(--lime);
-    outline-offset: 4px;
-  }
-
-  .speed-ticks {
-    display: flex;
-    justify-content: space-between;
-    gap: 2px;
-    color: var(--muted-2);
-    font-size: 8px;
-    font-weight: 700;
-  }
-
-  .speed-ticks span.active {
-    color: var(--soft-lime);
-  }
-
-  .playback-foot {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    padding-top: 9px;
-    border-top: 1px solid var(--line);
-  }
-
-  .shortcut-hint {
-    color: var(--muted-2);
-    font-size: 8px;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-  }
-
-  .run-state {
-    color: var(--muted);
-    font-size: 8px;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-  }
-
-  @media (max-width: 700px) {
-    .playback-lower {
-      grid-template-columns: 1fr;
-      gap: 12px;
-    }
-
-    .shortcut-hint {
-      display: none;
-    }
-
-    .primary {
-      flex: 1;
-    }
-  }
-</style>
