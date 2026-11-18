@@ -15,12 +15,13 @@ import {
   type AlgorithmId,
   type Counters,
   type SortEvent,
+  type SortVisualEvent,
 } from '../core/sorting/types';
 import { CanvasRenderer } from '../core/visualization/CanvasRenderer';
 import { OverlayTracker } from '../core/visualization/overlayState';
 import { applyEventToPermutation } from '../core/visualization/eventPlayer';
 import type { WorkerResponse } from '../core/workers/workerMessages';
-import { formatNumber } from '../utils/format';
+import { i18n, msg, type LocalizedText } from '../i18n/index.svelte';
 import {
   EDUCATIONAL_RECOMMENDED_MAX,
   assessWorkload,
@@ -50,25 +51,24 @@ export interface ImageInfo {
 export interface LogEntry {
   id: number;
   type: string;
-  text: string;
+  text: LocalizedText;
 }
 
 export const SPEED_PRESETS = [0.5, 1, 2, 4, 8, 16, 32] as const;
 
 export function speedToEventsPerSecond(speed: number): number {
-  if (speed >= 32) return Number.POSITIVE_INFINITY;
-  const table: Record<number, number> = { 0.5: 3, 1: 8, 2: 20, 4: 50, 8: 120, 16: 300 };
+  const table: Record<number, number> = { 0.5: 3, 1: 8, 2: 20, 4: 50, 8: 120, 16: 300, 32: 900 };
   return table[speed] ?? 8;
 }
 
 export function speedLabel(speed: number): string {
-  return speed >= 32 ? 'TURBO' : `${speed}×`;
+  return `${speed}×`;
 }
 
 const STEP_BATCH_SIZE = 512;
 const STEP_LOW_WATERMARK = 256;
-const TURBO_BATCH_SIZE = 4096;
-const TURBO_LOW_WATERMARK = 2048;
+const FAST_BATCH_SIZE = 4096;
+const FAST_LOW_WATERMARK = 2048;
 
 function countAligned(permutation: Uint32Array): number {
   let count = 0;
@@ -106,12 +106,12 @@ export class AppState {
   activeMs = $state(0);
   alignedCount = $state(0);
   currentEvent = $state<SortEvent | null>(null);
-  currentLabel = $state('Drop an image to begin.');
-  currentDetail = $state('PNG, JPEG, or WebP. Everything stays in this browser.');
+  currentLabel = $state<LocalizedText>(msg('state.dropLabel'));
+  currentDetail = $state<LocalizedText>(msg('state.dropDetail'));
   eventLog = $state<LogEntry[]>([]);
-  error = $state<string | null>(null);
-  uploadError = $state<string | null>(null);
-  notice = $state<string | null>(null);
+  error = $state<LocalizedText | null>(null);
+  uploadError = $state<LocalizedText | null>(null);
+  notice = $state<LocalizedText | null>(null);
   isLoadingImage = $state(false);
   ghostOriginal = $state(false);
   seed = $state(0);
@@ -190,24 +190,7 @@ export class AppState {
   }
 
   get statusLabel(): string {
-    switch (this.status) {
-      case 'empty':
-        return 'NO IMAGE';
-      case 'image-loaded':
-        return 'IMAGE LOADED';
-      case 'configured':
-        return 'CONFIGURED';
-      case 'scrambled':
-        return 'READY';
-      case 'running':
-        return 'RUNNING';
-      case 'paused':
-        return 'PAUSED';
-      case 'completed':
-        return 'COMPLETE';
-      case 'error':
-        return 'ERROR';
-    }
+    return i18n.statusLabel(this.status);
   }
 
   get statusTone(): 'idle' | 'live' | 'paused' | 'done' | 'error' {
@@ -226,7 +209,7 @@ export class AppState {
   }
 
   get modeLabel(): string {
-    return this.mode === 'educational' ? 'EDUCATIONAL' : 'PERFORMANCE';
+    return i18n.t(this.mode === 'educational' ? 'mode.educational' : 'mode.performance');
   }
 
   get speedLabel(): string {
@@ -255,6 +238,7 @@ export class AppState {
   forceRender(): void {
     if (this.renderer && this.permutation) {
       this.renderer.renderImage(this.permutation, this.ghostOriginal, null);
+      this.renderer.renderOverlay(this.overlay.snapshot(), performance.now(), true);
       this.imageDirty = false;
       this.dirtyIndices = [];
     }
@@ -315,8 +299,9 @@ export class AppState {
       await this.decodeAndApplyImage(file, token);
     } catch (error) {
       if (token === this.loadToken) {
-        this.uploadError =
-          error instanceof Error ? error.message : 'The sample image could not be created.';
+        this.uploadError = i18n.errorMessage(
+          error instanceof Error ? error.message : 'The sample image could not be created.',
+        );
       }
     } finally {
       if (token === this.loadToken) this.isLoadingImage = false;
@@ -344,7 +329,7 @@ export class AppState {
       this.autoSelectMode();
       this.notice =
         image.width * image.height > WARN_IMAGE_PIXELS
-          ? `Large image: ${this.imageInfo.megapixels.toFixed(1)} MP. Rendering may be slower; a larger block size keeps the run responsive.`
+          ? msg('state.largeImageNotice', { megapixels: this.imageInfo.megapixels })
           : null;
       this.shuffle();
       this.renderer?.setImage(image, this.grid);
@@ -355,10 +340,11 @@ export class AppState {
       }
     } catch (error) {
       if (token === this.loadToken) {
-        this.uploadError =
+        this.uploadError = i18n.errorMessage(
           error instanceof ImageLoadError
             ? error.message
-            : 'The image could not be loaded. Try another file.';
+            : 'The image could not be decoded. It may be corrupted or use an unsupported encoding.',
+        );
       }
     } finally {
       if (token === this.loadToken) this.isLoadingImage = false;
@@ -381,8 +367,8 @@ export class AppState {
     this.seed = 0;
     this.status = 'empty';
     this.resetRunStats();
-    this.currentLabel = 'Drop an image to begin.';
-    this.currentDetail = 'PNG, JPEG, or WebP. Everything stays in this browser.';
+    this.currentLabel = msg('state.dropLabel');
+    this.currentDetail = msg('state.dropDetail');
     this.renderer?.clear();
     this.uploadError = null;
     this.notice = null;
@@ -411,8 +397,8 @@ export class AppState {
       this.alignedCount = this.initialAlignedCount;
       this.status = 'scrambled';
       this.resetRunStats();
-      this.currentLabel = 'Algorithm changed. The same shuffle is ready.';
-      this.currentDetail = 'The initial shuffled arrangement is preserved for a fair comparison.';
+      this.currentLabel = msg('state.algorithmChangedLabel');
+      this.currentDetail = msg('state.algorithmChangedDetail');
     }
   }
 
@@ -457,8 +443,8 @@ export class AppState {
     this.alignedCount = this.initialAlignedCount;
     this.status = 'scrambled';
     this.resetRunStats();
-    this.currentLabel = 'Shuffled and ready.';
-    this.currentDetail = 'The image is a random permutation of its original tiles.';
+    this.currentLabel = msg('state.shuffledLabel');
+    this.currentDetail = msg('state.shuffledDetail');
   }
 
   reset(): void {
@@ -474,12 +460,8 @@ export class AppState {
       this.status = this.image ? 'image-loaded' : 'empty';
     }
     this.resetRunStats();
-    this.currentLabel = this.permutation
-      ? 'Reset to the initial shuffle.'
-      : 'Drop an image to begin.';
-    this.currentDetail = this.permutation
-      ? 'The same shuffled arrangement is ready to run again.'
-      : 'PNG, JPEG, or WebP. Everything stays in this browser.';
+    this.currentLabel = this.permutation ? msg('state.resetLabel') : msg('state.dropLabel');
+    this.currentDetail = this.permutation ? msg('state.resetDetail') : msg('state.dropDetail');
   }
 
   restoreOriginal(): void {
@@ -496,8 +478,8 @@ export class AppState {
       elapsedMs: 0,
       validated: true,
     };
-    this.currentLabel = 'Original arrangement restored.';
-    this.currentDetail = 'No sorting run is active. Shuffle to start again.';
+    this.currentLabel = msg('state.restoredLabel');
+    this.currentDetail = msg('state.restoredDetail');
     this.overlay.setComplete(this.grid.elementCount);
     this.overlayDirty = true;
     this.markCanvasDirty();
@@ -594,11 +576,11 @@ export class AppState {
   }
 
   private currentBatchSize(): number {
-    return this.speed >= 32 ? TURBO_BATCH_SIZE : STEP_BATCH_SIZE;
+    return this.speed >= 32 ? FAST_BATCH_SIZE : STEP_BATCH_SIZE;
   }
 
   private currentLowWatermark(): number {
-    return this.speed >= 32 ? TURBO_LOW_WATERMARK : STEP_LOW_WATERMARK;
+    return this.speed >= 32 ? FAST_LOW_WATERMARK : STEP_LOW_WATERMARK;
   }
 
   private transientTtlMs(): number {
@@ -621,7 +603,7 @@ export class AppState {
                 ? 20
                 : this.speed <= 16
                   ? 24
-                  : 30;
+                  : 22;
     return Math.round(1000 / fps);
   }
 
@@ -629,7 +611,7 @@ export class AppState {
     if (!this.permutation || !this.grid) return;
     const workload = this.workload;
     if (workload && !workload.canStart) {
-      this.error = workload.blockers[0] ?? 'This run is too large to start safely.';
+      this.error = workload.blockers[0] ?? msg('error.runTooLarge');
       return;
     }
 
@@ -641,10 +623,8 @@ export class AppState {
     this.stepPending = paused;
     this.lastFrame = performance.now();
     this.eventBudget = 0;
-    this.currentLabel = paused ? 'Paused — step through the first operation.' : 'Sorting…';
-    this.currentDetail = paused
-      ? 'Use Step to advance one event at a time.'
-      : 'The worker is computing and the canvas is playing back events.';
+    this.currentLabel = paused ? msg('state.pausedLabel') : msg('state.sortingLabel');
+    this.currentDetail = paused ? msg('state.pausedDetail') : msg('state.sortingDetail');
 
     this.worker?.postMessage({
       type: 'start',
@@ -667,7 +647,7 @@ export class AppState {
     };
     this.worker.onerror = (event) => {
       this.status = 'error';
-      this.error = event.message || 'The sorting worker failed.';
+      this.error = i18n.errorMessage(event.message || 'The sorting worker failed.');
       this.terminateWorker();
     };
   }
@@ -738,10 +718,10 @@ export class AppState {
     if (message.type === 'error') {
       this.awaitingBatch = false;
       this.status = 'error';
-      this.error = `${message.message} Reset and try again.`;
+      this.error = msg('error.workerRetry', { message: i18n.errorMessage(message.message) });
       this.currentEvent = null;
-      this.currentLabel = 'Run stopped.';
-      this.currentDetail = 'The sorting worker reported an error. Reset and try again.';
+      this.currentLabel = msg('state.runStoppedLabel');
+      this.currentDetail = msg('state.runStoppedDetail');
       this.pendingEvent = null;
       this.pendingRawLogs = [];
       this.flushStats();
@@ -767,12 +747,10 @@ export class AppState {
       elapsedMs: done.elapsedMs,
       validated,
     };
-    this.currentLabel = validated
-      ? 'Complete — original arrangement restored.'
-      : 'Validation failed.';
+    this.currentLabel = validated ? msg('state.completeLabel') : msg('state.validationFailedLabel');
     this.currentDetail = validated
-      ? 'Every element is back in its original position.'
-      : 'The final permutation is not the original arrangement. Reset and try again.';
+      ? msg('state.completeDetail')
+      : msg('state.validationFailedDetail');
     this.pendingEvent = null;
     this.pendingRawLogs = [];
     this.markCanvasDirty();
@@ -780,14 +758,14 @@ export class AppState {
       this.overlay.setComplete(this.grid?.elementCount ?? 0);
     } else {
       this.overlay.reset();
-      this.error = 'The final permutation did not validate. Reset and try again.';
+      this.error = msg('error.validationRetry');
     }
     this.overlayDirty = true;
     this.eventLog = [
       {
         id: this.logId++,
         type: 'complete',
-        text: validated ? 'Complete — original restored' : 'Validation failed',
+        text: validated ? msg('state.completeLog') : msg('state.validationFailedLog'),
       },
       ...this.eventLog,
     ].slice(0, 6);
@@ -831,13 +809,9 @@ export class AppState {
 
     const eventsPerSecond = speedToEventsPerSecond(this.speed);
     let budget: number;
-    if (!Number.isFinite(eventsPerSecond)) {
-      budget = TURBO_BATCH_SIZE * 2;
-    } else {
-      this.eventBudget += (eventsPerSecond * dt) / 1000;
-      budget = Math.floor(this.eventBudget);
-      this.eventBudget -= budget;
-    }
+    this.eventBudget += (eventsPerSecond * dt) / 1000;
+    budget = Math.floor(this.eventBudget);
+    this.eventBudget -= budget;
 
     let applied = 0;
     while (applied < budget && this.applyNextEvent(now)) applied += 1;
@@ -956,6 +930,26 @@ export class AppState {
         break;
     }
 
+    if ((event.type === 'delta' || event.type === 'snapshot') && event.focus) {
+      this.applySampleFocus(event.focus, now);
+    }
+
+    if (this.overlay.applyEvent(event, now, this.transientTtlMs(), this.status === 'paused')) {
+      this.overlayDirty = true;
+    }
+  }
+
+  /**
+   * Sampled frames already applied their permutation delta. Replay only the
+   * semantic presentation event so swap/write focus is not applied twice and
+   * counters remain algorithm-authored.
+   */
+  private applySampleFocus(event: SortVisualEvent, now: number): void {
+    this.pendingEvent = event;
+    if (isLoggableEvent(event)) {
+      this.pendingRawLogs.push(event);
+      if (this.pendingRawLogs.length > 6) this.pendingRawLogs.shift();
+    }
     if (this.overlay.applyEvent(event, now, this.transientTtlMs(), this.status === 'paused')) {
       this.overlayDirty = true;
     }
@@ -1008,8 +1002,8 @@ export class AppState {
     this.counters = emptyCounters();
     this.activeMs = 0;
     this.currentEvent = null;
-    this.currentLabel = 'Ready to sort.';
-    this.currentDetail = 'Press Start or step through the first operation.';
+    this.currentLabel = msg('state.readyLabel');
+    this.currentDetail = msg('state.readyDetail');
     this.pendingEvent = null;
     this.pendingRawLogs = [];
     this.eventLog = [];
@@ -1028,151 +1022,179 @@ export class AppState {
   }
 
   private describeEvent(event: SortEvent): {
-    label: string;
-    detail: string;
+    label: LocalizedText;
+    detail: LocalizedText;
     log: LogEntry | null;
   } {
     switch (event.type) {
       case 'compare': {
-        const label = event.aux ? 'Compare · aux buffer' : 'Compare';
-        const detail = `Positions ${formatNumber(event.i)} and ${formatNumber(event.j)} · target indices ${formatNumber(event.a)} and ${formatNumber(event.b)}.`;
+        const label = msg(event.aux ? 'event.compareAuxLabel' : 'event.compareLabel');
+        const detail = msg('event.compareDetail', {
+          i: event.i,
+          j: event.j,
+          a: event.a,
+          b: event.b,
+        });
         return {
           label,
           detail,
           log: {
             id: this.logId++,
             type: 'compare',
-            text: `Compare ${formatNumber(event.i)} ↔ ${formatNumber(event.j)}${event.aux ? ' (aux)' : ''}`,
+            text: msg('log.compare', {
+              i: event.i,
+              j: event.j,
+              suffix: event.aux ? msg('error.auxSuffix') : '',
+            }),
           },
         };
       }
       case 'compare-value': {
-        const label = event.aux ? 'Compare key · aux buffer' : 'Compare key';
-        const detail = `Position ${formatNumber(event.index)} holds ${formatNumber(event.value)}; the key is ${formatNumber(event.against)}.`;
+        const label = msg(event.aux ? 'event.compareValueAuxLabel' : 'event.compareValueLabel');
+        const detail = msg('event.compareValueDetail', {
+          index: event.index,
+          value: event.value,
+          against: event.against,
+        });
         return {
           label,
           detail,
           log: {
             id: this.logId++,
             type: 'compare',
-            text: `Compare ${formatNumber(event.index)} with key`,
+            text: msg('log.compareKey', { index: event.index }),
           },
         };
       }
       case 'read': {
         if (event.auxKind === 'counts') {
           return {
-            label: 'Read · count table',
-            detail: `Count slot [${formatNumber(event.index)}] → ${formatNumber(event.value)}.`,
+            label: msg('event.readCountLabel'),
+            detail: msg('event.readCountDetail', { index: event.index, value: event.value }),
             log: null,
           };
         }
         return {
-          label: event.aux ? 'Read · aux buffer' : 'Read',
-          detail: `${event.aux ? 'Aux slot' : 'Position'} ${formatNumber(event.index)} → ${formatNumber(event.value)}.`,
+          label: msg(event.aux ? 'event.readAuxLabel' : 'event.readLabel'),
+          detail: msg('event.readDetail', {
+            location: event.aux ? msg('event.auxSlot') : msg('event.position'),
+            index: event.index,
+            value: event.value,
+          }),
           log: null,
         };
       }
       case 'swap':
         return {
-          label: 'Swap',
-          detail: `Positions ${formatNumber(event.i)} and ${formatNumber(event.j)} exchange places.`,
+          label: msg('event.swapLabel'),
+          detail: msg('event.swapDetail', { i: event.i, j: event.j }),
           log: {
             id: this.logId++,
             type: 'swap',
-            text: `Swap ${formatNumber(event.i)} ↔ ${formatNumber(event.j)}`,
+            text: msg('log.swap', { i: event.i, j: event.j }),
           },
         };
       case 'write': {
         if (event.auxKind === 'counts') {
           return {
-            label: 'Write · count table',
-            detail: `Count slot [${formatNumber(event.index)}] ← ${formatNumber(event.value)}.`,
+            label: msg('event.writeCountLabel'),
+            detail: msg('event.writeCountDetail', { index: event.index, value: event.value }),
             log: {
               id: this.logId++,
               type: 'write',
-              text: `Count[${formatNumber(event.index)}] ← ${formatNumber(event.value)}`,
+              text: msg('log.countWrite', { index: event.index, value: event.value }),
             },
           };
         }
         return {
-          label: event.aux ? 'Write · aux buffer' : 'Write',
-          detail: `${event.aux ? 'Aux slot' : 'Position'} ${formatNumber(event.index)} ← ${formatNumber(event.value)}.`,
+          label: msg(event.aux ? 'event.writeAuxLabel' : 'event.writeLabel'),
+          detail: msg('event.writeDetail', {
+            location: event.aux ? msg('event.auxSlot') : msg('event.position'),
+            index: event.index,
+            value: event.value,
+          }),
           log: {
             id: this.logId++,
             type: 'write',
-            text: `Write ${formatNumber(event.index)}${event.aux ? ' (aux)' : ''}`,
+            text: msg('log.write', {
+              index: event.index,
+              suffix: event.aux ? msg('error.auxSuffix') : '',
+            }),
           },
         };
       }
       case 'mark': {
         if (event.role === 'pivot') {
           return {
-            label: 'Pivot',
-            detail: `Position ${formatNumber(event.indices[0] ?? 0)} is the partition pivot.`,
+            label: msg('event.pivotLabel'),
+            detail: msg('event.pivotDetail', { index: event.indices[0] ?? 0 }),
             log: {
               id: this.logId++,
               type: 'pivot',
-              text: `Pivot ${formatNumber(event.indices[0] ?? 0)}`,
+              text: msg('log.pivot', { index: event.indices[0] ?? 0 }),
             },
           };
         }
         if (event.role === 'sorted') {
           return {
-            label: 'Sorted',
+            label: msg('event.sortedLabel'),
             detail: event.range
-              ? `Positions ${formatNumber(event.range[0])}–${formatNumber(event.range[1] - 1)} are sorted.`
-              : `Position ${formatNumber(event.indices[0] ?? 0)} is in its final place.`,
+              ? msg('event.sortedRangeDetail', { start: event.range[0], end: event.range[1] - 1 })
+              : msg('event.sortedPositionDetail', { index: event.indices[0] ?? 0 }),
             log: {
               id: this.logId++,
               type: 'sorted',
               text: event.range
-                ? `Sorted ${formatNumber(event.range[0])}–${formatNumber(event.range[1] - 1)}`
-                : `Sorted ${formatNumber(event.indices[0] ?? 0)}`,
+                ? msg('log.sortedRange', { start: event.range[0], end: event.range[1] - 1 })
+                : msg('log.sortedPosition', { index: event.indices[0] ?? 0 }),
             },
           };
         }
         if (event.range) {
           return {
-            label: 'Active range',
-            detail: `Positions ${formatNumber(event.range[0])}–${formatNumber(event.range[1] - 1)} are being worked on.`,
+            label: msg('event.rangeLabel'),
+            detail: msg('event.rangeDetail', { start: event.range[0], end: event.range[1] - 1 }),
             log: {
               id: this.logId++,
               type: 'range',
-              text: `Range ${formatNumber(event.range[0])}–${formatNumber(event.range[1] - 1)}`,
+              text: msg('log.range', { start: event.range[0], end: event.range[1] - 1 }),
             },
           };
         }
-        return { label: 'Mark', detail: 'The algorithm marked an element.', log: null };
+        return { label: msg('event.markLabel'), detail: msg('event.markDetail'), log: null };
       }
       case 'pass':
         return {
-          label: 'Pass',
-          detail: event.label,
-          log: { id: this.logId++, type: 'pass', text: event.label },
+          label: msg('event.passLabel'),
+          detail: msg('event.passDetail', { label: i18n.passMessage(event.label) }),
+          log: {
+            id: this.logId++,
+            type: 'pass',
+            text: msg('log.pass', { label: i18n.passMessage(event.label) }),
+          },
         };
       case 'delta':
         return {
-          label: 'Batch update',
-          detail: `${formatNumber(event.indices.length)} positions updated in this frame.`,
+          label: msg('event.batchLabel'),
+          detail: msg('event.batchDetail', { count: event.indices.length }),
           log: null,
         };
       case 'snapshot':
         return {
-          label: 'Snapshot',
-          detail: `${formatNumber(event.data.length)} elements captured.`,
+          label: msg('event.snapshotLabel'),
+          detail: msg('event.snapshotDetail', { count: event.data.length }),
           log: null,
         };
       case 'complete':
         return {
-          label: 'Complete',
+          label: msg('event.completeLabel'),
           detail: event.validated
-            ? 'Every element is back in its original position.'
-            : 'The final permutation did not validate.',
+            ? msg('event.completeDetail')
+            : msg('event.completeInvalidDetail'),
           log: {
             id: this.logId++,
             type: 'complete',
-            text: event.validated ? 'Complete — original restored' : 'Complete — validation failed',
+            text: event.validated ? msg('state.completeLog') : msg('state.validationFailedLog'),
           },
         };
     }

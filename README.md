@@ -13,7 +13,7 @@ The image is the data structure. The algorithm is the process. Live image recons
 - Run Bubble, Selection, Insertion, Merge, Quick, Shell, Heap, Counting, Radix, or Bucket Sort.
 - Watch the image rearrange on a Canvas 2D proof sheet with compare, swap, write, pivot, and sorted highlights.
 - Read exact comparisons, swaps, writes, reads, total operations, active compute time, auxiliary writes, passes, and recursion depth.
-- Play, pause, resume, step, reset, shuffle, restore the original, and change the playback speed.
+- Play, pause, resume, step, reset, shuffle, restore the original, and change the playback speed up to 32×.
 - Switch between educational playback (one event at a time) and performance playback (batched updates for large runs).
 - Inspect the current operation, its indices, and a short explanation.
 - Open the full algorithm reference with complexity, stability, in-place, and implementation notes.
@@ -93,7 +93,7 @@ Each step event carries its own operation deltas, so the displayed counters matc
 Sorting runs in a Web Worker. The worker runs the selected algorithm as a generator and posts bounded batches:
 
 - **Educational mode:** up to 512 events per batch. The main thread plays them at the selected speed and supports single-step inspection.
-- **Performance mode:** the worker samples the working permutation on a time cadence and posts compact deltas or snapshots. The main thread applies them at animation-frame cadence.
+- **Performance mode:** the worker samples the working permutation on a time cadence and posts compact deltas or snapshots with the most meaningful operation from that sample window. The main thread applies them at animation-frame cadence, so large runs still show compare, swap, write, and pivot focus without retaining every event.
 
 The worker waits for an acknowledgement after each batch, so the main-thread queue stays bounded. Pausing simply stops consuming and acknowledging. Reset, shuffle, restore, algorithm changes, and granularity changes terminate the worker and rebuild the run state.
 
@@ -146,7 +146,7 @@ Two conventions worth knowing: overlapping utilities of the same property resolv
 
 ## Known limitations and post-MVP work
 
-- The UI is English-only. Copy is centralized in components, but there is no i18n framework yet.
+- The UI supports English and Bahasa Indonesia. The first visit follows the browser language when it is Indonesian; the header selector overrides and persists the choice locally.
 - Pseudocode highlighting, race mode, side-by-side metric comparison, export, and theme customization are post-MVP.
 - Performance thresholds are initial guardrails; benchmark on representative desktop and mobile devices before treating them as final.
 - Fully transparent pixels may have their RGB values normalized by the browser's canvas pipeline. The visible result matches the browser-decoded image, not necessarily the original file bytes.

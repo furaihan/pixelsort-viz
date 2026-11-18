@@ -5,6 +5,7 @@ import {
   type OpDelta,
   type SortEvent,
   type SortMode,
+  type SortVisualEvent,
 } from './types';
 
 export interface SortContextOptions {
@@ -52,6 +53,8 @@ export class SortContext {
   private sampleIntervalMs: number;
   private readonly now: () => number;
   private depth = 0;
+  private visualFocus: SortVisualEvent | null = null;
+  private visualPriority = 0;
 
   constructor(a: Uint32Array, options: SortContextOptions) {
     this.a = a;
@@ -89,28 +92,42 @@ export class SortContext {
     }
   }
 
+  /**
+   * Keep step mode lossless while giving sample mode one useful visual anchor
+   * per frame. Swaps and comparisons explain the algorithm best, while reads
+   * remain a fallback for algorithms that are between visible mutations.
+   */
+  private emitVisual(event: SortVisualEvent): void {
+    if (this.isStepMode) {
+      this.events.push(event);
+      return;
+    }
+
+    const priority = visualPriority(event);
+    if (priority >= this.visualPriority) {
+      this.visualFocus = event;
+      this.visualPriority = priority;
+    }
+  }
+
   read(index: number): number {
     const value = this.a[index];
     this.counters.reads += 1;
-    if (this.isStepMode) {
-      this.events.push({ type: 'read', index, value, ops: OPS_READ });
-    }
+    this.emitVisual({ type: 'read', index, value, ops: OPS_READ });
     return value;
   }
 
   readAux(aux: Uint32Array, index: number): number {
     const value = aux[index];
     this.counters.reads += 1;
-    if (this.isStepMode) {
-      this.events.push({
-        type: 'read',
-        index,
-        value,
-        aux: true,
-        auxKind: 'buffer',
-        ops: OPS_READ,
-      });
-    }
+    this.emitVisual({
+      type: 'read',
+      index,
+      value,
+      aux: true,
+      auxKind: 'buffer',
+      ops: OPS_READ,
+    });
     return value;
   }
 
@@ -119,18 +136,16 @@ export class SortContext {
     const b = this.a[j];
     this.counters.comparisons += 1;
     this.counters.reads += 2;
-    if (this.isStepMode) {
-      this.events.push({
-        type: 'compare',
-        i,
-        j,
-        a,
-        b,
-        aux,
-        ...(aux ? { auxKind: 'buffer' as const } : {}),
-        ops: OPS_COMPARE,
-      });
-    }
+    this.emitVisual({
+      type: 'compare',
+      i,
+      j,
+      a,
+      b,
+      aux,
+      ...(aux ? { auxKind: 'buffer' as const } : {}),
+      ops: OPS_COMPARE,
+    });
     return a - b;
   }
 
@@ -138,35 +153,31 @@ export class SortContext {
     const value = this.a[index];
     this.counters.comparisons += 1;
     this.counters.reads += 1;
-    if (this.isStepMode) {
-      this.events.push({
-        type: 'compare-value',
-        index,
-        value,
-        against,
-        aux,
-        ...(aux ? { auxKind: 'buffer' as const } : {}),
-        ops: OPS_COMPARE_VALUE,
-      });
-    }
+    this.emitVisual({
+      type: 'compare-value',
+      index,
+      value,
+      against,
+      aux,
+      ...(aux ? { auxKind: 'buffer' as const } : {}),
+      ops: OPS_COMPARE_VALUE,
+    });
     return value - against;
   }
 
   /** Compare two values that were already read. Counts one comparison. */
   compareValues(a: number, b: number, i: number, j: number, aux = false): number {
     this.counters.comparisons += 1;
-    if (this.isStepMode) {
-      this.events.push({
-        type: 'compare',
-        i,
-        j,
-        a,
-        b,
-        aux,
-        ...(aux ? { auxKind: 'buffer' as const } : {}),
-        ops: OPS_COMPARE_VALUES,
-      });
-    }
+    this.emitVisual({
+      type: 'compare',
+      i,
+      j,
+      a,
+      b,
+      aux,
+      ...(aux ? { auxKind: 'buffer' as const } : {}),
+      ops: OPS_COMPARE_VALUES,
+    });
     return a - b;
   }
 
@@ -182,9 +193,8 @@ export class SortContext {
     if (!this.isStepMode) {
       this.markDirty(i);
       this.markDirty(j);
-    } else {
-      this.events.push({ type: 'swap', i, j, ops: OPS_SWAP });
     }
+    this.emitVisual({ type: 'swap', i, j, ops: OPS_SWAP });
   }
 
   write(index: number, value: number): void {
@@ -192,32 +202,29 @@ export class SortContext {
     this.counters.writes += 1;
     if (!this.isStepMode) {
       this.markDirty(index);
-    } else {
-      this.events.push({ type: 'write', index, value, ops: OPS_WRITE });
     }
+    this.emitVisual({ type: 'write', index, value, ops: OPS_WRITE });
   }
 
   writeAux(aux: Uint32Array, index: number, value: number): void {
     aux[index] = value;
     this.counters.writes += 1;
     this.counters.auxWrites += 1;
-    if (this.isStepMode) {
-      this.events.push({
-        type: 'write',
-        index,
-        value,
-        aux: true,
-        auxKind: 'buffer',
-        ops: OPS_WRITE_AUX,
-      });
-    }
+    this.emitVisual({
+      type: 'write',
+      index,
+      value,
+      aux: true,
+      auxKind: 'buffer',
+      ops: OPS_WRITE_AUX,
+    });
   }
 
   countRead(counts: Uint32Array, index: number): number {
     const value = counts[index];
     this.counters.reads += 1;
     if (this.isStepMode) {
-      this.events.push({
+      this.emitVisual({
         type: 'read',
         index,
         value,
@@ -234,7 +241,7 @@ export class SortContext {
     this.counters.writes += 1;
     this.counters.auxWrites += 1;
     if (this.isStepMode) {
-      this.events.push({
+      this.emitVisual({
         type: 'write',
         index,
         value,
@@ -246,16 +253,12 @@ export class SortContext {
   }
 
   mark(indices: number[], role: MarkRole, range?: [number, number]): void {
-    if (this.isStepMode) {
-      this.events.push({ type: 'mark', indices, role, range, ops: OPS_ZERO });
-    }
+    this.emitVisual({ type: 'mark', indices, role, range, ops: OPS_ZERO });
   }
 
   pass(label: string): void {
     this.counters.passes += 1;
-    if (this.isStepMode) {
-      this.events.push({ type: 'pass', label, ops: OPS_PASS });
-    }
+    this.emitVisual({ type: 'pass', label, ops: OPS_PASS });
   }
 
   enterDepth(): void {
@@ -288,13 +291,21 @@ export class SortContext {
 
   private pushSample(): void {
     const count = this.dirtyList.length;
+    const focus = this.visualFocus ?? undefined;
+    this.visualFocus = null;
+    this.visualPriority = 0;
     if (count === 0) {
-      this.events.push({ type: 'delta', indices: new Uint32Array(0), values: new Uint32Array(0) });
+      this.events.push({
+        type: 'delta',
+        indices: new Uint32Array(0),
+        values: new Uint32Array(0),
+        ...(focus ? { focus } : {}),
+      });
       return;
     }
 
     if (count > this.n / 2) {
-      this.events.push({ type: 'snapshot', data: this.a.slice() });
+      this.events.push({ type: 'snapshot', data: this.a.slice(), ...(focus ? { focus } : {}) });
       for (let i = 0; i < count; i += 1) this.dirtyFlags[this.dirtyList[i]] = 0;
       this.dirtyList.length = 0;
       return;
@@ -309,7 +320,7 @@ export class SortContext {
       this.dirtyFlags[index] = 0;
     }
     this.dirtyList.length = 0;
-    this.events.push({ type: 'delta', indices, values });
+    this.events.push({ type: 'delta', indices, values, ...(focus ? { focus } : {}) });
   }
 
   takeEvents(): SortEvent[] {
@@ -325,7 +336,9 @@ export class SortContext {
    * only appear when the main thread receives the final permutation.
    */
   flushPending(): void {
-    if (!this.isStepMode && this.dirtyList.length > 0) this.pushSample();
+    if (!this.isStepMode && (this.dirtyList.length > 0 || this.visualFocus !== null)) {
+      this.pushSample();
+    }
   }
 
   finish(): { counters: Counters; permutation: Uint32Array } {
@@ -334,4 +347,17 @@ export class SortContext {
       permutation: this.a.slice(),
     };
   }
+}
+
+function visualPriority(event: SortVisualEvent): number {
+  if (event.type === 'swap') return 5;
+  if (event.type === 'compare' || event.type === 'compare-value') return 4;
+  if (event.type === 'write') return event.aux ? 2 : 3;
+  if (event.type === 'mark') {
+    if (event.role === 'pivot' || event.role === 'sorted') return 3;
+    if (event.role === 'range' || event.role === 'active') return 2;
+    return 0;
+  }
+  if (event.type === 'pass') return 2;
+  return event.auxKind === 'counts' ? 0 : 1;
 }

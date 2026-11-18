@@ -57,7 +57,14 @@ export function zeroOps(): OpDelta {
   return { c: 0, r: 0, w: 0, s: 0, aw: 0, p: 0 };
 }
 
-export type SortEvent =
+/**
+ * An algorithm operation that can be drawn on the visualization overlay.
+ *
+ * Performance playback does not retain every operation. It carries the most
+ * meaningful operation from each sampled window instead, so large runs still
+ * explain what is happening without building an unbounded event history.
+ */
+export type SortVisualEvent =
   | {
       type: 'compare';
       i: number;
@@ -87,9 +94,23 @@ export type SortEvent =
       range?: [number, number];
       ops: OpDelta;
     }
-  | { type: 'pass'; label: string; ops: OpDelta }
-  | { type: 'delta'; indices: Uint32Array; values: Uint32Array }
-  | { type: 'snapshot'; data: Uint32Array }
+  | { type: 'pass'; label: string; ops: OpDelta };
+
+export type SortEvent =
+  | SortVisualEvent
+  | {
+      type: 'delta';
+      indices: Uint32Array;
+      values: Uint32Array;
+      /** The best operation observed while producing this sampled frame. */
+      focus?: SortVisualEvent;
+    }
+  | {
+      type: 'snapshot';
+      data: Uint32Array;
+      /** The best operation observed while producing this sampled frame. */
+      focus?: SortVisualEvent;
+    }
   | { type: 'complete'; counters: Counters; elapsedMs: number; validated: boolean };
 
 export interface AlgorithmMetadata {

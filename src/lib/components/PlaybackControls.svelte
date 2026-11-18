@@ -1,8 +1,9 @@
 <script lang="ts">
   import Icon, { type IconName } from './Icon.svelte';
   import { app, SPEED_PRESETS } from '../stores/appState.svelte';
+  import { i18n } from '../i18n/index.svelte';
 
-  const performanceFps = [4, 6, 10, 15, 20, 24, 30];
+  const performanceFps = [4, 6, 10, 15, 20, 24, 45];
 
   const modeButton =
     'min-h-7 cursor-pointer rounded-[5px] border-0 px-[9px] text-[10.5px] font-bold disabled:cursor-not-allowed disabled:opacity-45';
@@ -15,14 +16,14 @@
 
   let primaryLabel = $derived(
     app.status === 'running'
-      ? 'Pause'
+      ? i18n.t('playback.pause')
       : app.status === 'paused'
-        ? 'Resume'
+        ? i18n.t('playback.resume')
         : app.status === 'completed'
-          ? 'Replay'
+          ? i18n.t('playback.replay')
           : app.status === 'error'
-            ? 'Retry'
-            : 'Start sorting',
+            ? i18n.t('playback.retry')
+            : i18n.t('playback.start'),
   );
 
   let primaryIcon = $derived((app.status === 'running' ? 'pause' : 'play') as IconName);
@@ -39,9 +40,13 @@
   let warning = $derived(app.workload?.blockers[0] ?? app.workload?.warnings[0] ?? null);
   let warningIsBlocker = $derived((app.workload?.blockers.length ?? 0) > 0);
 
-  let speedText = $derived(app.mode === 'performance' ? `${app.sampleFps} fps` : app.speedLabel);
+  let speedText = $derived(
+    app.mode === 'performance' ? `${app.speedLabel} · ${app.sampleFps} fps` : app.speedLabel,
+  );
 
-  let speedCaption = $derived(app.mode === 'performance' ? 'Sample rate' : 'Playback speed');
+  let speedCaption = $derived(
+    app.mode === 'performance' ? i18n.t('playback.sampleRate') : i18n.t('playback.speed'),
+  );
 
   function primaryAction(): void {
     if (app.status === 'running') {
@@ -61,18 +66,18 @@
   }
 </script>
 
-<section class="grid gap-3 panel p-3" aria-label="Playback controls">
+<section class="grid gap-3 panel p-3" aria-label={i18n.t('playback.title')}>
   {#if app.error}
     <div class="alert" role="alert">
       <Icon name="alert" size={16} />
-      <span>{app.error}</span>
+      <span>{i18n.text(app.error)}</span>
     </div>
   {/if}
 
   {#if warning}
     <div class="alert {warningIsBlocker ? '' : 'alert-warning'}" role="status">
       <Icon name={warningIsBlocker ? 'alert' : 'info'} size={16} />
-      <span>{warning}</span>
+      <span>{i18n.text(warning)}</span>
     </div>
   {/if}
 
@@ -93,11 +98,11 @@
       onclick={() => app.step()}
       disabled={stepDisabled}
       title={app.mode === 'performance'
-        ? 'Step is available in educational mode'
-        : 'Advance one event'}
+        ? i18n.t('playback.performanceStepTitle')
+        : i18n.t('playback.stepTitle')}
     >
       <Icon name="step" size={16} />
-      Step
+      {i18n.t('playback.step')}
     </button>
 
     <button
@@ -105,10 +110,10 @@
       type="button"
       onclick={() => app.shuffle()}
       disabled={!app.hasImage}
-      title="Stop the current run and create a new shuffle"
+      title={i18n.t('playback.shuffleTitle')}
     >
       <Icon name="shuffle" size={16} />
-      Shuffle
+      {i18n.t('playback.shuffle')}
     </button>
 
     <button
@@ -116,10 +121,10 @@
       type="button"
       onclick={() => app.reset()}
       disabled={!app.hasImage}
-      title="Restore the initial shuffled arrangement and clear the counters"
+      title={i18n.t('playback.resetTitle')}
     >
       <Icon name="reset" size={16} />
-      Reset
+      {i18n.t('playback.reset')}
     </button>
 
     <button
@@ -127,10 +132,10 @@
       type="button"
       onclick={() => app.restoreOriginal()}
       disabled={!app.hasImage}
-      title="Show the original image arrangement without sorting"
+      title={i18n.t('playback.restoreTitle')}
     >
       <Icon name="image" size={16} />
-      Restore original
+      {i18n.t('playback.restore')}
     </button>
   </div>
 
@@ -138,11 +143,11 @@
     class="grid grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] gap-4 border-t border-line pt-3 compact:grid-cols-1 compact:gap-3"
   >
     <div class="grid content-start gap-1.5">
-      <span class="label">Playback mode</span>
+      <span class="label">{i18n.t('playback.mode')}</span>
       <div
         class="inline-flex w-fit rounded-[7px] border border-line-strong bg-ink p-0.5"
         role="group"
-        aria-label="Playback mode"
+        aria-label={i18n.t('playback.mode')}
       >
         <button
           type="button"
@@ -151,7 +156,7 @@
           disabled={modeDisabled}
           onclick={() => app.setMode('educational')}
         >
-          Educational
+          {i18n.t('playback.educational')}
         </button>
         <button
           type="button"
@@ -160,13 +165,13 @@
           disabled={modeDisabled}
           onclick={() => app.setMode('performance')}
         >
-          Performance
+          {i18n.t('playback.performance')}
         </button>
       </div>
       <span class="text-[10px] leading-[1.4] text-muted-2">
         {app.mode === 'educational'
-          ? 'One event at a time. Best for stepping and inspection.'
-          : 'Batched updates. Best for large element counts.'}
+          ? i18n.t('playback.educationalNote')
+          : i18n.t('playback.performanceNote')}
       </span>
     </div>
 
@@ -192,11 +197,7 @@
       >
         {#each SPEED_PRESETS as preset, index}
           <span class={index === speedIndex ? 'text-soft-lime' : ''}>
-            {app.mode === 'performance'
-              ? performanceFps[index]
-              : preset >= 32
-                ? 'TURBO'
-                : `${preset}×`}
+            {app.mode === 'performance' ? performanceFps[index] : `${preset}×`}
           </span>
         {/each}
       </div>
@@ -205,16 +206,16 @@
 
   <div class="flex items-center justify-between gap-2.5 border-t border-line pt-[9px]">
     <span class="mono text-[8px] font-semibold tracking-[0.04em] text-muted-2 compact:hidden">
-      SPACE play/pause · → step · R reset
+      {i18n.t('playback.shortcuts')}
     </span>
     <span class="mono text-[8px] font-bold tracking-[0.1em] text-muted">
       {app.modeLabel} · {app.isRunning
-        ? 'LIVE'
+        ? i18n.t('playback.live')
         : app.isPaused
-          ? 'PAUSED'
+          ? i18n.t('playback.paused')
           : app.isComplete
-            ? 'DONE'
-            : 'READY'}
+            ? i18n.t('playback.done')
+            : i18n.t('playback.ready')}
     </span>
   </div>
 </section>

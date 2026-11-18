@@ -84,6 +84,22 @@ describe('SortContext instrumentation', () => {
     }
   });
 
+  it('keeps the most meaningful sampled operation as visual focus', () => {
+    let time = 0;
+    const context = createContext([1, 0], 'sample', 10, () => time);
+    context.compare(0, 1);
+    context.swap(0, 1);
+    for (let i = 0; i < 255; i += 1) context.tick();
+    time = 200;
+    expect(context.tick()).toBe(true);
+
+    const event = context.events[0];
+    expect(['delta', 'snapshot']).toContain(event.type);
+    if (event.type === 'delta' || event.type === 'snapshot') {
+      expect(event.focus).toMatchObject({ type: 'swap', i: 0, j: 1 });
+    }
+  });
+
   it('returns a copy of the final permutation', () => {
     const context = createContext([1, 0]);
     context.swap(0, 1);
