@@ -1,22 +1,22 @@
 import { elementRect } from '../image/grid';
 import type { GridSpec, ImageSource } from '../image/imageTypes';
-import type { MarkRole } from '../sorting/types';
+import type { Highlight, OverlaySnapshot } from './overlayState';
+import { computeRangeShape, type RangeShape, type Rect2D } from './rangeGeometry';
 
-export interface Highlight {
-  kind: 'compare' | 'swap' | 'write' | 'read' | 'pivot' | 'sorted' | 'active';
-  indices: number[];
-  role?: MarkRole;
-  range?: [number, number];
-  createdAt: number;
-  ttl: number;
-  label?: string;
-}
+export type { Highlight, OverlaySnapshot };
 
 const LIME = '#C6FF00';
+const LIME_SOFT_STROKE = 'rgba(198, 255, 0, 0.8)';
+const LIME_TINT = 'rgba(198, 255, 0, 0.06)';
 const PINK = '#FF1493';
 const SOFT_LIME = '#E6FF80';
 const BUBBLEGUM = '#FF75BD';
 const INK = '#111111';
+const INK_BACKING = 'rgba(17, 17, 17, 0.65)';
+
+function rectsOverlap(a: Rect2D, b: Rect2D): boolean {
+  return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+}
 
 export class CanvasRenderer {
   private mainCanvas: HTMLCanvasElement | null = null;
@@ -31,20 +31,26 @@ export class CanvasRenderer {
   private output: ImageData | null = null;
   private output32: Uint32Array | null = null;
   private lastPermutation: Uint32Array | null = null;
+  private renderedPermutation: Uint32Array | null = null;
+  private renderedGhost = false;
   private resizeObserver: ResizeObserver | null = null;
   private cssWidth = 0;
   private cssHeight = 0;
   private dpr = 1;
+  private overlayNeedsRedraw = true;
+  private onResizeCallback: (() => void) | null = null;
 
   attach(
     mainCanvas: HTMLCanvasElement,
     overlayCanvas: HTMLCanvasElement,
     wrapper: HTMLElement,
+    onResize?: () => void,
   ): void {
     this.destroy();
     this.mainCanvas = mainCanvas;
     this.overlayCanvas = overlayCanvas;
     this.wrapper = wrapper;
+    this.onResizeCallback = onResize ?? null;
     this.mainContext = mainCanvas.getContext('2d', { alpha: true });
     this.overlayContext = overlayCanvas.getContext('2d', { alpha: true });
     this.originalCanvas = document.createElement('canvas');
@@ -68,6 +74,8 @@ export class CanvasRenderer {
       image.height,
     );
     this.output32 = new Uint32Array(this.output.data.buffer);
+    this.renderedPermutation = null;
+    this.renderedGhost = false;
 
     if (this.mainCanvas) {
       this.mainCanvas.width = image.width;
@@ -79,6 +87,7 @@ export class CanvasRenderer {
       this.originalCanvas.height = image.height;
       const context = this.originalCanvas.getContext('2d');
       if (context) {
+        context.imageSmoothingEnabled = false;
         context.putImageData(
           new ImageData(new Uint8ClampedArray(image.data), image.width, image.height),
           0,
@@ -101,9 +110,15 @@ export class CanvasRenderer {
     this.overlayCanvas.width = Math.max(1, Math.round(width * this.dpr));
     this.overlayCanvas.height = Math.max(1, Math.round(height * this.dpr));
     this.overlayContext.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+    this.overlayNeedsRedraw = true;
+    this.onResizeCallback?.();
   }
 
-  renderImage(permutation: Uint32Array, ghostOriginal: boolean): void {
+  renderImage(
+    permutation: Uint32Array,
+    ghostOriginal: boolean,
+    dirtyIndices?: readonly number[] | null,
+  ): void {
     if (!this.grid || !this.source32 || !this.output32 || !this.output || !this.mainContext) {
       return;
     }
@@ -111,65 +126,216 @@ export class CanvasRenderer {
 
     const { width, height, blockSize, columns, elementCount } = this.grid;
 
-    if (blockSize === 1) {
-      for (let i = 0; i < elementCount; i += 1) {
-        this.output32[i] = this.source32[permutation[i]];
+    const canIncremental =
+      this.renderedPermutation !== null &&
+      this.renderedPermutation.length === elementCount &&
+      this.renderedGhost === ghostOriginal &&
+      dirtyIndices !== null &&
+      dirtyIndices !== undefined &&
+      dirtyIndices.length <= Math.max(256, elementCount >>> 3);
+
+    if (canIncremental && dirtyIndices) {
+      if (dirtyIndices.length === 0) return;
+      let minX = width;
+      let minY = height;
+      let maxX = 0;
+      let maxY = 0;
+      let anyChanged = false;
+
+      if (blockSize === 1) {
+        for (let i = 0; i < dirtyIndices.length; i += 1) {
+          const pos = dirtyIndices[i];
+          if (pos < 0 || pos >= elementCount) continue;
+          const src = permutation[pos];
+          if (this.renderedPermutation![pos] === src) continue;
+          this.renderedPermutation![pos] = src;
+          this.output32[pos] = this.source32[src];
+          const px = pos % width;
+          const py = (pos / width) | 0;
+          if (px < minX) minX = px;
+          if (py < minY) minY = py;
+          if (px + 1 > maxX) maxX = px + 1;
+          if (py + 1 > maxY) maxY = py + 1;
+          anyChanged = true;
+        }
+      } else {
+        for (let i = 0; i < dirtyIndices.length; i += 1) {
+          const pos = dirtyIndices[i];
+          if (pos < 0 || pos >= elementCount) continue;
+          const src = permutation[pos];
+          if (this.renderedPermutation![pos] === src) continue;
+          this.renderedPermutation![pos] = src;
+          const destColumn = pos % columns;
+          const destRow = (pos / columns) | 0;
+          const dx = destColumn * blockSize;
+          const dy = destRow * blockSize;
+          const dw = Math.min(blockSize, width - dx);
+          const dh = Math.min(blockSize, height - dy);
+          this.copyTile(src, dx, dy, dw, dh, width, height, blockSize, columns);
+          if (dx < minX) minX = dx;
+          if (dy < minY) minY = dy;
+          if (dx + dw > maxX) maxX = dx + dw;
+          if (dy + dh > maxY) maxY = dy + dh;
+          anyChanged = true;
+        }
       }
+
+      if (!anyChanged) return;
+
+      const rw = maxX - minX;
+      const rh = maxY - minY;
+      if (rw * rh < width * height * 0.45) {
+        this.mainContext.putImageData(this.output, 0, 0, minX, minY, rw, rh);
+        if (ghostOriginal && this.originalCanvas) {
+          this.mainContext.save();
+          this.mainContext.globalAlpha = 0.18;
+          this.mainContext.imageSmoothingEnabled = false;
+          this.mainContext.drawImage(this.originalCanvas, minX, minY, rw, rh, minX, minY, rw, rh);
+          this.mainContext.restore();
+        }
+        return;
+      }
+
+      this.mainContext.putImageData(this.output, 0, 0);
+      this.drawGhostFull(ghostOriginal);
+      return;
+    }
+
+    // Full pass (only copies tiles that actually differ if output32 is already warm).
+    if (!this.renderedPermutation || this.renderedPermutation.length !== elementCount) {
+      if (blockSize === 1) {
+        for (let i = 0; i < elementCount; i += 1) {
+          this.output32[i] = this.source32[permutation[i]];
+        }
+      } else {
+        for (let position = 0; position < elementCount; position += 1) {
+          const destColumn = position % columns;
+          const destRow = (position / columns) | 0;
+          const dx = destColumn * blockSize;
+          const dy = destRow * blockSize;
+          const dw = Math.min(blockSize, width - dx);
+          const dh = Math.min(blockSize, height - dy);
+          this.copyTile(permutation[position], dx, dy, dw, dh, width, height, blockSize, columns);
+        }
+      }
+      this.renderedPermutation = permutation.slice();
     } else {
-      for (let position = 0; position < elementCount; position += 1) {
-        const sourceIndex = permutation[position];
-        const sourceColumn = sourceIndex % columns;
-        const sourceRow = Math.floor(sourceIndex / columns);
-        const sx = sourceColumn * blockSize;
-        const sy = sourceRow * blockSize;
-        const sw = Math.min(blockSize, width - sx);
-        const sh = Math.min(blockSize, height - sy);
-
-        const destColumn = position % columns;
-        const destRow = Math.floor(position / columns);
-        const dx = destColumn * blockSize;
-        const dy = destRow * blockSize;
-        const dw = Math.min(blockSize, width - dx);
-        const dh = Math.min(blockSize, height - dy);
-
-        // Edge tiles keep their natural size. The unused part of their B x B
-        // cell is transparent, so a small edge tile never stretches.
-        if (sw < blockSize || sh < blockSize) {
-          for (let row = 0; row < dh; row += 1) {
-            const dest = (dy + row) * width + dx;
-            this.output32.fill(0, dest, dest + dw);
+      if (blockSize === 1) {
+        for (let i = 0; i < elementCount; i += 1) {
+          const src = permutation[i];
+          if (this.renderedPermutation[i] !== src) {
+            this.renderedPermutation[i] = src;
+            this.output32[i] = this.source32[src];
           }
         }
-
-        const copyWidth = Math.min(sw, dw);
-        const copyHeight = Math.min(sh, dh);
-        for (let row = 0; row < copyHeight; row += 1) {
-          const sourceOffset = (sy + row) * width + sx;
-          const destOffset = (dy + row) * width + dx;
-          for (let column = 0; column < copyWidth; column += 1) {
-            this.output32[destOffset + column] = this.source32[sourceOffset + column];
+      } else {
+        for (let position = 0; position < elementCount; position += 1) {
+          const src = permutation[position];
+          if (this.renderedPermutation[position] !== src) {
+            this.renderedPermutation[position] = src;
+            const destColumn = position % columns;
+            const destRow = (position / columns) | 0;
+            const dx = destColumn * blockSize;
+            const dy = destRow * blockSize;
+            const dw = Math.min(blockSize, width - dx);
+            const dh = Math.min(blockSize, height - dy);
+            this.copyTile(src, dx, dy, dw, dh, width, height, blockSize, columns);
           }
         }
       }
     }
 
+    this.renderedGhost = ghostOriginal;
     this.mainContext.putImageData(this.output, 0, 0);
+    this.drawGhostFull(ghostOriginal);
+  }
 
-    if (ghostOriginal && this.originalCanvas) {
-      this.mainContext.save();
-      this.mainContext.globalAlpha = 0.18;
-      this.mainContext.drawImage(this.originalCanvas, 0, 0);
-      this.mainContext.restore();
+  private drawGhostFull(ghostOriginal: boolean): void {
+    if (!ghostOriginal || !this.originalCanvas || !this.mainContext) return;
+    this.mainContext.save();
+    this.mainContext.globalAlpha = 0.18;
+    this.mainContext.imageSmoothingEnabled = false;
+    this.mainContext.drawImage(this.originalCanvas, 0, 0);
+    this.mainContext.restore();
+  }
+
+  private copyTile(
+    sourceIndex: number,
+    dx: number,
+    dy: number,
+    dw: number,
+    dh: number,
+    width: number,
+    height: number,
+    blockSize: number,
+    columns: number,
+  ): void {
+    const sourceColumn = sourceIndex % columns;
+    const sourceRow = (sourceIndex / columns) | 0;
+    const sx = sourceColumn * blockSize;
+    const sy = sourceRow * blockSize;
+    const sw = Math.min(blockSize, width - sx);
+    const sh = Math.min(blockSize, height - sy);
+
+    // Edge tiles keep their natural size. The unused part of their B x B
+    // cell is transparent, so a small edge tile never stretches.
+    if (sw < blockSize || sh < blockSize) {
+      for (let row = 0; row < dh; row += 1) {
+        const dest = (dy + row) * width + dx;
+        this.output32!.fill(0, dest, dest + dw);
+      }
+    }
+
+    const copyWidth = Math.min(sw, dw);
+    const copyHeight = Math.min(sh, dh);
+    for (let row = 0; row < copyHeight; row += 1) {
+      const sourceOffset = (sy + row) * width + sx;
+      const destOffset = (dy + row) * width + dx;
+      for (let column = 0; column < copyWidth; column += 1) {
+        this.output32![destOffset + column] = this.source32![sourceOffset + column];
+      }
     }
   }
 
-  renderOverlay(highlights: Highlight[], now: number): void {
+  renderOverlay(overlay: OverlaySnapshot, now: number, force = false): void {
     if (!this.overlayContext || !this.grid) return;
+    if (!force && !this.overlayNeedsRedraw) return;
+    this.overlayNeedsRedraw = false;
+
     const context = this.overlayContext;
     context.clearRect(0, 0, this.cssWidth, this.cssHeight);
 
-    for (const highlight of highlights) {
-      if (now - highlight.createdAt > highlight.ttl) continue;
+    // 1. Persistent sorted regions and singletons.
+    this.drawSortedState(context, overlay.sortedRanges);
+
+    // 2. Scoped active range.
+    if (overlay.activeRange) {
+      this.drawRange(
+        context,
+        overlay.activeRange[0],
+        overlay.activeRange[1],
+        SOFT_LIME,
+        [6, 5],
+        'RANGE',
+        false,
+      );
+    }
+
+    // 3. Active element marker (e.g. Selection Sort's current min).
+    if (overlay.activeIndex !== null && overlay.activeIndex !== overlay.pivotIndex) {
+      this.drawElement(context, overlay.activeIndex, BUBBLEGUM, [3, 4], 0, 0);
+    }
+
+    // 4. Active partition pivot.
+    if (overlay.pivotIndex !== null) {
+      this.drawElementWithBadge(context, overlay.pivotIndex, PINK, [4, 4], 0, 0, 'P');
+    }
+
+    // 5. Transient operation highlights.
+    for (const highlight of overlay.transients) {
+      if (highlight.ttl !== Number.POSITIVE_INFINITY && now - highlight.createdAt > highlight.ttl) {
+        continue;
+      }
       this.drawHighlight(context, highlight);
     }
   }
@@ -181,6 +347,10 @@ export class CanvasRenderer {
     if (this.overlayContext) {
       this.overlayContext.clearRect(0, 0, this.cssWidth, this.cssHeight);
     }
+    this.lastPermutation = null;
+    this.renderedPermutation = null;
+    this.renderedGhost = false;
+    this.overlayNeedsRedraw = true;
   }
 
   /** Dev-only diagnostics used by the headless verification scripts. */
@@ -251,6 +421,7 @@ export class CanvasRenderer {
   destroy(): void {
     this.resizeObserver?.disconnect();
     this.resizeObserver = null;
+    this.onResizeCallback = null;
     this.mainCanvas = null;
     this.overlayCanvas = null;
     this.wrapper = null;
@@ -262,10 +433,20 @@ export class CanvasRenderer {
     this.source32 = null;
     this.output = null;
     this.output32 = null;
+    this.lastPermutation = null;
+    this.renderedPermutation = null;
   }
 
-  private displayRect(index: number): { x: number; y: number; w: number; h: number } | null {
-    if (!this.grid) return null;
+  private displayRect(index: number): Rect2D | null {
+    if (
+      !this.grid ||
+      index < 0 ||
+      index >= this.grid.elementCount ||
+      this.cssWidth <= 0 ||
+      this.cssHeight <= 0
+    ) {
+      return null;
+    }
     const rect = elementRect(index, this.grid);
     const scaleX = this.cssWidth / this.grid.width;
     const scaleY = this.cssHeight / this.grid.height;
@@ -285,15 +466,68 @@ export class CanvasRenderer {
     return { x, y, w, h };
   }
 
-  private drawHighlight(context: CanvasRenderingContext2D, highlight: Highlight): void {
-    if (highlight.range) {
-      this.drawRange(context, highlight.range, highlight.kind === 'sorted' ? LIME : SOFT_LIME);
+  private drawSortedState(
+    context: CanvasRenderingContext2D,
+    sortedRanges: ReadonlyArray<readonly [number, number]>,
+  ): void {
+    if (!this.grid || sortedRanges.length === 0) return;
+
+    const total = this.grid.elementCount;
+    if (sortedRanges.length === 1 && sortedRanges[0][0] === 0 && sortedRanges[0][1] >= total) {
+      context.save();
+      context.strokeStyle = LIME;
+      context.lineWidth = 2;
+      context.setLineDash([]);
+      context.strokeRect(1, 1, Math.max(0, this.cssWidth - 2), Math.max(0, this.cssHeight - 2));
+      context.restore();
       return;
     }
 
+    const singletons: number[] = [];
+    for (let i = 0; i < sortedRanges.length; i += 1) {
+      const [start, end] = sortedRanges[i];
+      if (end - start === 1) {
+        singletons.push(start);
+      } else if (end - start >= 2) {
+        this.drawRange(context, start, end, LIME_SOFT_STROKE, [], '', true);
+      }
+    }
+
+    if (singletons.length > 0) {
+      context.save();
+      context.strokeStyle = LIME;
+      context.lineWidth = 2;
+      context.setLineDash([]);
+      context.beginPath();
+      for (let i = 0; i < singletons.length; i += 1) {
+        const rect = this.displayRect(singletons[i]);
+        if (!rect) continue;
+        const tick = Math.min(7, Math.max(4, Math.min(rect.w, rect.h) * 0.4));
+        const rx = Math.min(this.cssWidth - 1, rect.x + rect.w);
+        const ry = Math.min(this.cssHeight - 1, rect.y + rect.h);
+        context.moveTo(rx - tick, ry - 1);
+        context.lineTo(rx - 1, ry - 1);
+        context.lineTo(rx - 1, ry - tick);
+      }
+      context.stroke();
+      context.restore();
+    }
+  }
+
+  private drawHighlight(context: CanvasRenderingContext2D, highlight: Highlight): void {
     if (highlight.kind === 'compare' && highlight.indices.length >= 2) {
-      this.drawElement(context, highlight.indices[0], LIME, [], -2, -2, 'A');
-      this.drawElement(context, highlight.indices[1], PINK, [5, 4], 2, 2, 'B');
+      this.drawCompare(
+        context,
+        highlight.indices[0],
+        highlight.indices[1],
+        highlight.aux ? 'A*' : 'A',
+        highlight.aux ? 'B*' : 'B',
+      );
+      return;
+    }
+
+    if (highlight.kind === 'compare-value' && highlight.indices.length >= 1) {
+      this.drawCompareValue(context, highlight.indices[0], highlight.label ?? 'KEY');
       return;
     }
 
@@ -302,32 +536,66 @@ export class CanvasRenderer {
       return;
     }
 
-    if (highlight.kind === 'pivot' && highlight.indices.length >= 1) {
-      this.drawElement(context, highlight.indices[0], PINK, [4, 4], 0, 0, 'P');
-      return;
-    }
-
     if (highlight.kind === 'write' && highlight.indices.length >= 1) {
-      this.drawElement(context, highlight.indices[0], SOFT_LIME, [2, 3], 0, 0, 'W');
+      const color = highlight.aux ? BUBBLEGUM : SOFT_LIME;
+      const dash = highlight.aux ? [3, 3] : [2, 3];
+      const label = highlight.label ?? (highlight.aux ? 'AUX' : 'W');
+      this.drawElementWithBadge(context, highlight.indices[0], color, dash, 0, 0, label);
       return;
     }
 
     if (highlight.kind === 'read' && highlight.indices.length >= 1) {
-      this.drawRead(context, highlight.indices[0]);
-      return;
-    }
-
-    if (highlight.kind === 'sorted' && highlight.indices.length >= 1) {
-      this.drawSorted(context, highlight.indices[0]);
-      return;
-    }
-
-    if (highlight.kind === 'active' && highlight.indices.length >= 1) {
-      this.drawElement(context, highlight.indices[0], BUBBLEGUM, [3, 5], 0, 0, '');
+      this.drawRead(context, highlight.indices[0], highlight.aux);
     }
   }
 
+  private drawCompare(
+    context: CanvasRenderingContext2D,
+    indexA: number,
+    indexB: number,
+    labelA: string,
+    labelB: string,
+  ): void {
+    const rectA = this.displayRect(indexA);
+    const rectB = this.displayRect(indexB);
+    if (!rectA || !rectB) return;
+
+    this.strokeBox(context, rectA.x - 2, rectA.y - 2, rectA.w, rectA.h, LIME, []);
+    this.strokeBox(context, rectB.x + 2, rectB.y + 2, rectB.w, rectB.h, PINK, [5, 4]);
+
+    const boxA = this.measureBadge(context, labelA, rectA.x - 2, rectA.y - 2, rectA.h, false);
+    let boxB = this.measureBadge(context, labelB, rectB.x + 2, rectB.y + 2, rectB.h, false);
+    if (rectsOverlap(boxA, boxB)) {
+      boxB = this.measureBadge(context, labelB, rectB.x + 2, rectB.y + 2, rectB.h, true);
+    }
+
+    this.paintBadge(context, labelA, boxA, LIME);
+    this.paintBadge(context, labelB, boxB, PINK);
+  }
+
+  private drawCompareValue(context: CanvasRenderingContext2D, index: number, label: string): void {
+    const rect = this.displayRect(index);
+    if (!rect) return;
+    this.strokeBox(context, rect.x - 2, rect.y - 2, rect.w, rect.h, LIME, []);
+    this.strokeBox(context, rect.x + 2, rect.y + 2, rect.w, rect.h, PINK, [5, 4]);
+    const box = this.measureBadge(context, label, rect.x - 2, rect.y - 2, rect.h + 4, false);
+    this.paintBadge(context, label, box, PINK);
+  }
+
   private drawElement(
+    context: CanvasRenderingContext2D,
+    index: number,
+    color: string,
+    dash: number[],
+    offsetX: number,
+    offsetY: number,
+  ): void {
+    const rect = this.displayRect(index);
+    if (!rect) return;
+    this.strokeBox(context, rect.x + offsetX, rect.y + offsetY, rect.w, rect.h, color, dash);
+  }
+
+  private drawElementWithBadge(
     context: CanvasRenderingContext2D,
     index: number,
     color: string,
@@ -338,13 +606,40 @@ export class CanvasRenderer {
   ): void {
     const rect = this.displayRect(index);
     if (!rect) return;
+    this.strokeBox(context, rect.x + offsetX, rect.y + offsetY, rect.w, rect.h, color, dash);
+    if (label) {
+      const box = this.measureBadge(
+        context,
+        label,
+        rect.x + offsetX,
+        rect.y + offsetY,
+        rect.h,
+        false,
+      );
+      this.paintBadge(context, label, box, color);
+    }
+  }
+
+  private strokeBox(
+    context: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    w: number,
+    h: number,
+    color: string,
+    dash: number[],
+  ): void {
     context.save();
+    context.lineWidth = 3.5;
+    context.strokeStyle = INK_BACKING;
+    context.setLineDash([]);
+    context.strokeRect(x, y, w, h);
+
     context.strokeStyle = color;
     context.lineWidth = 2;
     context.setLineDash(dash);
-    context.strokeRect(rect.x + offsetX, rect.y + offsetY, rect.w, rect.h);
+    context.strokeRect(x, y, w, h);
     context.restore();
-    if (label) this.drawLabel(context, label, rect.x + offsetX, rect.y + offsetY, color);
   }
 
   private drawSwap(context: CanvasRenderingContext2D, a: number, b: number): void {
@@ -352,29 +647,43 @@ export class CanvasRenderer {
     const second = this.displayRect(b);
     if (!first || !second) return;
 
-    context.save();
-    context.strokeStyle = LIME;
-    context.lineWidth = 2;
-    context.strokeRect(first.x, first.y, first.w, first.h);
-    context.strokeStyle = PINK;
-    context.strokeRect(second.x, second.y, second.w, second.h);
+    this.strokeBox(context, first.x, first.y, first.w, first.h, LIME, []);
+    this.strokeBox(context, second.x, second.y, second.w, second.h, PINK, []);
 
     const ax = first.x + first.w / 2;
     const ay = first.y + first.h / 2;
     const bx = second.x + second.w / 2;
     const by = second.y + second.h / 2;
-    context.strokeStyle = PINK;
-    context.lineWidth = 1.5;
+    const dist = Math.hypot(bx - ax, by - ay);
+
+    context.save();
+    context.strokeStyle = INK_BACKING;
+    context.lineWidth = 3;
     context.setLineDash([]);
     context.beginPath();
     context.moveTo(ax, ay);
     context.lineTo(bx, by);
     context.stroke();
-    this.drawArrowHead(context, ax, ay, bx, by, PINK);
-    this.drawArrowHead(context, bx, by, ax, ay, LIME);
+
+    context.strokeStyle = PINK;
+    context.lineWidth = 1.5;
+    context.beginPath();
+    context.moveTo(ax, ay);
+    context.lineTo(bx, by);
+    context.stroke();
+
+    if (dist >= 10) {
+      const headSize = Math.min(7, dist * 0.3);
+      this.drawArrowHead(context, ax, ay, bx, by, PINK, headSize);
+      this.drawArrowHead(context, bx, by, ax, ay, LIME, headSize);
+    }
     context.restore();
 
-    this.drawLabel(context, 'SWAP', (ax + bx) / 2, (ay + by) / 2 - 14, PINK);
+    const midX = (ax + bx) / 2;
+    const topY = Math.min(first.y, second.y);
+    const bottomY = Math.max(first.y + first.h, second.y + second.h);
+    const box = this.measureCenteredBadge(context, 'SWAP', midX, topY, bottomY);
+    this.paintBadge(context, 'SWAP', box, PINK);
   }
 
   private drawArrowHead(
@@ -384,9 +693,9 @@ export class CanvasRenderer {
     toX: number,
     toY: number,
     color: string,
+    size: number,
   ): void {
     const angle = Math.atan2(toY - fromY, toX - fromX);
-    const size = 7;
     context.save();
     context.fillStyle = color;
     context.beginPath();
@@ -404,78 +713,156 @@ export class CanvasRenderer {
     context.restore();
   }
 
-  private drawRead(context: CanvasRenderingContext2D, index: number): void {
+  private drawRead(context: CanvasRenderingContext2D, index: number, aux = false): void {
     const rect = this.displayRect(index);
     if (!rect) return;
+    const cx = rect.x + rect.w / 2;
+    const cy = rect.y + rect.h / 2;
     context.save();
-    context.fillStyle = SOFT_LIME;
+    context.fillStyle = INK;
     context.beginPath();
-    context.arc(rect.x + rect.w / 2, rect.y + rect.h / 2, 3, 0, Math.PI * 2);
+    context.arc(cx, cy, 4.5, 0, Math.PI * 2);
     context.fill();
-    context.restore();
-  }
-
-  private drawSorted(context: CanvasRenderingContext2D, index: number): void {
-    const rect = this.displayRect(index);
-    if (!rect) return;
-    context.save();
-    context.strokeStyle = LIME;
-    context.lineWidth = 2;
+    context.fillStyle = aux ? BUBBLEGUM : SOFT_LIME;
     context.beginPath();
-    context.moveTo(rect.x + rect.w - 8, rect.y + rect.h - 2);
-    context.lineTo(rect.x + rect.w - 2, rect.y + rect.h - 8);
-    context.stroke();
+    context.arc(cx, cy, 3, 0, Math.PI * 2);
+    context.fill();
     context.restore();
   }
 
   private drawRange(
     context: CanvasRenderingContext2D,
-    range: [number, number],
+    start: number,
+    end: number,
     color: string,
+    dash: number[],
+    label: string,
+    fillTint: boolean,
   ): void {
     if (!this.grid) return;
-    const start = Math.max(0, Math.min(range[0], this.grid.elementCount - 1));
-    const end = Math.max(0, Math.min(range[1] - 1, this.grid.elementCount - 1));
-    const first = this.displayRect(start);
-    const last = this.displayRect(end);
-    if (!first || !last) return;
+    const shape = computeRangeShape(start, end, this.grid, this.cssWidth, this.cssHeight);
+    if (!shape) return;
 
-    const x = Math.min(first.x, last.x);
-    const y = Math.min(first.y, last.y);
-    const right = Math.max(first.x + first.w, last.x + last.w);
-    const bottom = Math.max(first.y + first.h, last.y + last.h);
+    this.traceShape(context, shape, color, dash, fillTint);
 
-    context.save();
-    context.strokeStyle = color;
-    context.lineWidth = 1.5;
-    context.setLineDash([6, 5]);
-    context.strokeRect(x, y, right - x, bottom - y);
-    context.restore();
-    this.drawLabel(context, 'RANGE', x, y, color);
+    if (label) {
+      const box = this.measureBadge(context, label, shape.anchor.x, shape.anchor.y, 12, false);
+      this.paintBadge(context, label, box, color);
+    }
   }
 
-  private drawLabel(
+  private traceShape(
+    context: CanvasRenderingContext2D,
+    shape: RangeShape,
+    color: string,
+    dash: number[],
+    fillTint: boolean,
+  ): void {
+    context.save();
+    context.lineJoin = 'miter';
+
+    const tracePath = (): void => {
+      context.beginPath();
+      if (shape.kind === 'rects') {
+        for (let i = 0; i < shape.rects.length; i += 1) {
+          const r = shape.rects[i];
+          const rx = Math.max(0.75, Math.min(r.x, this.cssWidth - 1.5));
+          const ry = Math.max(0.75, Math.min(r.y, this.cssHeight - 1.5));
+          const rw = Math.max(1, Math.min(r.w, this.cssWidth - rx - 0.75));
+          const rh = Math.max(1, Math.min(r.h, this.cssHeight - ry - 0.75));
+          context.rect(rx, ry, rw, rh);
+        }
+      } else {
+        const pts = shape.points;
+        for (let i = 0; i < pts.length; i += 1) {
+          const px = Math.max(0.75, Math.min(pts[i].x, this.cssWidth - 0.75));
+          const py = Math.max(0.75, Math.min(pts[i].y, this.cssHeight - 0.75));
+          if (i === 0) context.moveTo(px, py);
+          else context.lineTo(px, py);
+        }
+        context.closePath();
+      }
+    };
+
+    tracePath();
+    if (fillTint) {
+      context.fillStyle = LIME_TINT;
+      context.fill();
+    }
+
+    context.strokeStyle = INK_BACKING;
+    context.lineWidth = 2.75;
+    context.setLineDash([]);
+    context.stroke();
+
+    context.strokeStyle = color;
+    context.lineWidth = 1.5;
+    context.setLineDash(dash);
+    context.stroke();
+    context.restore();
+  }
+
+  private measureBadge(
     context: CanvasRenderingContext2D,
     text: string,
-    x: number,
-    y: number,
-    color: string,
-  ): void {
-    if (!text) return;
-    context.save();
+    anchorX: number,
+    anchorY: number,
+    anchorHeight: number,
+    preferBottom: boolean,
+  ): Rect2D {
     context.font = '700 10px "JetBrains Mono Variable", monospace';
     const width = context.measureText(text).width + 8;
     const height = 15;
-    const labelX = Math.max(0, Math.min(x, this.cssWidth - width));
-    const labelY = Math.max(0, y - height - 2);
+    const x = Math.max(0, Math.min(anchorX, this.cssWidth - width));
+    let y: number;
+    if (!preferBottom && anchorY - height - 2 >= 0) {
+      y = anchorY - height - 2;
+    } else if (anchorY + anchorHeight + 2 + height <= this.cssHeight) {
+      y = anchorY + anchorHeight + 2;
+    } else {
+      y = Math.max(0, Math.min(anchorY - height - 2, this.cssHeight - height));
+    }
+    return { x, y, w: width, h: height };
+  }
+
+  private measureCenteredBadge(
+    context: CanvasRenderingContext2D,
+    text: string,
+    centerX: number,
+    topY: number,
+    bottomY: number,
+  ): Rect2D {
+    context.font = '700 10px "JetBrains Mono Variable", monospace';
+    const width = context.measureText(text).width + 8;
+    const height = 15;
+    const x = Math.max(0, Math.min(centerX - width / 2, this.cssWidth - width));
+    let y: number;
+    if (topY - height - 3 >= 0) {
+      y = topY - height - 3;
+    } else if (bottomY + 3 + height <= this.cssHeight) {
+      y = bottomY + 3;
+    } else {
+      y = Math.max(0, Math.min((topY + bottomY) / 2 - height / 2, this.cssHeight - height));
+    }
+    return { x, y, w: width, h: height };
+  }
+
+  private paintBadge(
+    context: CanvasRenderingContext2D,
+    text: string,
+    box: Rect2D,
+    color: string,
+  ): void {
+    context.save();
+    context.font = '700 10px "JetBrains Mono Variable", monospace';
     context.fillStyle = INK;
-    context.fillRect(labelX, labelY, width, height);
+    context.fillRect(box.x, box.y, box.w, box.h);
     context.strokeStyle = color;
     context.lineWidth = 1;
-    context.strokeRect(labelX + 0.5, labelY + 0.5, width - 1, height - 1);
+    context.strokeRect(box.x + 0.5, box.y + 0.5, box.w - 1, box.h - 1);
     context.fillStyle = color;
     context.textBaseline = 'middle';
-    context.fillText(text, labelX + 4, labelY + height / 2 + 0.5);
+    context.fillText(text, box.x + 4, box.y + box.h / 2 + 0.5);
     context.restore();
   }
 }

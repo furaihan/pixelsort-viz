@@ -8,11 +8,10 @@ import {
   emptyCounters,
   type AlgorithmId,
   type Counters,
-  type MarkRole,
-  type OpDelta,
   type SortEvent,
 } from '../core/sorting/types';
-import { CanvasRenderer, type Highlight } from '../core/visualization/CanvasRenderer';
+import { CanvasRenderer } from '../core/visualization/CanvasRenderer';
+import { OverlayTracker } from '../core/visualization/overlayState';
 import { applyEventToPermutation } from '../core/visualization/eventPlayer';
 import type { WorkerResponse } from '../core/workers/workerMessages';
 import { formatNumber } from '../utils/format';
@@ -62,7 +61,32 @@ export function speedLabel(speed: number): string {
 
 const STEP_BATCH_SIZE = 512;
 const STEP_LOW_WATERMARK = 256;
-const MAX_HIGHLIGHTS = 16;
+const TURBO_BATCH_SIZE = 4096;
+const TURBO_LOW_WATERMARK = 2048;
+
+function countAligned(permutation: Uint32Array): number {
+  let count = 0;
+  for (let i = 0; i < permutation.length; i += 1) {
+    if (permutation[i] === i) count += 1;
+  }
+  return count;
+}
+
+function isLoggableEvent(event: SortEvent): boolean {
+  switch (event.type) {
+    case 'compare':
+    case 'compare-value':
+    case 'swap':
+    case 'write':
+    case 'pass':
+    case 'complete':
+      return true;
+    case 'mark':
+      return event.role === 'pivot' || event.role === 'sorted' || Boolean(event.range);
+    default:
+      return false;
+  }
+}
 
 export class AppState {
   status = $state<RunStatus>('empty');
@@ -74,6 +98,7 @@ export class AppState {
   speed = $state(1);
   counters = $state<Counters>(emptyCounters());
   activeMs = $state(0);
+  alignedCount = $state(0);
   currentEvent = $state<SortEvent | null>(null);
   currentLabel = $state('Drop an image to begin.');
   currentDetail = $state('PNG, JPEG, or WebP. Everything stays in this browser.');
@@ -99,18 +124,20 @@ export class AppState {
   private pendingDone: Extract<WorkerResponse, { type: 'done' }> | null = null;
   private pendingCounters: Counters | null = null;
   private liveCounters: Counters = emptyCounters();
+  private liveAlignedCount = 0;
+  private initialAlignedCount = 0;
   private workerElapsed = 0;
   private lastFrame = 0;
   private lastStatsFlush = 0;
   private eventBudget = 0;
   private imageDirty = true;
-  private highlights: Highlight[] = [];
+  private dirtyIndices: number[] | null = null;
+  private overlay = new OverlayTracker();
+  private overlayDirty = true;
   private logId = 0;
   private rafId = 0;
   private pendingEvent: SortEvent | null = null;
-  private pendingLabel = '';
-  private pendingDetail = '';
-  private pendingLog: LogEntry | null = null;
+  private pendingRawLogs: SortEvent[] = [];
   private modeManuallySet = false;
   private loadToken = 0;
 
@@ -146,6 +173,12 @@ export class AppState {
 
   get totalOps(): number {
     return this.counters.comparisons + this.counters.reads + this.counters.writes;
+  }
+
+  get alignedPercent(): number {
+    const total = this.gridInfo?.elementCount ?? 0;
+    if (total === 0) return 0;
+    return Math.floor((this.alignedCount / total) * 100);
   }
 
   get statusLabel(): string {
@@ -200,15 +233,22 @@ export class AppState {
     this.renderer = renderer;
     if (this.image && this.grid) {
       renderer.setImage(this.image, this.grid);
-      if (this.permutation) renderer.renderImage(this.permutation, this.ghostOriginal);
+      if (this.permutation) {
+        renderer.renderImage(this.permutation, this.ghostOriginal, null);
+        this.imageDirty = false;
+        this.dirtyIndices = [];
+      }
+      renderer.renderOverlay(this.overlay.snapshot(), performance.now(), true);
+      this.overlayDirty = false;
     }
   }
 
   /** Dev-only diagnostics used by the headless verification scripts. */
   forceRender(): void {
     if (this.renderer && this.permutation) {
-      this.renderer.renderImage(this.permutation, this.ghostOriginal);
+      this.renderer.renderImage(this.permutation, this.ghostOriginal, null);
       this.imageDirty = false;
+      this.dirtyIndices = [];
     }
   }
 
@@ -254,6 +294,28 @@ export class AppState {
 
   async loadImage(file: File): Promise<void> {
     const token = ++this.loadToken;
+    await this.decodeAndApplyImage(file, token);
+  }
+
+  async loadSample(): Promise<void> {
+    const token = ++this.loadToken;
+    this.isLoadingImage = true;
+    this.uploadError = null;
+    try {
+      const file = await createSampleImage();
+      if (token !== this.loadToken) return;
+      await this.decodeAndApplyImage(file, token);
+    } catch (error) {
+      if (token === this.loadToken) {
+        this.uploadError =
+          error instanceof Error ? error.message : 'The sample image could not be created.';
+      }
+    } finally {
+      if (token === this.loadToken) this.isLoadingImage = false;
+    }
+  }
+
+  private async decodeAndApplyImage(file: File, token: number): Promise<void> {
     this.isLoadingImage = true;
     this.uploadError = null;
     try {
@@ -279,8 +341,9 @@ export class AppState {
       this.shuffle();
       this.renderer?.setImage(image, this.grid);
       if (this.permutation) {
-        this.renderer?.renderImage(this.permutation, this.ghostOriginal);
+        this.renderer?.renderImage(this.permutation, this.ghostOriginal, null);
         this.imageDirty = false;
+        this.dirtyIndices = [];
       }
     } catch (error) {
       if (token === this.loadToken) {
@@ -294,20 +357,6 @@ export class AppState {
     }
   }
 
-  async loadSample(): Promise<void> {
-    this.isLoadingImage = true;
-    this.uploadError = null;
-    try {
-      const file = await createSampleImage();
-      await this.loadImage(file);
-    } catch (error) {
-      this.uploadError =
-        error instanceof Error ? error.message : 'The sample image could not be created.';
-    } finally {
-      this.isLoadingImage = false;
-    }
-  }
-
   clearImage(): void {
     this.loadToken += 1;
     this.isLoadingImage = false;
@@ -318,6 +367,9 @@ export class AppState {
     this.gridInfo = null;
     this.permutation = null;
     this.initialPermutation = null;
+    this.initialAlignedCount = 0;
+    this.liveAlignedCount = 0;
+    this.alignedCount = 0;
     this.seed = 0;
     this.status = 'empty';
     this.resetRunStats();
@@ -347,6 +399,8 @@ export class AppState {
     this.algorithmId = id;
     if (this.initialPermutation) {
       this.permutation = this.initialPermutation.slice();
+      this.liveAlignedCount = this.initialAlignedCount;
+      this.alignedCount = this.initialAlignedCount;
       this.status = 'scrambled';
       this.resetRunStats();
       this.currentLabel = 'Algorithm changed. The same shuffle is ready.';
@@ -367,15 +421,21 @@ export class AppState {
   }
 
   setSpeed(value: number): void {
+    const prevTurbo = this.speed >= 32;
     this.speed = value;
-    if (this.mode === 'performance' && this.worker) {
-      this.worker.postMessage({ type: 'set-sample-interval', ms: this.sampleIntervalMs() });
+    const nextTurbo = this.speed >= 32;
+    if (this.worker) {
+      if (this.mode === 'performance') {
+        this.worker.postMessage({ type: 'set-sample-interval', ms: this.sampleIntervalMs() });
+      } else if (prevTurbo !== nextTurbo) {
+        this.worker.postMessage({ type: 'set-batch-size', batchSize: this.currentBatchSize() });
+      }
     }
   }
 
   toggleGhost(): void {
     this.ghostOriginal = !this.ghostOriginal;
-    this.imageDirty = true;
+    this.markCanvasDirty();
   }
 
   shuffle(): void {
@@ -384,6 +444,9 @@ export class AppState {
     this.seed = randomSeed();
     this.initialPermutation = fisherYates(this.grid.elementCount, this.seed);
     this.permutation = this.initialPermutation.slice();
+    this.initialAlignedCount = countAligned(this.initialPermutation);
+    this.liveAlignedCount = this.initialAlignedCount;
+    this.alignedCount = this.initialAlignedCount;
     this.status = 'scrambled';
     this.resetRunStats();
     this.currentLabel = 'Shuffled and ready.';
@@ -394,8 +457,12 @@ export class AppState {
     this.terminateWorker();
     if (this.initialPermutation) {
       this.permutation = this.initialPermutation.slice();
+      this.liveAlignedCount = this.initialAlignedCount;
+      this.alignedCount = this.initialAlignedCount;
       this.status = 'scrambled';
     } else {
+      this.liveAlignedCount = 0;
+      this.alignedCount = 0;
       this.status = this.image ? 'image-loaded' : 'empty';
     }
     this.resetRunStats();
@@ -411,8 +478,10 @@ export class AppState {
     if (!this.grid) return;
     this.terminateWorker();
     this.permutation = identityPermutation(this.grid.elementCount);
+    this.liveAlignedCount = this.grid.elementCount;
     this.status = 'completed';
     this.resetRunStats();
+    this.alignedCount = this.grid.elementCount;
     this.currentEvent = {
       type: 'complete',
       counters: emptyCounters(),
@@ -421,16 +490,9 @@ export class AppState {
     };
     this.currentLabel = 'Original arrangement restored.';
     this.currentDetail = 'No sorting run is active. Shuffle to start again.';
-    this.highlights = [
-      {
-        kind: 'sorted',
-        indices: [0],
-        range: [0, this.grid.elementCount],
-        createdAt: performance.now(),
-        ttl: Number.POSITIVE_INFINITY,
-      },
-    ];
-    this.imageDirty = true;
+    this.overlay.setComplete(this.grid.elementCount);
+    this.overlayDirty = true;
+    this.markCanvasDirty();
   }
 
   startRun(): void {
@@ -440,8 +502,13 @@ export class AppState {
       this.resume();
       return;
     }
+    if (this.workload && !this.workload.canStart) return;
     if (this.status === 'completed' || this.status === 'error') {
       this.permutation = this.initialPermutation?.slice() ?? this.permutation;
+      this.liveAlignedCount = this.initialPermutation
+        ? this.initialAlignedCount
+        : countAligned(this.permutation);
+      this.alignedCount = this.liveAlignedCount;
       this.status = 'scrambled';
       this.resetRunStats();
     }
@@ -451,7 +518,7 @@ export class AppState {
   pause(): void {
     if (this.status !== 'running') return;
     this.status = 'paused';
-    this.persistHighlights();
+    if (this.overlay.onPause()) this.overlayDirty = true;
     this.flushStats();
   }
 
@@ -460,16 +527,22 @@ export class AppState {
     this.status = 'running';
     this.lastFrame = performance.now();
     this.eventBudget = 0;
-    this.highlights = [];
+    if (this.overlay.onResume()) this.overlayDirty = true;
     this.requestMore();
   }
 
   step(): void {
     if (!this.permutation) return;
+    if (this.mode === 'performance') return;
+    if (this.status !== 'paused' && this.workload && !this.workload.canStart) return;
     if (this.status === 'running') this.pause();
 
     if (this.status === 'completed' || this.status === 'error') {
       this.permutation = this.initialPermutation?.slice() ?? this.permutation;
+      this.liveAlignedCount = this.initialPermutation
+        ? this.initialAlignedCount
+        : countAligned(this.permutation);
+      this.alignedCount = this.liveAlignedCount;
       this.status = 'scrambled';
       this.resetRunStats();
     }
@@ -486,9 +559,9 @@ export class AppState {
     if (this.status !== 'paused') return;
 
     if (this.queue.length > this.queueIndex) {
-      this.applyNextEvent();
+      if (this.overlay.prepareForStep()) this.overlayDirty = true;
+      this.applyNextEvent(performance.now());
       this.flushStats();
-      this.persistHighlights();
       if (this.pendingDone && this.queue.length === this.queueIndex) this.finalizeDone();
     } else if (this.pendingDone) {
       this.finalizeDone();
@@ -510,6 +583,20 @@ export class AppState {
     if (this.modeManuallySet || !this.grid) return;
     this.mode =
       this.grid.elementCount > EDUCATIONAL_RECOMMENDED_MAX ? 'performance' : 'educational';
+  }
+
+  private currentBatchSize(): number {
+    return this.speed >= 32 ? TURBO_BATCH_SIZE : STEP_BATCH_SIZE;
+  }
+
+  private currentLowWatermark(): number {
+    return this.speed >= 32 ? TURBO_LOW_WATERMARK : STEP_LOW_WATERMARK;
+  }
+
+  private transientTtlMs(): number {
+    const eps = speedToEventsPerSecond(this.speed);
+    if (!Number.isFinite(eps)) return 110;
+    return Math.max(110, Math.min(280, Math.round(1100 / eps)));
   }
 
   private sampleIntervalMs(): number {
@@ -556,7 +643,7 @@ export class AppState {
       permutation: this.permutation.slice(),
       algorithmId: this.algorithmId,
       mode: this.mode === 'educational' ? 'step' : 'sample',
-      batchSize: this.mode === 'educational' ? STEP_BATCH_SIZE : 1,
+      batchSize: this.mode === 'educational' ? this.currentBatchSize() : 1,
       sampleIntervalMs: this.sampleIntervalMs(),
     });
     this.flushStats();
@@ -578,6 +665,8 @@ export class AppState {
 
   private terminateWorker(): void {
     if (this.worker) {
+      this.worker.onmessage = null;
+      this.worker.onerror = null;
       this.worker.terminate();
       this.worker = null;
     }
@@ -601,10 +690,20 @@ export class AppState {
 
       if (this.stepPending) {
         this.stepPending = false;
-        this.applyNextEvent();
+        if (this.overlay.prepareForStep()) this.overlayDirty = true;
+        this.applyNextEvent(performance.now());
         this.flushStats();
-        this.persistHighlights();
         if (this.pendingDone && this.queue.length === this.queueIndex) this.finalizeDone();
+        return;
+      }
+
+      if (
+        this.status === 'running' &&
+        this.mode === 'educational' &&
+        this.speed >= 32 &&
+        this.queue.length - this.queueIndex <= this.currentLowWatermark()
+      ) {
+        this.requestMore();
       }
       return;
     }
@@ -630,6 +729,7 @@ export class AppState {
       this.currentLabel = 'Run stopped.';
       this.currentDetail = 'The sorting worker reported an error. Reset and try again.';
       this.pendingEvent = null;
+      this.pendingRawLogs = [];
       this.flushStats();
       this.terminateWorker();
     }
@@ -640,6 +740,8 @@ export class AppState {
     if (!done) return;
     this.pendingDone = null;
     this.permutation = done.permutation;
+    this.liveAlignedCount = countAligned(done.permutation);
+    this.alignedCount = this.liveAlignedCount;
     this.liveCounters = { ...done.counters };
     this.workerElapsed = done.elapsedMs;
     this.status = done.validated ? 'completed' : 'error';
@@ -656,17 +758,15 @@ export class AppState {
       ? 'Every element is back in its original position.'
       : 'The final permutation is not the original arrangement. Reset and try again.';
     this.pendingEvent = null;
-    this.pendingLog = null;
-    this.imageDirty = true;
-    this.highlights = [
-      {
-        kind: 'sorted',
-        indices: [0],
-        range: [0, this.grid?.elementCount ?? 0],
-        createdAt: performance.now(),
-        ttl: Number.POSITIVE_INFINITY,
-      },
-    ];
+    this.pendingRawLogs = [];
+    this.markCanvasDirty();
+    if (done.validated) {
+      this.overlay.setComplete(this.grid?.elementCount ?? 0);
+    } else {
+      this.overlay.reset();
+      this.error = 'The final permutation did not validate. Reset and try again.';
+    }
+    this.overlayDirty = true;
     this.eventLog = [
       {
         id: this.logId++,
@@ -675,26 +775,27 @@ export class AppState {
       },
       ...this.eventLog,
     ].slice(0, 6);
-    if (!done.validated) {
-      this.error = 'The final permutation did not validate. Reset and try again.';
-    }
     this.flushStats();
     this.terminateWorker();
   }
 
   private frame(now: number): void {
-    if (this.renderer) {
-      if (this.imageDirty && this.permutation) {
-        this.renderer.renderImage(this.permutation, this.ghostOriginal);
-        this.imageDirty = false;
-      }
-      this.pruneHighlights(now);
-      this.renderer.renderOverlay(this.highlights, now);
-    }
-
     if (this.status === 'running') this.advance(now);
 
-    if (now - this.lastStatsFlush >= 100) {
+    if (this.renderer) {
+      if (this.imageDirty && this.permutation) {
+        this.renderer.renderImage(this.permutation, this.ghostOriginal, this.dirtyIndices);
+        this.imageDirty = false;
+        this.dirtyIndices = [];
+      }
+      if (this.overlay.prune(now)) {
+        this.overlayDirty = true;
+      }
+      this.renderer.renderOverlay(this.overlay.snapshot(), now, this.overlayDirty);
+      this.overlayDirty = false;
+    }
+
+    if (this.status === 'running' && now - this.lastStatsFlush >= 100) {
       this.flushStats();
       this.lastStatsFlush = now;
     }
@@ -706,7 +807,7 @@ export class AppState {
 
     if (this.mode === 'performance') {
       let applied = 0;
-      while (applied < 4 && this.applyNextEvent()) applied += 1;
+      while (applied < 4 && this.applyNextEvent(now)) applied += 1;
       if (this.pendingDone && this.queue.length === this.queueIndex) this.finalizeDone();
       if (this.queue.length - this.queueIndex === 0) this.requestMore();
       return;
@@ -715,7 +816,7 @@ export class AppState {
     const eventsPerSecond = speedToEventsPerSecond(this.speed);
     let budget: number;
     if (!Number.isFinite(eventsPerSecond)) {
-      budget = 5000;
+      budget = TURBO_BATCH_SIZE * 2;
     } else {
       this.eventBudget += (eventsPerSecond * dt) / 1000;
       budget = Math.floor(this.eventBudget);
@@ -723,27 +824,27 @@ export class AppState {
     }
 
     let applied = 0;
-    while (applied < budget && this.applyNextEvent()) applied += 1;
+    while (applied < budget && this.applyNextEvent(now)) applied += 1;
     if (this.pendingDone && this.queue.length === this.queueIndex) this.finalizeDone();
-    if (this.queue.length - this.queueIndex <= STEP_LOW_WATERMARK) this.requestMore();
+    if (this.queue.length - this.queueIndex <= this.currentLowWatermark()) this.requestMore();
   }
 
   private requestMore(force = false): void {
     if (!this.worker || this.awaitingBatch || this.pendingDone) return;
     if (!force && this.status !== 'running') return;
     const queued = this.queue.length - this.queueIndex;
-    const low = this.mode === 'performance' ? 0 : STEP_LOW_WATERMARK;
+    const low = this.mode === 'performance' ? 0 : this.currentLowWatermark();
     if (force || queued <= low) {
       this.awaitingBatch = true;
       this.worker.postMessage({ type: 'continue' });
     }
   }
 
-  private applyNextEvent(): boolean {
+  private applyNextEvent(now: number): boolean {
     if (this.queueIndex >= this.queue.length) return false;
     const event = this.queue[this.queueIndex];
     this.queueIndex += 1;
-    this.applyEvent(event);
+    this.applyEvent(event, now);
     if (this.queueIndex > 1024) {
       this.queue = this.queue.slice(this.queueIndex);
       this.queueIndex = 0;
@@ -751,133 +852,137 @@ export class AppState {
     return true;
   }
 
-  private applyEvent(event: SortEvent): void {
+  private applyEvent(event: SortEvent, now: number): void {
     this.pendingEvent = event;
-    const description = this.describeEvent(event);
-    this.pendingLabel = description.label;
-    this.pendingDetail = description.detail;
-    this.pendingLog = description.log;
+    if (isLoggableEvent(event)) {
+      this.pendingRawLogs.push(event);
+      if (this.pendingRawLogs.length > 6) this.pendingRawLogs.shift();
+    }
 
-    if ('ops' in event) this.addOps(event.ops);
+    if ('ops' in event) {
+      const { ops } = event;
+      this.liveCounters.comparisons += ops.c;
+      this.liveCounters.reads += ops.r;
+      this.liveCounters.writes += ops.w;
+      this.liveCounters.swaps += ops.s;
+      this.liveCounters.auxWrites += ops.aw;
+      this.liveCounters.passes += ops.p;
+    }
 
     switch (event.type) {
-      case 'compare':
-        this.addHighlight('compare', [event.i, event.j]);
-        break;
-      case 'compare-value':
-        this.addHighlight('compare', [event.index, event.index], { label: 'KEY' });
-        break;
-      case 'read':
-        this.addHighlight('read', [event.index]);
-        break;
       case 'swap':
-        if (this.permutation) {
-          applyEventToPermutation(this.permutation, event);
-          this.imageDirty = true;
+        if (this.permutation && event.i !== event.j) {
+          const p = this.permutation;
+          const before = (p[event.i] === event.i ? 1 : 0) + (p[event.j] === event.j ? 1 : 0);
+          if (applyEventToPermutation(p, event)) {
+            const after = (p[event.i] === event.i ? 1 : 0) + (p[event.j] === event.j ? 1 : 0);
+            this.liveAlignedCount += after - before;
+            this.markCanvasDirty([event.i, event.j]);
+          }
         }
-        this.addHighlight('swap', [event.i, event.j]);
         break;
       case 'write':
         if (!event.aux && this.permutation) {
-          applyEventToPermutation(this.permutation, event);
-          this.imageDirty = true;
+          const p = this.permutation;
+          const idx = event.index;
+          const wasAligned = idx >= 0 && idx < p.length && p[idx] === idx ? 1 : 0;
+          if (applyEventToPermutation(p, event)) {
+            const isAligned = p[idx] === idx ? 1 : 0;
+            this.liveAlignedCount += isAligned - wasAligned;
+            this.markCanvasDirty([idx]);
+          }
         }
-        this.addHighlight('write', [event.index], { label: event.aux ? 'AUX' : 'W' });
-        break;
-      case 'mark':
-        if (event.role === 'pivot') {
-          this.addHighlight('pivot', event.indices, { ttl: 400 });
-        } else if (event.role === 'sorted') {
-          this.addHighlight('sorted', event.indices, {
-            range: event.range,
-            ttl: Number.POSITIVE_INFINITY,
-          });
-        } else if (event.role === 'active' || event.role === 'range') {
-          this.addHighlight('active', event.indices, { range: event.range, ttl: 300 });
-        }
-        break;
-      case 'pass':
         break;
       case 'delta':
-        if (this.permutation) {
-          applyEventToPermutation(this.permutation, event);
+        if (this.permutation && event.indices.length > 0) {
+          const p = this.permutation;
+          if (event.indices.length <= 20_000) {
+            let alignedDelta = 0;
+            for (let k = 0; k < event.indices.length; k += 1) {
+              const idx = event.indices[k];
+              if (idx < p.length) {
+                if (p[idx] === idx) alignedDelta -= 1;
+                p[idx] = event.values[k];
+                if (p[idx] === idx) alignedDelta += 1;
+              }
+            }
+            this.liveAlignedCount += alignedDelta;
+          } else {
+            applyEventToPermutation(p, event);
+            this.liveAlignedCount = countAligned(p);
+          }
+          if (event.indices.length <= 512) {
+            this.markCanvasDirty(Array.from(event.indices));
+          } else {
+            this.markCanvasDirty();
+          }
         }
         if (this.pendingCounters) {
           this.liveCounters = { ...this.pendingCounters };
           this.pendingCounters = null;
         }
-        this.imageDirty = true;
         break;
       case 'snapshot':
         this.permutation = event.data;
+        this.liveAlignedCount = countAligned(event.data);
         if (this.pendingCounters) {
           this.liveCounters = { ...this.pendingCounters };
           this.pendingCounters = null;
         }
-        this.imageDirty = true;
+        this.markCanvasDirty();
         break;
       case 'complete':
         this.status = 'completed';
         this.liveCounters = { ...event.counters };
         this.workerElapsed = event.elapsedMs;
-        this.imageDirty = true;
+        if (this.permutation) this.liveAlignedCount = countAligned(this.permutation);
+        this.markCanvasDirty();
         break;
     }
-  }
 
-  private addOps(ops: OpDelta): void {
-    this.liveCounters.comparisons += ops.c;
-    this.liveCounters.reads += ops.r;
-    this.liveCounters.writes += ops.w;
-    this.liveCounters.swaps += ops.s;
-    this.liveCounters.auxWrites += ops.aw;
-    this.liveCounters.passes += ops.p;
-  }
-
-  private addHighlight(
-    kind: Highlight['kind'],
-    indices: number[],
-    options: { role?: MarkRole; range?: [number, number]; ttl?: number; label?: string } = {},
-  ): void {
-    const ttl = options.ttl ?? (this.status === 'paused' ? Number.POSITIVE_INFINITY : 140);
-    this.highlights.push({
-      kind,
-      indices,
-      createdAt: performance.now(),
-      ttl,
-      ...options,
-    });
-    if (this.highlights.length > MAX_HIGHLIGHTS) {
-      this.highlights.splice(0, this.highlights.length - MAX_HIGHLIGHTS);
+    if (this.overlay.applyEvent(event, now, this.transientTtlMs(), this.status === 'paused')) {
+      this.overlayDirty = true;
     }
   }
 
-  private persistHighlights(): void {
-    for (const highlight of this.highlights) {
-      highlight.ttl = Number.POSITIVE_INFINITY;
+  private markCanvasDirty(indices?: number[]): void {
+    this.imageDirty = true;
+    if (!indices) {
+      this.dirtyIndices = null;
+      return;
     }
-  }
-
-  private pruneHighlights(now: number): void {
-    if (this.highlights.length === 0) return;
-    this.highlights = this.highlights.filter(
-      (highlight) =>
-        highlight.ttl === Number.POSITIVE_INFINITY || now - highlight.createdAt <= highlight.ttl,
-    );
+    if (this.dirtyIndices === null) return;
+    for (let i = 0; i < indices.length; i += 1) {
+      this.dirtyIndices.push(indices[i]);
+    }
+    if (this.dirtyIndices.length > 512) {
+      this.dirtyIndices = null;
+    }
   }
 
   private flushStats(): void {
     this.counters = { ...this.liveCounters };
     this.activeMs = this.workerElapsed;
-    if (this.pendingEvent) {
-      this.currentEvent = this.pendingEvent;
-      this.currentLabel = this.pendingLabel;
-      this.currentDetail = this.pendingDetail;
-      if (this.pendingLog) {
-        this.eventLog = [this.pendingLog, ...this.eventLog].slice(0, 6);
+    this.alignedCount = this.liveAlignedCount;
+
+    if (this.pendingRawLogs.length > 0) {
+      const formatted: LogEntry[] = [];
+      for (let i = this.pendingRawLogs.length - 1; i >= 0; i -= 1) {
+        const entry = this.describeEvent(this.pendingRawLogs[i]).log;
+        if (entry) formatted.push(entry);
       }
+      if (formatted.length > 0) {
+        this.eventLog = [...formatted, ...this.eventLog].slice(0, 6);
+      }
+      this.pendingRawLogs = [];
+    }
+
+    if (this.pendingEvent) {
+      const description = this.describeEvent(this.pendingEvent);
+      this.currentEvent = this.pendingEvent;
+      this.currentLabel = description.label;
+      this.currentDetail = description.detail;
       this.pendingEvent = null;
-      this.pendingLog = null;
     }
   }
 
@@ -890,12 +995,11 @@ export class AppState {
     this.currentLabel = 'Ready to sort.';
     this.currentDetail = 'Press Start or step through the first operation.';
     this.pendingEvent = null;
-    this.pendingLabel = '';
-    this.pendingDetail = '';
-    this.pendingLog = null;
+    this.pendingRawLogs = [];
     this.eventLog = [];
-    this.highlights = [];
-    this.imageDirty = true;
+    this.overlay.reset();
+    this.overlayDirty = true;
+    this.markCanvasDirty();
     this.error = null;
     this.pendingDone = null;
     this.pendingCounters = null;
@@ -914,7 +1018,7 @@ export class AppState {
   } {
     switch (event.type) {
       case 'compare': {
-        const label = event.aux ? 'Compare · auxiliary' : 'Compare';
+        const label = event.aux ? 'Compare · aux buffer' : 'Compare';
         const detail = `Positions ${formatNumber(event.i)} and ${formatNumber(event.j)} · target indices ${formatNumber(event.a)} and ${formatNumber(event.b)}.`;
         return {
           label,
@@ -922,12 +1026,12 @@ export class AppState {
           log: {
             id: this.logId++,
             type: 'compare',
-            text: `Compare ${formatNumber(event.i)} ↔ ${formatNumber(event.j)}`,
+            text: `Compare ${formatNumber(event.i)} ↔ ${formatNumber(event.j)}${event.aux ? ' (aux)' : ''}`,
           },
         };
       }
       case 'compare-value': {
-        const label = event.aux ? 'Compare key · auxiliary' : 'Compare key';
+        const label = event.aux ? 'Compare key · aux buffer' : 'Compare key';
         const detail = `Position ${formatNumber(event.index)} holds ${formatNumber(event.value)}; the key is ${formatNumber(event.against)}.`;
         return {
           label,
@@ -939,12 +1043,20 @@ export class AppState {
           },
         };
       }
-      case 'read':
+      case 'read': {
+        if (event.auxKind === 'counts') {
+          return {
+            label: 'Read · count table',
+            detail: `Count slot [${formatNumber(event.index)}] → ${formatNumber(event.value)}.`,
+            log: null,
+          };
+        }
         return {
-          label: event.aux ? 'Read · auxiliary' : 'Read',
-          detail: `Position ${formatNumber(event.index)} → ${formatNumber(event.value)}${event.aux ? ' from the auxiliary buffer' : ''}.`,
+          label: event.aux ? 'Read · aux buffer' : 'Read',
+          detail: `${event.aux ? 'Aux slot' : 'Position'} ${formatNumber(event.index)} → ${formatNumber(event.value)}.`,
           log: null,
         };
+      }
       case 'swap':
         return {
           label: 'Swap',
@@ -955,16 +1067,28 @@ export class AppState {
             text: `Swap ${formatNumber(event.i)} ↔ ${formatNumber(event.j)}`,
           },
         };
-      case 'write':
+      case 'write': {
+        if (event.auxKind === 'counts') {
+          return {
+            label: 'Write · count table',
+            detail: `Count slot [${formatNumber(event.index)}] ← ${formatNumber(event.value)}.`,
+            log: {
+              id: this.logId++,
+              type: 'write',
+              text: `Count[${formatNumber(event.index)}] ← ${formatNumber(event.value)}`,
+            },
+          };
+        }
         return {
-          label: event.aux ? 'Write · auxiliary' : 'Write',
-          detail: `Position ${formatNumber(event.index)} ← ${formatNumber(event.value)}${event.aux ? ' in the auxiliary buffer' : ''}.`,
+          label: event.aux ? 'Write · aux buffer' : 'Write',
+          detail: `${event.aux ? 'Aux slot' : 'Position'} ${formatNumber(event.index)} ← ${formatNumber(event.value)}.`,
           log: {
             id: this.logId++,
             type: 'write',
             text: `Write ${formatNumber(event.index)}${event.aux ? ' (aux)' : ''}`,
           },
         };
+      }
       case 'mark': {
         if (event.role === 'pivot') {
           return {
@@ -980,11 +1104,15 @@ export class AppState {
         if (event.role === 'sorted') {
           return {
             label: 'Sorted',
-            detail: `Position ${formatNumber(event.indices[0] ?? 0)} is in its final place.`,
+            detail: event.range
+              ? `Positions ${formatNumber(event.range[0])}–${formatNumber(event.range[1] - 1)} are sorted.`
+              : `Position ${formatNumber(event.indices[0] ?? 0)} is in its final place.`,
             log: {
               id: this.logId++,
               type: 'sorted',
-              text: `Sorted ${formatNumber(event.indices[0] ?? 0)}`,
+              text: event.range
+                ? `Sorted ${formatNumber(event.range[0])}–${formatNumber(event.range[1] - 1)}`
+                : `Sorted ${formatNumber(event.indices[0] ?? 0)}`,
             },
           };
         }

@@ -1,7 +1,7 @@
 import { isSorted } from '../image/shuffle';
 import { SortContext } from '../sorting/instrumentation';
 import { getAlgorithm } from '../sorting/registry';
-import type { Counters, SortEvent } from '../sorting/types';
+import type { SortEvent } from '../sorting/types';
 import type { WorkerRequest, WorkerResponse } from './workerMessages';
 
 interface WorkerScope {
@@ -21,7 +21,7 @@ interface RunState {
 
 let run: RunState | null = null;
 
-function transferablesFor(events: SortEvent[]): Transferable[] {
+function transferablesFor(events: SortEvent[]): Transferable[] | undefined {
   const transfer: Transferable[] = [];
   for (const event of events) {
     if (event.type === 'delta') {
@@ -30,7 +30,7 @@ function transferablesFor(events: SortEvent[]): Transferable[] {
       transfer.push(event.data.buffer);
     }
   }
-  return transfer;
+  return transfer.length > 0 ? transfer : undefined;
 }
 
 function waitForContinue(state: RunState): Promise<void> {
@@ -68,6 +68,7 @@ async function execute(state: RunState): Promise<void> {
 
       const events = state.context.takeEvents();
       if (events.length > 0) {
+        const transfer = state.context.mode === 'sample' ? transferablesFor(events) : undefined;
         scope.postMessage(
           {
             type: 'batch',
@@ -75,7 +76,7 @@ async function execute(state: RunState): Promise<void> {
             counters: { ...state.context.counters },
             elapsedMs: state.activeMs,
           },
-          transferablesFor(events),
+          transfer,
         );
         await waitForContinue(state);
         if (state.cancelled) {
@@ -86,9 +87,33 @@ async function execute(state: RunState): Promise<void> {
           });
           return;
         }
+        state.context.resetSampleClock();
       }
 
       result = step();
+    }
+
+    if (state.cancelled) {
+      scope.postMessage({
+        type: 'cancelled',
+        counters: { ...state.context.counters },
+        elapsedMs: state.activeMs,
+      });
+      return;
+    }
+
+    // In step mode, flush any trailing events produced after the final yield so
+    // short runs (< batchSize) and tail operations are never dropped before done.
+    if (state.context.mode === 'step') {
+      const remaining = state.context.takeEvents();
+      if (remaining.length > 0) {
+        scope.postMessage({
+          type: 'batch',
+          events: remaining,
+          counters: { ...state.context.counters },
+          elapsedMs: state.activeMs,
+        });
+      }
     }
 
     const final = state.context.finish();
@@ -153,5 +178,10 @@ scope.addEventListener('message', (event) => {
 
   if (message.type === 'set-sample-interval') {
     run.context.setSampleInterval(message.ms);
+    return;
+  }
+
+  if (message.type === 'set-batch-size') {
+    run.context.setBatchSize(message.batchSize);
   }
 });

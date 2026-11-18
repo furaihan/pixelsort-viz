@@ -31,7 +31,9 @@
     !app.hasImage || (app.status !== 'running' && app.status !== 'paused' && !app.canStart),
   );
 
-  let stepDisabled = $derived(!app.hasImage || app.mode === 'performance');
+  let stepDisabled = $derived(
+    !app.hasImage || app.mode === 'performance' || (!app.isPaused && !app.canStart),
+  );
   let modeDisabled = $derived(app.isRunning || app.isPaused);
 
   let warning = $derived(app.workload?.blockers[0] ?? app.workload?.warnings[0] ?? null);

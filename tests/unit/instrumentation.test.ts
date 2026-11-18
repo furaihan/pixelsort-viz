@@ -92,4 +92,44 @@ describe('SortContext instrumentation', () => {
     expect(Array.from(result.permutation)).toEqual([0, 1]);
     expect(result.counters.swaps).toBe(1);
   });
+
+  it('tags auxiliary buffer vs count-table operations with auxKind', () => {
+    const context = createContext([0, 1]);
+    const aux = new Uint32Array(2);
+    const counts = new Uint32Array(2);
+    context.writeAux(aux, 0, 5);
+    context.readAux(aux, 0);
+    context.countWrite(counts, 1, 2);
+    context.countRead(counts, 1);
+
+    expect(context.events[0]).toMatchObject({ type: 'write', aux: true, auxKind: 'buffer' });
+    expect(context.events[1]).toMatchObject({ type: 'read', aux: true, auxKind: 'buffer' });
+    expect(context.events[2]).toMatchObject({ type: 'write', aux: true, auxKind: 'counts' });
+    expect(context.events[3]).toMatchObject({ type: 'read', aux: true, auxKind: 'counts' });
+  });
+
+  it('supports dynamic batch sizing in step mode', () => {
+    const context = createContext([3, 2, 1, 0], 'step', 10);
+    context.compare(0, 1);
+    context.compare(1, 2);
+    expect(context.tick()).toBe(false);
+    context.setBatchSize(2);
+    expect(context.tick()).toBe(true);
+  });
+
+  it('resets the sample window after resume via resetSampleClock', () => {
+    let time = 0;
+    const context = createContext([0, 1], 'sample', 10, () => time);
+    // Simulate time passing while waiting on main thread before resuming.
+    time = 500;
+    context.resetSampleClock();
+    for (let i = 0; i < 256; i += 1) {
+      expect(context.tick()).toBe(false);
+    }
+    time = 650;
+    for (let i = 0; i < 255; i += 1) {
+      expect(context.tick()).toBe(false);
+    }
+    expect(context.tick()).toBe(true);
+  });
 });

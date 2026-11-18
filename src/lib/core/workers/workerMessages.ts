@@ -11,7 +11,8 @@ export type WorkerRequest =
     }
   | { type: 'continue' }
   | { type: 'cancel' }
-  | { type: 'set-sample-interval'; ms: number };
+  | { type: 'set-sample-interval'; ms: number }
+  | { type: 'set-batch-size'; batchSize: number };
 
 export type WorkerResponse =
   | { type: 'batch'; events: SortEvent[]; counters: Counters; elapsedMs: number }

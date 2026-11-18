@@ -16,6 +16,8 @@ export type SortMode = 'step' | 'sample';
 
 export type MarkRole = 'pivot' | 'sorted' | 'active' | 'range' | 'aux';
 
+export type AuxKind = 'buffer' | 'counts';
+
 export interface Counters {
   comparisons: number;
   swaps: number;
@@ -63,6 +65,7 @@ export type SortEvent =
       a: number;
       b: number;
       aux?: boolean;
+      auxKind?: AuxKind;
       ops: OpDelta;
     }
   | {
@@ -71,11 +74,12 @@ export type SortEvent =
       value: number;
       against: number;
       aux?: boolean;
+      auxKind?: AuxKind;
       ops: OpDelta;
     }
-  | { type: 'read'; index: number; value: number; aux?: boolean; ops: OpDelta }
+  | { type: 'read'; index: number; value: number; aux?: boolean; auxKind?: AuxKind; ops: OpDelta }
   | { type: 'swap'; i: number; j: number; ops: OpDelta }
-  | { type: 'write'; index: number; value: number; aux?: boolean; ops: OpDelta }
+  | { type: 'write'; index: number; value: number; aux?: boolean; auxKind?: AuxKind; ops: OpDelta }
   | {
       type: 'mark';
       indices: number[];

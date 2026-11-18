@@ -23,7 +23,9 @@
       case 'write':
         return 'WRITE';
       case 'mark':
-        return event.role === 'pivot' ? 'PIVOT' : event.role === 'sorted' ? 'SORTED' : 'RANGE';
+        if (event.role === 'pivot') return 'PIVOT';
+        if (event.role === 'sorted') return 'SORTED';
+        return event.range ? 'RANGE' : 'ACTIVE';
       case 'pass':
         return 'PASS';
       case 'delta':
@@ -62,11 +64,15 @@
       case 'compare-value':
         return `#${formatNumber(event.index)} vs key`;
       case 'read':
-        return `#${formatNumber(event.index)}`;
+        return event.auxKind === 'counts'
+          ? `count[${formatNumber(event.index)}]`
+          : `#${formatNumber(event.index)}`;
       case 'swap':
         return `${formatNumber(event.i)} ↔ ${formatNumber(event.j)}`;
       case 'write':
-        return `#${formatNumber(event.index)}`;
+        return event.auxKind === 'counts'
+          ? `count[${formatNumber(event.index)}]`
+          : `#${formatNumber(event.index)}`;
       case 'mark':
         return event.range
           ? `${formatNumber(event.range[0])}–${formatNumber(event.range[1] - 1)}`

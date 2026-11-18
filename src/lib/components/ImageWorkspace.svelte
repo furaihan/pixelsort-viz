@@ -32,7 +32,9 @@
       case 'write':
         return 'WRITE';
       case 'mark':
-        return event.role === 'pivot' ? 'PIVOT' : event.role === 'sorted' ? 'SORTED' : 'RANGE';
+        if (event.role === 'pivot') return 'PIVOT';
+        if (event.role === 'sorted') return 'SORTED';
+        return event.range ? 'RANGE' : 'ACTIVE';
       case 'pass':
         return 'PASS';
       case 'delta':
@@ -119,7 +121,10 @@
       style:--aspect={aspect}
       style:aspect-ratio="{app.imageInfo?.width ?? 16} / {app.imageInfo?.height ?? 10}"
     >
-      <canvas bind:this={mainCanvas} class="absolute inset-0 block size-full" aria-hidden="true"
+      <canvas
+        bind:this={mainCanvas}
+        class="absolute inset-0 block size-full [image-rendering:pixelated]"
+        aria-hidden="true"
       ></canvas>
       <canvas
         bind:this={overlayCanvas}
@@ -169,7 +174,9 @@
         class="grid flex-none justify-items-end mono text-[12px] leading-[1.1] font-bold text-soft-lime compact:hidden"
       >
         {formatNumber(app.gridInfo.elementCount)}
-        <small class="text-[7px] font-bold tracking-[0.12em] text-muted-2">ELEMENTS</small>
+        <small class="text-[7px] font-bold tracking-[0.12em] text-muted-2">
+          ELEMENTS · {app.alignedPercent}% IN PLACE
+        </small>
       </span>
     {/if}
   </div>

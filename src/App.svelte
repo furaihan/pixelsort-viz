@@ -21,13 +21,13 @@
       event.preventDefault();
       if (app.isRunning) app.pause();
       else if (app.isPaused) app.resume();
-      else app.startRun();
+      else if (app.canStart) app.startRun();
       return;
     }
 
     if (event.code === 'ArrowRight') {
       event.preventDefault();
-      app.step();
+      if (app.mode !== 'performance' && (app.isPaused || app.canStart)) app.step();
       return;
     }
 
