@@ -7,6 +7,7 @@ export interface Highlight {
   createdAt: number;
   ttl: number;
   label?: string;
+  values?: number[];
 }
 
 export interface OverlaySnapshot {
@@ -103,6 +104,7 @@ export class OverlayTracker {
         this.pushTransient({
           kind: 'compare',
           indices: [event.i, event.j],
+          values: [event.a, event.b],
           aux: event.aux,
           createdAt: now,
           ttl,
@@ -113,6 +115,7 @@ export class OverlayTracker {
         this.pushTransient({
           kind: 'compare-value',
           indices: [event.index],
+          values: [event.value, event.against],
           aux: event.aux,
           createdAt: now,
           ttl,
@@ -125,6 +128,7 @@ export class OverlayTracker {
         this.pushTransient({
           kind: 'read',
           indices: [event.index],
+          values: [event.value],
           aux: event.aux,
           createdAt: now,
           ttl,
@@ -143,6 +147,7 @@ export class OverlayTracker {
         this.pushTransient({
           kind: 'swap',
           indices: [event.i, event.j],
+          values: [event.a, event.b],
           createdAt: now,
           ttl,
         });
@@ -153,6 +158,7 @@ export class OverlayTracker {
         this.pushTransient({
           kind: 'write',
           indices: [event.index],
+          values: [event.value],
           aux: event.aux,
           createdAt: now,
           ttl,

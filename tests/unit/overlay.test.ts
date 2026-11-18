@@ -58,7 +58,7 @@ describe('OverlayTracker', () => {
       140,
       false,
     );
-    tracker.applyEvent({ type: 'swap', i: 4, j: 7, ops }, 15, 140, false);
+    tracker.applyEvent({ type: 'swap', i: 4, j: 7, a: 4, b: 7, ops }, 15, 140, false);
 
     expect(tracker.snapshot().pivotIndex).toBe(4);
     expect(tracker.snapshot().activeRange).toEqual([0, 8]);

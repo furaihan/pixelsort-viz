@@ -520,34 +520,37 @@ export class CanvasRenderer {
 
   private drawHighlight(context: CanvasRenderingContext2D, highlight: Highlight): void {
     if (highlight.kind === 'compare' && highlight.indices.length >= 2) {
+      const [a, b] = highlight.values ?? [];
       this.drawCompare(
         context,
         highlight.indices[0],
         highlight.indices[1],
-        highlight.aux ? 'A*' : 'A',
-        highlight.aux ? 'B*' : 'B',
+        this.targetBadge(highlight.aux ? 'A*' : 'A', a),
+        this.targetBadge(highlight.aux ? 'B*' : 'B', b),
       );
       return;
     }
 
     if (highlight.kind === 'compare-value' && highlight.indices.length >= 1) {
-      this.drawCompareValue(
-        context,
-        highlight.indices[0],
-        i18n.shortLabel(highlight.label ?? 'KEY'),
-      );
+      const [value, against] = highlight.values ?? [];
+      const label =
+        value !== undefined && against !== undefined
+          ? `#${value} vs #${against}`
+          : i18n.shortLabel(highlight.label ?? 'KEY');
+      this.drawCompareValue(context, highlight.indices[0], label);
       return;
     }
 
     if (highlight.kind === 'swap' && highlight.indices.length >= 2) {
-      this.drawSwap(context, highlight.indices[0], highlight.indices[1]);
+      this.drawSwap(context, highlight.indices[0], highlight.indices[1], highlight.values);
       return;
     }
 
     if (highlight.kind === 'write' && highlight.indices.length >= 1) {
       const color = highlight.aux ? BUBBLEGUM : SOFT_LIME;
       const dash = highlight.aux ? [3, 3] : [2, 3];
-      const label = i18n.shortLabel(highlight.label ?? (highlight.aux ? 'AUX' : 'W'));
+      const base = i18n.shortLabel(highlight.label ?? (highlight.aux ? 'AUX' : 'W'));
+      const label = this.targetBadge(base, highlight.values?.[0]);
       this.drawElementWithBadge(context, highlight.indices[0], color, dash, 0, 0, label);
       return;
     }
@@ -555,6 +558,11 @@ export class CanvasRenderer {
     if (highlight.kind === 'read' && highlight.indices.length >= 1) {
       this.drawRead(context, highlight.indices[0], highlight.aux);
     }
+  }
+
+  /** "A" becomes "A #12" so the canvas names the target being compared. */
+  private targetBadge(base: string, value: number | undefined): string {
+    return value === undefined ? base : `${base} #${value}`;
   }
 
   private drawCompare(
@@ -575,6 +583,15 @@ export class CanvasRenderer {
     let boxB = this.measureBadge(context, labelB, rectB.x + 2, rectB.y + 2, rectB.h, false);
     if (rectsOverlap(boxA, boxB)) {
       boxB = this.measureBadge(context, labelB, rectB.x + 2, rectB.y + 2, rectB.h, true);
+    }
+    // Adjacent tiles can still collide once both labels carry a target index.
+    // Push B clear of A rather than letting one badge cover the other.
+    if (rectsOverlap(boxA, boxB)) {
+      const below = Math.max(boxA.y + boxA.h + 2, rectB.y + rectB.h + 2);
+      boxB = {
+        ...boxB,
+        y: Math.min(below, Math.max(0, this.cssHeight - boxB.h)),
+      };
     }
 
     this.paintBadge(context, labelA, boxA, LIME);
@@ -650,7 +667,12 @@ export class CanvasRenderer {
     context.restore();
   }
 
-  private drawSwap(context: CanvasRenderingContext2D, a: number, b: number): void {
+  private drawSwap(
+    context: CanvasRenderingContext2D,
+    a: number,
+    b: number,
+    values?: number[],
+  ): void {
     const first = this.displayRect(a);
     const second = this.displayRect(b);
     if (!first || !second) return;
@@ -691,8 +713,13 @@ export class CanvasRenderer {
     const topY = Math.min(first.y, second.y);
     const bottomY = Math.max(first.y + first.h, second.y + second.h);
     const swapLabel = i18n.t('event.swap');
-    const box = this.measureCenteredBadge(context, swapLabel, midX, topY, bottomY);
-    this.paintBadge(context, swapLabel, box, PINK);
+    const [valueA, valueB] = values ?? [];
+    const label =
+      valueA !== undefined && valueB !== undefined
+        ? `${swapLabel} #${valueA} ↔ #${valueB}`
+        : swapLabel;
+    const box = this.measureCenteredBadge(context, label, midX, topY, bottomY);
+    this.paintBadge(context, label, box, PINK);
   }
 
   private drawArrowHead(

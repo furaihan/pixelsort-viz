@@ -194,7 +194,7 @@ export class SortContext {
       this.markDirty(i);
       this.markDirty(j);
     }
-    this.emitVisual({ type: 'swap', i, j, ops: OPS_SWAP });
+    this.emitVisual({ type: 'swap', i, j, a, b, ops: OPS_SWAP });
   }
 
   write(index: number, value: number): void {

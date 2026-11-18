@@ -85,7 +85,7 @@ export type SortVisualEvent =
       ops: OpDelta;
     }
   | { type: 'read'; index: number; value: number; aux?: boolean; auxKind?: AuxKind; ops: OpDelta }
-  | { type: 'swap'; i: number; j: number; ops: OpDelta }
+  | { type: 'swap'; i: number; j: number; a: number; b: number; ops: OpDelta }
   | { type: 'write'; index: number; value: number; aux?: boolean; auxKind?: AuxKind; ops: OpDelta }
   | {
       type: 'mark';

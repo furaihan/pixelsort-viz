@@ -173,7 +173,7 @@
     </span>
     <div class="grid min-w-0 flex-1 gap-px">
       <strong class="truncate text-[12.5px] font-bold">{i18n.text(app.currentLabel)}</strong>
-      <span class="truncate text-[11.5px] text-muted">{i18n.text(app.currentDetail)}</span>
+      <span class="line-clamp-2 text-[11.5px] text-muted">{i18n.text(app.currentDetail)}</span>
     </div>
     {#if app.gridInfo}
       <span

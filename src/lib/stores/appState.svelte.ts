@@ -1028,12 +1028,18 @@ export class AppState {
   } {
     switch (event.type) {
       case 'compare': {
+        const order = msg(event.a < event.b ? 'event.orderBefore' : 'event.orderAfter', {
+          a: event.a,
+          b: event.b,
+        });
         const label = msg(event.aux ? 'event.compareAuxLabel' : 'event.compareLabel');
         const detail = msg('event.compareDetail', {
+          location: event.aux ? msg('event.compareSlots') : msg('event.comparePositions'),
           i: event.i,
           j: event.j,
           a: event.a,
           b: event.b,
+          order,
         });
         return {
           label,
@@ -1050,11 +1056,17 @@ export class AppState {
         };
       }
       case 'compare-value': {
+        const order = msg(event.value < event.against ? 'event.orderBefore' : 'event.orderAfter', {
+          a: event.value,
+          b: event.against,
+        });
         const label = msg(event.aux ? 'event.compareValueAuxLabel' : 'event.compareValueLabel');
         const detail = msg('event.compareValueDetail', {
+          location: event.aux ? msg('event.auxSlot') : msg('event.position'),
           index: event.index,
           value: event.value,
           against: event.against,
+          order,
         });
         return {
           label,
@@ -1074,12 +1086,16 @@ export class AppState {
             log: null,
           };
         }
+        const location = msg(event.aux ? 'event.auxSlot' : 'event.position');
         return {
           label: msg(event.aux ? 'event.readAuxLabel' : 'event.readLabel'),
           detail: msg('event.readDetail', {
-            location: event.aux ? msg('event.auxSlot') : msg('event.position'),
+            location,
             index: event.index,
             value: event.value,
+            meaning: msg(event.aux ? 'event.readAuxMeaning' : 'event.readMainMeaning', {
+              value: event.value,
+            }),
           }),
           log: null,
         };
@@ -1087,7 +1103,12 @@ export class AppState {
       case 'swap':
         return {
           label: msg('event.swapLabel'),
-          detail: msg('event.swapDetail', { i: event.i, j: event.j }),
+          detail: msg('event.swapDetail', {
+            i: event.i,
+            j: event.j,
+            a: event.a,
+            b: event.b,
+          }),
           log: {
             id: this.logId++,
             type: 'swap',
@@ -1109,9 +1130,10 @@ export class AppState {
         return {
           label: msg(event.aux ? 'event.writeAuxLabel' : 'event.writeLabel'),
           detail: msg('event.writeDetail', {
-            location: event.aux ? msg('event.auxSlot') : msg('event.position'),
-            index: event.index,
-            value: event.value,
+            meaning: msg(event.aux ? 'event.writeAuxMeaning' : 'event.writeMainMeaning', {
+              index: event.index,
+              value: event.value,
+            }),
           }),
           log: {
             id: this.logId++,

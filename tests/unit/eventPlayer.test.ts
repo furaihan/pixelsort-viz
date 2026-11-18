@@ -7,7 +7,7 @@ const ops = { c: 0, r: 0, w: 0, s: 0, aw: 0, p: 0 };
 describe('applyEventToPermutation', () => {
   it('applies a swap', () => {
     const permutation = Uint32Array.from([0, 1, 2]);
-    const event: SortEvent = { type: 'swap', i: 0, j: 2, ops };
+    const event: SortEvent = { type: 'swap', i: 0, j: 2, a: 0, b: 2, ops };
     expect(applyEventToPermutation(permutation, event)).toBe(true);
     expect(Array.from(permutation)).toEqual([2, 1, 0]);
   });
@@ -61,8 +61,12 @@ describe('applyEventToPermutation', () => {
 
   it('ignores out-of-bounds swaps and writes safely', () => {
     const permutation = Uint32Array.from([0, 1, 2]);
-    expect(applyEventToPermutation(permutation, { type: 'swap', i: -1, j: 2, ops })).toBe(false);
-    expect(applyEventToPermutation(permutation, { type: 'swap', i: 0, j: 9, ops })).toBe(false);
+    expect(
+      applyEventToPermutation(permutation, { type: 'swap', i: -1, j: 2, a: 2, b: 0, ops }),
+    ).toBe(false);
+    expect(
+      applyEventToPermutation(permutation, { type: 'swap', i: 0, j: 9, a: 0, b: 2, ops }),
+    ).toBe(false);
     expect(applyEventToPermutation(permutation, { type: 'write', index: 5, value: 1, ops })).toBe(
       false,
     );

@@ -37,7 +37,7 @@ describe('SortContext instrumentation', () => {
     expect(context.counters.swaps).toBe(1);
     expect(context.counters.reads).toBe(2);
     expect(context.counters.writes).toBe(2);
-    expect(context.events[0]).toMatchObject({ type: 'swap', i: 0, j: 1 });
+    expect(context.events[0]).toMatchObject({ type: 'swap', i: 0, j: 1, a: 2, b: 1 });
   });
 
   it('counts a write and an auxiliary write', () => {
