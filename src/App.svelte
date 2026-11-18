@@ -10,6 +10,7 @@
   import AlgorithmInspector from './lib/components/AlgorithmInspector.svelte';
   import GuideDialog from './lib/components/GuideDialog.svelte';
   import { app } from './lib/stores/appState.svelte';
+  import { i18n } from './lib/i18n/index.svelte';
 
   let guideOpen = $state(false);
 
@@ -38,6 +39,8 @@
   }
 
   onMount(() => {
+    document.documentElement.lang = i18n.locale;
+    document.title = i18n.t('app.title');
     app.start();
     window.addEventListener('keydown', handleKeydown);
     return () => {
@@ -45,15 +48,23 @@
       app.stop();
     };
   });
+
+  $effect(() => {
+    document.documentElement.lang = i18n.locale;
+    document.title = i18n.t('app.title');
+    document
+      .querySelector('meta[name="description"]')
+      ?.setAttribute('content', i18n.t('app.description'));
+  });
 </script>
 
 <a
   class="fixed top-2 left-2 z-100 -translate-y-[160%] rounded-[6px] bg-lime px-3 py-2 text-[12px] font-bold text-ink no-underline transition-transform duration-150 focus:translate-y-0"
   href="#workspace"
 >
-  Skip to workspace
+  {i18n.t('app.skipToWorkspace')}
 </a>
-<h1 class="sr-only">Pixel Sort Visualizer</h1>
+<h1 class="sr-only">{i18n.t('app.title')}</h1>
 
 <div class="flex min-h-screen flex-col">
   <Header onopenGuide={() => (guideOpen = true)} />
@@ -64,13 +75,13 @@
   >
     <section
       class="sticky top-5 grid min-w-0 gap-3.5 shell:static short:static"
-      aria-label="Visualization and playback"
+      aria-label={i18n.t('app.visualizationPlayback')}
     >
       <ImageWorkspace />
       <PlaybackControls />
     </section>
 
-    <aside class="grid min-w-0 gap-3.5" aria-label="Configuration and statistics">
+    <aside class="grid min-w-0 gap-3.5" aria-label={i18n.t('app.configurationStatistics')}>
       <ImagePanel />
       <GranularitySelector />
       <AlgorithmSelector onopenGuide={() => (guideOpen = true)} />
@@ -84,12 +95,12 @@
   >
     <div class="flex items-center gap-[7px]">
       <span class="size-[5px] rounded-full bg-lime" aria-hidden="true"></span>
-      <span class="mono">100% LOCAL · NO UPLOADS</span>
+      <span class="mono">{i18n.t('app.footerLocal')}</span>
     </div>
     <div class="flex gap-3.5 mono compact:hidden">
       <span>SVELTE 5</span>
-      <span>CANVAS 2D</span>
-      <span>WEB WORKER</span>
+      <span>{i18n.t('app.footerCanvas')}</span>
+      <span>{i18n.t('app.footerWorker')}</span>
     </div>
   </footer>
 

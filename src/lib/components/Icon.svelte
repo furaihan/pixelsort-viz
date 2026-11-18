@@ -116,10 +116,4 @@
   let CurrentIcon = $derived(iconMap[name]);
 </script>
 
-<CurrentIcon
-  size={size}
-  strokeWidth={strokeWidth}
-  class={className}
-  aria-hidden="true"
-  focusable="false"
-/>
+<CurrentIcon {size} {strokeWidth} class={className} aria-hidden="true" focusable="false" />

@@ -3,6 +3,7 @@
   import { app } from '../stores/appState.svelte';
   import { BLOCK_SIZES } from '../core/image/imageTypes';
   import { formatNumber } from '../utils/format';
+  import { i18n } from '../i18n/index.svelte';
 
   const segmentBase =
     'relative flex cursor-pointer items-baseline justify-center gap-[3px] min-h-11 rounded-[7px] border px-1.5 py-2 transition-colors duration-150';
@@ -17,16 +18,18 @@
   <div class="panel-head">
     <h2 class="panel-title" id="granularity-title">
       <Icon name="grid" size={15} />
-      Granularity
+      {i18n.t('granularity.title')}
     </h2>
     <span class="chip chip-soft">
-      {app.blockSize === 1 ? '1 PX' : `${app.blockSize} PX`}
+      {app.blockSize === 1
+        ? `1 ${i18n.t('workspace.px')}`
+        : `${app.blockSize} ${i18n.t('workspace.px')}`}
     </span>
   </div>
 
   <div class="panel-body">
     <fieldset class="m-0 min-w-0 border-0 p-0">
-      <legend class="sr-only">Element size</legend>
+      <legend class="sr-only">{i18n.t('granularity.elementSize')}</legend>
       <div class="grid grid-cols-3 gap-1.5">
         {#each BLOCK_SIZES as size}
           <label
@@ -43,7 +46,9 @@
               class="pointer-events-none absolute h-px w-px opacity-0"
             />
             <span class="mono text-[16px] leading-none font-extrabold">{size}</span>
-            <span class="font-mono text-[8px] font-bold tracking-[0.08em]">PX</span>
+            <span class="font-mono text-[8px] font-bold tracking-[0.08em]">
+              {i18n.t('workspace.px')}
+            </span>
           </label>
         {/each}
       </div>
@@ -53,13 +58,13 @@
       class="mt-3.5 grid grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] gap-2.5 border-t border-line pt-3"
     >
       <div class="grid gap-[3px]">
-        <span class="label">Grid</span>
+        <span class="label">{i18n.t('common.grid')}</span>
         <strong class="mono text-[15px] font-bold text-text">
           {app.gridInfo ? `${app.gridInfo.columns} × ${app.gridInfo.rows}` : '—'}
         </strong>
       </div>
       <div class="grid gap-[3px]">
-        <span class="label">Sortable elements</span>
+        <span class="label">{i18n.t('granularity.sortableElements')}</span>
         <strong class="mono text-2xl leading-none font-extrabold tracking-[-0.04em] text-lime">
           {app.gridInfo ? formatNumber(app.gridInfo.elementCount) : '—'}
         </strong>
@@ -68,10 +73,9 @@
 
     <p class="mt-3 panel-note">
       {#if app.gridInfo}
-        Larger blocks mean fewer elements and a faster run. Edge tiles may be smaller; they keep
-        their natural size and never stretch.
+        {i18n.t('granularity.largeBlocks')}
       {:else}
-        Load an image to calculate the exact grid and element count.
+        {i18n.t('granularity.emptyNote')}
       {/if}
     </p>
   </div>

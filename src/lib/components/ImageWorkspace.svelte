@@ -6,6 +6,7 @@
   import { CanvasRenderer } from '../core/visualization/CanvasRenderer';
   import type { SortEvent } from '../core/sorting/types';
   import { formatNumber } from '../utils/format';
+  import { i18n } from '../i18n/index.svelte';
 
   let mainCanvas: HTMLCanvasElement;
   let overlayCanvas: HTMLCanvasElement;
@@ -15,34 +16,37 @@
 
   let canvasLabel = $derived(
     app.hasImage
-      ? `Live image visualization. ${app.currentLabel} ${app.currentDetail}`
-      : 'No image loaded. Drop an image to begin.',
+      ? i18n.t('workspace.ariaLiveImage', {
+          label: i18n.text(app.currentLabel),
+          detail: i18n.text(app.currentDetail),
+        })
+      : i18n.t('workspace.ariaNoImage'),
   );
 
   function eventTypeLabel(event: SortEvent | null): string {
-    if (!event) return 'IDLE';
+    if (!event) return i18n.t('event.idle');
     switch (event.type) {
       case 'compare':
       case 'compare-value':
-        return 'COMPARE';
+        return i18n.t('event.compare');
       case 'read':
-        return 'READ';
+        return i18n.t('event.read');
       case 'swap':
-        return 'SWAP';
+        return i18n.t('event.swap');
       case 'write':
-        return 'WRITE';
+        return i18n.t('event.write');
       case 'mark':
-        if (event.role === 'pivot') return 'PIVOT';
-        if (event.role === 'sorted') return 'SORTED';
-        return event.range ? 'RANGE' : 'ACTIVE';
+        if (event.role === 'pivot') return i18n.t('event.pivot');
+        if (event.role === 'sorted') return i18n.t('event.sorted');
+        return event.range ? i18n.t('event.range') : i18n.t('event.active');
       case 'pass':
-        return 'PASS';
+        return i18n.t('event.pass');
       case 'delta':
-        return 'BATCH';
+        return i18n.t('event.batch');
       case 'snapshot':
-        return 'SNAPSHOT';
+        return i18n.t('event.snapshot');
       case 'complete':
-        return 'COMPLETE';
+        return i18n.t('event.complete');
     }
   }
 
@@ -77,7 +81,7 @@
 
 <section
   class="relative rounded-[14px] border border-line-strong bg-ink-2 p-3 before:pointer-events-none before:absolute before:inset-1.5 before:rounded-[10px] before:border before:border-dashed before:border-soft-lime/16 before:content-[''] compact:p-[9px]"
-  aria-label="Image workspace"
+  aria-label={i18n.t('workspace.aria')}
 >
   <div class="relative flex items-center justify-between gap-3 px-1 pt-0.5 pb-3">
     <div class="flex min-w-0 items-center gap-2">
@@ -92,7 +96,7 @@
         <path d="M8 0v5M8 11v5M0 8h5M11 8h5" stroke="currentColor" stroke-width="1" />
       </svg>
       <span class="truncate mono text-[9px] font-bold tracking-[0.12em] text-muted tiny:text-[8px]">
-        PROOF 01 / LIVE IMPRESSION
+        {i18n.t('workspace.proofLabel')}
       </span>
       {#if app.isRunning}
         <span class="size-1.5 flex-none animate-pulse-soft rounded-full bg-lime" aria-hidden="true"
@@ -104,10 +108,10 @@
     >
       {#if app.imageInfo}
         {app.imageInfo.width} × {app.imageInfo.height} / {app.blockSize === 1
-          ? '1 PX'
-          : `${app.blockSize} PX`}
+          ? `1 ${i18n.t('workspace.px')}`
+          : `${app.blockSize} ${i18n.t('workspace.px')}`}
       {:else}
-        AWAITING IMAGE
+        {i18n.t('workspace.awaitingImage')}
       {/if}
     </div>
   </div>
@@ -141,12 +145,14 @@
         aria-pressed={app.ghostOriginal}
       >
         <Icon name={app.ghostOriginal ? 'eye-off' : 'eye'} size={15} />
-        {app.ghostOriginal ? 'Hide original ghost' : 'Show original ghost'}
+        {app.ghostOriginal
+          ? i18n.t('workspace.hideOriginalGhost')
+          : i18n.t('workspace.showOriginalGhost')}
       </button>
       <span
         class="text-right mono text-[8px] font-bold tracking-[0.1em] text-muted-2 compact:hidden"
       >
-        SOURCE RESOLUTION / NEAREST NEIGHBOR
+        {i18n.t('workspace.sourceResolution')}
       </span>
     </div>
   </div>
@@ -166,8 +172,8 @@
       {eventTypeLabel(app.currentEvent)}
     </span>
     <div class="grid min-w-0 flex-1 gap-px">
-      <strong class="truncate text-[12.5px] font-bold">{app.currentLabel}</strong>
-      <span class="truncate text-[11.5px] text-muted">{app.currentDetail}</span>
+      <strong class="truncate text-[12.5px] font-bold">{i18n.text(app.currentLabel)}</strong>
+      <span class="truncate text-[11.5px] text-muted">{i18n.text(app.currentDetail)}</span>
     </div>
     {#if app.gridInfo}
       <span
@@ -175,7 +181,7 @@
       >
         {formatNumber(app.gridInfo.elementCount)}
         <small class="text-[7px] font-bold tracking-[0.12em] text-muted-2">
-          ELEMENTS · {app.alignedPercent}% IN PLACE
+          {i18n.t('workspace.elementsInPlace', { percent: app.alignedPercent })}
         </small>
       </span>
     {/if}

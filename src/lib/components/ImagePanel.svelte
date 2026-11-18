@@ -3,6 +3,7 @@
   import ImageUploader from './ImageUploader.svelte';
   import { app } from '../stores/appState.svelte';
   import { formatBytes, formatSeed } from '../utils/format';
+  import { i18n } from '../i18n/index.svelte';
 
   let thumbCanvas = $state<HTMLCanvasElement | null>(null);
 
@@ -40,10 +41,10 @@
   <div class="panel-head">
     <h2 class="panel-title" id="image-panel-title">
       <Icon name="image" size={15} />
-      Image
+      {i18n.t('common.image')}
     </h2>
     {#if app.imageInfo}
-      <span class="chip chip-lime">LOCAL</span>
+      <span class="chip chip-lime">{i18n.t('common.local')}</span>
     {/if}
   </div>
 
@@ -58,7 +59,7 @@
             class="block h-full w-full"
             width="88"
             height="88"
-            aria-label="Original image thumbnail"
+            aria-label={i18n.t('image.thumbnailAria')}
           ></canvas>
         </div>
         <div class="grid min-w-0 gap-[3px]">
@@ -66,7 +67,10 @@
             {app.imageInfo.fileName}
           </strong>
           <span class="mono text-[10px] text-muted">
-            {app.imageInfo.width} × {app.imageInfo.height} · {app.imageInfo.megapixels.toFixed(1)} MP
+            {app.imageInfo.width} × {app.imageInfo.height} · {i18n.decimal(
+              app.imageInfo.megapixels,
+              1,
+            )} MP
           </span>
           <span class="mono text-[10px] text-muted">{formatBytes(app.imageInfo.fileSize)}</span>
         </div>
@@ -74,19 +78,19 @@
 
       <dl class="mt-3.5 grid grid-cols-3 gap-2.5 border-t border-line pt-3">
         <div>
-          <dt class="label">Format</dt>
+          <dt class="label">{i18n.t('common.format')}</dt>
           <dd class="mt-[3px] mono text-[11px] font-semibold text-soft-lime">
             {app.imageInfo.mimeType.replace('image/', '').toUpperCase()}
           </dd>
         </div>
         <div>
-          <dt class="label">Grid</dt>
+          <dt class="label">{i18n.t('common.grid')}</dt>
           <dd class="mt-[3px] mono text-[11px] font-semibold text-soft-lime">
             {app.gridInfo ? `${app.gridInfo.columns} × ${app.gridInfo.rows}` : '—'}
           </dd>
         </div>
         <div>
-          <dt class="label">Shuffle</dt>
+          <dt class="label">{i18n.t('common.shuffle')}</dt>
           <dd class="mt-[3px] mono text-[11px] font-semibold text-soft-lime">
             {app.seed ? formatSeed(app.seed) : '—'}
           </dd>
@@ -97,17 +101,17 @@
         class="mt-3 flex items-center gap-1.5 text-[10.5px] text-muted [&_svg]:flex-none [&_svg]:text-lime"
       >
         <Icon name="lock" size={13} />
-        Stays in this browser. No image data is uploaded.
+        {i18n.t('image.privacy')}
       </p>
 
       {#if app.notice}
         <div class="alert mt-3 items-center alert-warning [&>span]:flex-1" role="status">
           <Icon name="info" size={15} />
-          <span>{app.notice}</span>
+          <span>{i18n.text(app.notice)}</span>
           <button
             class="inline-flex size-[22px] flex-none cursor-pointer items-center justify-center rounded border-0 bg-transparent p-0 text-inherit hover:bg-white/8"
             type="button"
-            aria-label="Dismiss image notice"
+            aria-label={i18n.t('image.dismissNotice')}
             onclick={() => app.dismissNotice()}
           >
             <Icon name="x" size={13} />
@@ -121,15 +125,15 @@
           class="btn btn-small justify-self-start text-muted btn-ghost hover:border-danger/50 hover:text-danger"
           type="button"
           onclick={() => app.clearImage()}
-          title="Remove the image and start over"
+          title={i18n.t('image.removeTitle')}
         >
           <Icon name="trash" size={14} />
-          Remove
+          {i18n.t('common.remove')}
         </button>
       </div>
     {:else}
       <div class="grid gap-2.5">
-        <p class="panel-note">Load an image to see its dimensions, grid, and shuffle ID.</p>
+        <p class="panel-note">{i18n.t('image.emptyNote')}</p>
         <ImageUploader compact showError={false} />
       </div>
     {/if}

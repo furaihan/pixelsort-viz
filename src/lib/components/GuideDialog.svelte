@@ -1,6 +1,7 @@
 <script lang="ts">
   import Icon from './Icon.svelte';
   import { ALGORITHM_GROUPS } from '../core/sorting/registry';
+  import { i18n } from '../i18n/index.svelte';
 
   let { open = $bindable(false) }: { open?: boolean } = $props();
 
@@ -38,7 +39,7 @@
   }
 
   function propertyLabel(value: boolean | 'depends'): string {
-    return value === 'depends' ? 'Depends' : value ? 'Yes' : 'No';
+    return i18n.propertyLabel(value);
   }
 
   function propertyTone(value: boolean | 'depends'): string {
@@ -62,16 +63,16 @@
     >
       <div>
         <h2 class="text-[28px] font-black tracking-[-0.04em] compact:text-[23px]">
-          How this works
+          {i18n.t('guide.title')}
         </h2>
         <p class="mt-1 mono text-[9px] font-bold tracking-[0.14em] text-muted">
-          PIXEL SORT / FIELD GUIDE
+          {i18n.t('guide.subtitle')}
         </p>
       </div>
       <button
         class="inline-flex size-[34px] flex-none cursor-pointer items-center justify-center rounded-[7px] border border-line-strong bg-ink-3 text-muted hover:border-soft-lime hover:text-text"
         type="button"
-        aria-label="Close guide"
+        aria-label={i18n.t('guide.close')}
         onclick={close}
       >
         <Icon name="x" size={18} />
@@ -83,9 +84,7 @@
         class="max-w-[72ch] text-[14px] leading-[1.6] text-muted [&_strong]:text-soft-lime"
         id="guide-intro"
       >
-        The image is the data structure. The algorithm sorts each element by its
-        <strong>original position</strong>, not by color. When the permutation is sorted, the
-        original image is reconstructed exactly.
+        {@html i18n.t('guide.intro')}
       </p>
 
       <ol class="mt-5 mb-0 grid list-none gap-3.5 p-0">
@@ -96,10 +95,9 @@
             01
           </span>
           <div>
-            <strong class="text-[13px] font-bold">Load an image and choose a block size.</strong>
+            <strong class="text-[13px] font-bold">{i18n.t('guide.step1Title')}</strong>
             <p class="mt-[3px] max-w-[70ch] text-[12px] leading-[1.5] text-muted">
-              The grid uses ceiling division, so the rightmost and bottommost tiles can be smaller.
-              Edge tiles keep their natural size and never stretch.
+              {i18n.t('guide.step1Body')}
             </p>
           </div>
         </li>
@@ -110,10 +108,9 @@
             02
           </span>
           <div>
-            <strong class="text-[13px] font-bold">Shuffle the elements.</strong>
+            <strong class="text-[13px] font-bold">{i18n.t('guide.step2Title')}</strong>
             <p class="mt-[3px] max-w-[70ch] text-[12px] leading-[1.5] text-muted">
-              Fisher–Yates creates a uniform permutation. The same shuffled arrangement is kept when
-              you switch algorithms, so comparisons are fair.
+              {i18n.t('guide.step2Body')}
             </p>
           </div>
         </li>
@@ -125,11 +122,10 @@
           </span>
           <div>
             <strong class="text-[13px] font-bold">
-              Pick an algorithm and watch the proof sheet re-register.
+              {i18n.t('guide.step3Title')}
             </strong>
             <p class="mt-[3px] max-w-[70ch] text-[12px] leading-[1.5] text-muted">
-              Compare, swap, write, pivot, and sorted events are highlighted as they happen. The
-              inspector names the operation currently on screen.
+              {i18n.t('guide.step3Body')}
             </p>
           </div>
         </li>
@@ -141,8 +137,7 @@
         >
           <Icon name="info" size={15} />
           <p class="text-[11px] leading-[1.5] text-muted">
-            Counters come from the algorithm, not from animation frames. Total tracked operations =
-            comparisons + reads + writes. Swaps are reported separately and are not added again.
+            {i18n.t('guide.counterNote')}
           </p>
         </div>
         <div
@@ -150,8 +145,7 @@
         >
           <Icon name="lock" size={15} />
           <p class="text-[11px] leading-[1.5] text-muted">
-            Everything runs in this browser. Image bytes, thumbnails, and pixel data are never sent
-            to a server.
+            {i18n.t('guide.localNote')}
           </p>
         </div>
       </div>
@@ -159,38 +153,40 @@
       <section class="mt-6" aria-labelledby="reference-title">
         <div class="mb-2.5 flex items-center justify-between gap-3">
           <h3 class="text-[18px] font-extrabold tracking-[-0.03em]" id="reference-title">
-            Algorithm reference
+            {i18n.t('guide.reference')}
           </h3>
-          <span class="chip">10 ALGORITHMS</span>
+          <span class="chip">{i18n.t('guide.algorithmCount')}</span>
         </div>
 
         <div class="overflow-x-auto rounded-[9px] border border-line">
           <table class={tableClass}>
             <thead>
               <tr>
-                <th class="{headTh} w-[26%]" scope="col">Algorithm</th>
-                <th class="{headTh} w-[14%]" scope="col">Best</th>
-                <th class="{headTh} w-[17%]" scope="col">Average</th>
-                <th class="{headTh} w-[14%]" scope="col">Worst</th>
-                <th class="{headTh} w-[12%]" scope="col">Space</th>
-                <th class="{headTh} w-[8.5%]" scope="col">Stable</th>
-                <th class="{headTh} w-[8.5%]" scope="col">In-place</th>
+                <th class="{headTh} w-[26%]" scope="col">{i18n.t('guide.algorithm')}</th>
+                <th class="{headTh} w-[14%]" scope="col">{i18n.t('common.best')}</th>
+                <th class="{headTh} w-[17%]" scope="col">{i18n.t('common.average')}</th>
+                <th class="{headTh} w-[14%]" scope="col">{i18n.t('common.worst')}</th>
+                <th class="{headTh} w-[12%]" scope="col">{i18n.t('common.space')}</th>
+                <th class="{headTh} w-[8.5%]" scope="col">{i18n.t('guide.stable')}</th>
+                <th class="{headTh} w-[8.5%]" scope="col">{i18n.t('guide.inPlace')}</th>
               </tr>
             </thead>
             <tbody>
               {#each ALGORITHM_GROUPS as group}
                 <tr>
-                  <th class={groupTh} colspan="7" scope="colgroup">{group.label}</th>
+                  <th class={groupTh} colspan="7" scope="colgroup">
+                    {i18n.categoryLabel(group.category)}
+                  </th>
                 </tr>
                 {#each group.algorithms as algorithm}
                   <tr>
                     <th class={bodyTh} scope="row">
                       <span class="text-[11.5px] font-bold text-text">
-                        {algorithm.metadata.name}
+                        {i18n.algorithmName(algorithm.metadata.id)}
                       </span>
                       {#if algorithm.metadata.notes?.length}
                         <ul class="mt-1 mb-0 grid list-none gap-0.5 p-0">
-                          {#each algorithm.metadata.notes as note}
+                          {#each i18n.algorithmNotes(algorithm.metadata.id) as note}
                             <li
                               class="max-w-[30ch] text-[9.5px] leading-[1.4] font-normal whitespace-normal text-muted-2"
                             >
@@ -200,10 +196,18 @@
                         </ul>
                       {/if}
                     </th>
-                    <td class="{bodyTd} mono text-muted">{algorithm.metadata.bestTime}</td>
-                    <td class="{bodyTd} mono text-muted">{algorithm.metadata.averageTime}</td>
-                    <td class="{bodyTd} mono text-muted">{algorithm.metadata.worstTime}</td>
-                    <td class="{bodyTd} mono text-muted">{algorithm.metadata.spaceComplexity}</td>
+                    <td class="{bodyTd} mono text-muted">
+                      {i18n.complexity(algorithm.metadata.bestTime)}
+                    </td>
+                    <td class="{bodyTd} mono text-muted">
+                      {i18n.complexity(algorithm.metadata.averageTime)}
+                    </td>
+                    <td class="{bodyTd} mono text-muted">
+                      {i18n.complexity(algorithm.metadata.worstTime)}
+                    </td>
+                    <td class="{bodyTd} mono text-muted">
+                      {i18n.complexity(algorithm.metadata.spaceComplexity)}
+                    </td>
                     <td class="{bodyTd} {propertyTone(algorithm.metadata.stable)}">
                       {propertyLabel(algorithm.metadata.stable)}
                     </td>

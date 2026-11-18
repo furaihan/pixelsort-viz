@@ -2,6 +2,7 @@
   import Icon from './Icon.svelte';
   import { app } from '../stores/appState.svelte';
   import { formatNumber, formatTime } from '../utils/format';
+  import { i18n } from '../i18n/index.svelte';
 
   const metricCell = 'grid gap-[3px] bg-ink-3 px-[11px] py-2.5';
   const metricValue = 'mono text-data';
@@ -11,61 +12,61 @@
   <div class="panel-head">
     <h2 class="panel-title" id="stats-title">
       <Icon name="clock" size={15} />
-      Live statistics
+      {i18n.t('stats.title')}
     </h2>
     {#if app.isRunning}
       <span class="chip gap-[5px] chip-lime">
         <span class="size-[5px] animate-pulse-soft rounded-full bg-lime" aria-hidden="true"></span>
-        LIVE
+        {i18n.t('stats.live')}
       </span>
     {:else}
-      <span class="chip">{app.statusLabel}</span>
+      <span class="chip">{i18n.statusLabel(app.status)}</span>
     {/if}
   </div>
 
   <div class="panel-body">
     <div class="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-line bg-line">
       <div class={metricCell}>
-        <span class="label">Comparisons</span>
+        <span class="label">{i18n.t('stats.comparisons')}</span>
         <strong class="{metricValue} text-text">{formatNumber(app.counters.comparisons)}</strong>
       </div>
       <div class={metricCell}>
-        <span class="label">Swaps</span>
+        <span class="label">{i18n.t('stats.swaps')}</span>
         <strong class="{metricValue} text-text">{formatNumber(app.counters.swaps)}</strong>
       </div>
       <div class={metricCell}>
-        <span class="label">Writes</span>
+        <span class="label">{i18n.t('stats.writes')}</span>
         <strong class="{metricValue} text-text">{formatNumber(app.counters.writes)}</strong>
       </div>
       <div class={metricCell}>
-        <span class="label">Reads</span>
+        <span class="label">{i18n.t('stats.reads')}</span>
         <strong class="{metricValue} text-text">{formatNumber(app.counters.reads)}</strong>
       </div>
       <div class={metricCell}>
-        <span class="label">Total ops</span>
+        <span class="label">{i18n.t('stats.totalOps')}</span>
         <strong class="{metricValue} text-lime">{formatNumber(app.totalOps)}</strong>
       </div>
       <div class={metricCell}>
-        <span class="label">Active compute</span>
+        <span class="label">{i18n.t('stats.activeCompute')}</span>
         <strong class="{metricValue} text-lime">{formatTime(app.activeMs)}</strong>
       </div>
     </div>
 
     <div class="mt-3 grid grid-cols-3 gap-2.5 border-t border-line pt-[11px]">
       <div>
-        <span class="label">Aux writes</span>
+        <span class="label">{i18n.t('stats.auxWrites')}</span>
         <strong class="mt-[3px] block mono text-[12px] font-semibold text-soft-lime">
           {app.counters.auxWrites > 0 ? formatNumber(app.counters.auxWrites) : '—'}
         </strong>
       </div>
       <div>
-        <span class="label">Passes</span>
+        <span class="label">{i18n.t('stats.passes')}</span>
         <strong class="mt-[3px] block mono text-[12px] font-semibold text-soft-lime">
           {app.counters.passes > 0 ? formatNumber(app.counters.passes) : '—'}
         </strong>
       </div>
       <div>
-        <span class="label">Max depth</span>
+        <span class="label">{i18n.t('stats.maxDepth')}</span>
         <strong class="mt-[3px] block mono text-[12px] font-semibold text-soft-lime">
           {app.counters.maxDepth > 0 ? formatNumber(app.counters.maxDepth) : '—'}
         </strong>
@@ -73,7 +74,7 @@
     </div>
 
     <p class="mt-3 mono text-[8px] font-bold tracking-[0.08em] text-muted-2">
-      TOTAL = COMPARISONS + READS + WRITES
+      {i18n.t('stats.totalFormula')}
     </p>
 
     <details class="group mt-2.5 border-t border-line">
@@ -82,7 +83,7 @@
       >
         <span class="inline-flex items-center gap-1.5">
           <Icon name="info" size={13} />
-          How counters work
+          {i18n.t('stats.howCounters')}
         </span>
         <span class="inline-flex transition-transform duration-[160ms] group-open:rotate-180">
           <Icon name="chevron-down" size={14} />
@@ -91,59 +92,66 @@
       <dl class="mt-2.5 grid gap-2">
         <div class="grid grid-cols-[82px_minmax(0,1fr)] gap-2">
           <dt class="font-mono text-[9px] font-bold tracking-[0.04em] text-soft-lime">
-            Comparisons
+            {i18n.t('stats.comparisons')}
           </dt>
           <dd class="text-[10.5px] leading-[1.45] text-muted">
-            Every key comparison made by the algorithm.
-          </dd>
-        </div>
-        <div class="grid grid-cols-[82px_minmax(0,1fr)] gap-2">
-          <dt class="font-mono text-[9px] font-bold tracking-[0.04em] text-soft-lime">Swaps</dt>
-          <dd class="text-[10.5px] leading-[1.45] text-muted">
-            Every exchange of two positions. A swap counts as two reads and two writes.
-          </dd>
-        </div>
-        <div class="grid grid-cols-[82px_minmax(0,1fr)] gap-2">
-          <dt class="font-mono text-[9px] font-bold tracking-[0.04em] text-soft-lime">Writes</dt>
-          <dd class="text-[10.5px] leading-[1.45] text-muted">
-            Every array-position write, including auxiliary-buffer writes.
-          </dd>
-        </div>
-        <div class="grid grid-cols-[82px_minmax(0,1fr)] gap-2">
-          <dt class="font-mono text-[9px] font-bold tracking-[0.04em] text-soft-lime">Reads</dt>
-          <dd class="text-[10.5px] leading-[1.45] text-muted">
-            Every algorithmic array access, including auxiliary reads. Rendering reads are excluded.
-          </dd>
-        </div>
-        <div class="grid grid-cols-[82px_minmax(0,1fr)] gap-2">
-          <dt class="font-mono text-[9px] font-bold tracking-[0.04em] text-soft-lime">Total ops</dt>
-          <dd class="text-[10.5px] leading-[1.45] text-muted">
-            Comparisons + reads + writes. Swaps are not added again because their reads and writes
-            are already counted.
+            {i18n.t('stats.definitionComparisons')}
           </dd>
         </div>
         <div class="grid grid-cols-[82px_minmax(0,1fr)] gap-2">
           <dt class="font-mono text-[9px] font-bold tracking-[0.04em] text-soft-lime">
-            Active compute
+            {i18n.t('stats.swaps')}
           </dt>
           <dd class="text-[10.5px] leading-[1.45] text-muted">
-            Time the worker spent computing. Paused time and playback time are excluded.
+            {i18n.t('stats.definitionSwaps')}
           </dd>
         </div>
         <div class="grid grid-cols-[82px_minmax(0,1fr)] gap-2">
           <dt class="font-mono text-[9px] font-bold tracking-[0.04em] text-soft-lime">
-            Aux writes
+            {i18n.t('stats.writes')}
           </dt>
           <dd class="text-[10.5px] leading-[1.45] text-muted">
-            Writes into an auxiliary buffer, such as merge sort's temporary array.
+            {i18n.t('stats.definitionWrites')}
           </dd>
         </div>
         <div class="grid grid-cols-[82px_minmax(0,1fr)] gap-2">
           <dt class="font-mono text-[9px] font-bold tracking-[0.04em] text-soft-lime">
-            Passes / depth
+            {i18n.t('stats.reads')}
           </dt>
           <dd class="text-[10.5px] leading-[1.45] text-muted">
-            Algorithm-specific passes, partitions, or merge operations, and maximum recursion depth.
+            {i18n.t('stats.definitionReads')}
+          </dd>
+        </div>
+        <div class="grid grid-cols-[82px_minmax(0,1fr)] gap-2">
+          <dt class="font-mono text-[9px] font-bold tracking-[0.04em] text-soft-lime">
+            {i18n.t('stats.totalOps')}
+          </dt>
+          <dd class="text-[10.5px] leading-[1.45] text-muted">
+            {i18n.t('stats.definitionTotalOps')}
+          </dd>
+        </div>
+        <div class="grid grid-cols-[82px_minmax(0,1fr)] gap-2">
+          <dt class="font-mono text-[9px] font-bold tracking-[0.04em] text-soft-lime">
+            {i18n.t('stats.activeCompute')}
+          </dt>
+          <dd class="text-[10.5px] leading-[1.45] text-muted">
+            {i18n.t('stats.definitionActiveCompute')}
+          </dd>
+        </div>
+        <div class="grid grid-cols-[82px_minmax(0,1fr)] gap-2">
+          <dt class="font-mono text-[9px] font-bold tracking-[0.04em] text-soft-lime">
+            {i18n.t('stats.auxWrites')}
+          </dt>
+          <dd class="text-[10.5px] leading-[1.45] text-muted">
+            {i18n.t('stats.definitionAuxWrites')}
+          </dd>
+        </div>
+        <div class="grid grid-cols-[82px_minmax(0,1fr)] gap-2">
+          <dt class="font-mono text-[9px] font-bold tracking-[0.04em] text-soft-lime">
+            {i18n.t('stats.passes')} / {i18n.t('stats.maxDepth')}
+          </dt>
+          <dd class="text-[10.5px] leading-[1.45] text-muted">
+            {i18n.t('stats.definitionPasses')}
           </dd>
         </div>
       </dl>

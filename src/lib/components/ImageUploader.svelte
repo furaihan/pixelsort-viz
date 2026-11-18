@@ -1,6 +1,7 @@
 <script lang="ts">
   import Icon from './Icon.svelte';
   import { app } from '../stores/appState.svelte';
+  import { i18n } from '../i18n/index.svelte';
 
   let { compact = false, showError = true }: { compact?: boolean; showError?: boolean } = $props();
 
@@ -83,7 +84,7 @@
     class={dropzoneClass}
     role="button"
     tabindex="0"
-    aria-label="Upload an image. PNG, JPEG, or WebP."
+    aria-label={i18n.t('upload.aria')}
     onclick={openPicker}
     onkeydown={handleKeydown}
     ondragover={handleDragOver}
@@ -100,12 +101,12 @@
         <span class="grid min-w-0 flex-1 gap-px">
           <strong class="text-[12px] font-bold">
             {app.isLoadingImage
-              ? 'Decoding image…'
+              ? i18n.t('upload.decoding')
               : app.hasImage
-                ? 'Replace image'
-                : 'Choose image'}
+                ? i18n.t('upload.replace')
+                : i18n.t('upload.choose')}
           </strong>
-          <span class="text-[10px] text-muted">PNG, JPEG, or WebP · stays local</span>
+          <span class="text-[10px] text-muted">{i18n.t('upload.formatsLocal')}</span>
         </span>
         <Icon name="arrow-right" size={16} />
       </div>
@@ -129,11 +130,10 @@
 
       <div class="grid max-w-[560px] gap-3">
         <h2 class="text-display text-balance compact:text-[30px]">
-          Drop an image.<br />Watch it sort itself back.
+          {@html i18n.t('upload.headline')}
         </h2>
         <p class="max-w-[48ch] text-[14px] leading-[1.55] text-muted">
-          PNG, JPEG, or WebP. Your image is decoded, shuffled, and sorted in this tab — it never
-          leaves the browser.
+          {i18n.t('upload.description')}
         </p>
       </div>
 
@@ -142,10 +142,10 @@
           class="inline-flex min-h-[42px] items-center gap-2 rounded-[9px] border border-lime bg-lime px-4 text-[13px] font-[750] text-ink shadow-[3px_3px_0_var(--pink)]"
         >
           <Icon name="upload" size={17} />
-          {app.isLoadingImage ? 'Decoding image…' : 'Choose image'}
+          {app.isLoadingImage ? i18n.t('upload.decoding') : i18n.t('upload.choose')}
         </span>
         <span class="mono text-[9px] font-bold tracking-[0.1em] text-muted-2">
-          MAX 20 MP / 40 MB
+          {i18n.t('upload.limit')}
         </span>
       </div>
     {/if}
@@ -160,20 +160,20 @@
         disabled={app.isLoadingImage}
       >
         <Icon name="sparkles" size={15} />
-        Try a sample
+        {i18n.t('upload.trySample')}
       </button>
-      <span class="text-[11px] text-muted-2">A locally generated Electric Pop poster.</span>
+      <span class="text-[11px] text-muted-2">{i18n.t('upload.sampleDescription')}</span>
     </div>
   {/if}
 
   {#if showError && app.uploadError}
     <div class="alert items-center [&>span]:flex-1" role="alert">
       <Icon name="alert" size={16} />
-      <span>{app.uploadError}</span>
+      <span>{i18n.text(app.uploadError)}</span>
       <button
         class="inline-flex size-6 cursor-pointer items-center justify-center rounded border-0 bg-transparent p-0 text-inherit hover:bg-white/8"
         type="button"
-        aria-label="Dismiss upload error"
+        aria-label={i18n.t('upload.dismissError')}
         onclick={() => app.dismissUploadError()}
       >
         <Icon name="x" size={14} />

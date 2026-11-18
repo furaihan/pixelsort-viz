@@ -2,6 +2,7 @@ import { elementRect } from '../image/grid';
 import type { GridSpec, ImageSource } from '../image/imageTypes';
 import type { Highlight, OverlaySnapshot } from './overlayState';
 import { computeRangeShape, type RangeShape, type Rect2D } from './rangeGeometry';
+import { i18n } from '../../i18n/index.svelte';
 
 export type { Highlight, OverlaySnapshot };
 
@@ -38,6 +39,7 @@ export class CanvasRenderer {
   private cssHeight = 0;
   private dpr = 1;
   private overlayNeedsRedraw = true;
+  private renderedLocale: string | null = null;
   private onResizeCallback: (() => void) | null = null;
 
   attach(
@@ -299,8 +301,9 @@ export class CanvasRenderer {
 
   renderOverlay(overlay: OverlaySnapshot, now: number, force = false): void {
     if (!this.overlayContext || !this.grid) return;
-    if (!force && !this.overlayNeedsRedraw) return;
+    if (!force && !this.overlayNeedsRedraw && this.renderedLocale === i18n.locale) return;
     this.overlayNeedsRedraw = false;
+    this.renderedLocale = i18n.locale;
 
     const context = this.overlayContext;
     context.clearRect(0, 0, this.cssWidth, this.cssHeight);
@@ -316,7 +319,7 @@ export class CanvasRenderer {
         overlay.activeRange[1],
         SOFT_LIME,
         [6, 5],
-        'RANGE',
+        i18n.t('event.range'),
         false,
       );
     }
@@ -351,6 +354,7 @@ export class CanvasRenderer {
     this.renderedPermutation = null;
     this.renderedGhost = false;
     this.overlayNeedsRedraw = true;
+    this.renderedLocale = null;
   }
 
   /** Dev-only diagnostics used by the headless verification scripts. */
@@ -527,7 +531,11 @@ export class CanvasRenderer {
     }
 
     if (highlight.kind === 'compare-value' && highlight.indices.length >= 1) {
-      this.drawCompareValue(context, highlight.indices[0], highlight.label ?? 'KEY');
+      this.drawCompareValue(
+        context,
+        highlight.indices[0],
+        i18n.shortLabel(highlight.label ?? 'KEY'),
+      );
       return;
     }
 
@@ -539,7 +547,7 @@ export class CanvasRenderer {
     if (highlight.kind === 'write' && highlight.indices.length >= 1) {
       const color = highlight.aux ? BUBBLEGUM : SOFT_LIME;
       const dash = highlight.aux ? [3, 3] : [2, 3];
-      const label = highlight.label ?? (highlight.aux ? 'AUX' : 'W');
+      const label = i18n.shortLabel(highlight.label ?? (highlight.aux ? 'AUX' : 'W'));
       this.drawElementWithBadge(context, highlight.indices[0], color, dash, 0, 0, label);
       return;
     }
@@ -682,8 +690,9 @@ export class CanvasRenderer {
     const midX = (ax + bx) / 2;
     const topY = Math.min(first.y, second.y);
     const bottomY = Math.max(first.y + first.h, second.y + second.h);
-    const box = this.measureCenteredBadge(context, 'SWAP', midX, topY, bottomY);
-    this.paintBadge(context, 'SWAP', box, PINK);
+    const swapLabel = i18n.t('event.swap');
+    const box = this.measureCenteredBadge(context, swapLabel, midX, topY, bottomY);
+    this.paintBadge(context, swapLabel, box, PINK);
   }
 
   private drawArrowHead(

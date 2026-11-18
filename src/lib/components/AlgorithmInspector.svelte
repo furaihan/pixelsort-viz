@@ -3,6 +3,7 @@
   import { app } from '../stores/appState.svelte';
   import type { SortEvent } from '../core/sorting/types';
   import { formatNumber } from '../utils/format';
+  import { i18n } from '../i18n/index.svelte';
 
   const swatch =
     'relative inline-flex h-3 w-[18px] flex-none items-center justify-center rounded-[2px] border font-mono text-[7px] font-extrabold';
@@ -11,29 +12,29 @@
     'data-[type=compare]:text-bubblegum data-[type=swap]:text-pink data-[type=write]:text-soft-lime data-[type=pivot]:text-bubblegum data-[type=sorted]:text-lime data-[type=complete]:text-lime';
 
   function eventTypeLabel(event: SortEvent | null): string {
-    if (!event) return 'IDLE';
+    if (!event) return i18n.t('event.idle');
     switch (event.type) {
       case 'compare':
       case 'compare-value':
-        return 'COMPARE';
+        return i18n.t('event.compare');
       case 'read':
-        return 'READ';
+        return i18n.t('event.read');
       case 'swap':
-        return 'SWAP';
+        return i18n.t('event.swap');
       case 'write':
-        return 'WRITE';
+        return i18n.t('event.write');
       case 'mark':
-        if (event.role === 'pivot') return 'PIVOT';
-        if (event.role === 'sorted') return 'SORTED';
-        return event.range ? 'RANGE' : 'ACTIVE';
+        if (event.role === 'pivot') return i18n.t('event.pivot');
+        if (event.role === 'sorted') return i18n.t('event.sorted');
+        return event.range ? i18n.t('event.range') : i18n.t('event.active');
       case 'pass':
-        return 'PASS';
+        return i18n.t('event.pass');
       case 'delta':
-        return 'BATCH';
+        return i18n.t('event.batch');
       case 'snapshot':
-        return 'SNAPSHOT';
+        return i18n.t('event.snapshot');
       case 'complete':
-        return 'COMPLETE';
+        return i18n.t('event.complete');
     }
   }
 
@@ -62,16 +63,16 @@
       case 'compare':
         return `${formatNumber(event.i)} ↔ ${formatNumber(event.j)}`;
       case 'compare-value':
-        return `#${formatNumber(event.index)} vs key`;
+        return `#${formatNumber(event.index)} vs ${i18n.t('inspector.key')}`;
       case 'read':
         return event.auxKind === 'counts'
-          ? `count[${formatNumber(event.index)}]`
+          ? `${i18n.t('inspector.count')}[${formatNumber(event.index)}]`
           : `#${formatNumber(event.index)}`;
       case 'swap':
         return `${formatNumber(event.i)} ↔ ${formatNumber(event.j)}`;
       case 'write':
         return event.auxKind === 'counts'
-          ? `count[${formatNumber(event.index)}]`
+          ? `${i18n.t('inspector.count')}[${formatNumber(event.index)}]`
           : `#${formatNumber(event.index)}`;
       case 'mark':
         return event.range
@@ -80,11 +81,11 @@
       case 'pass':
         return '';
       case 'delta':
-        return `${formatNumber(event.indices.length)} positions`;
+        return `${formatNumber(event.indices.length)} ${i18n.t('inspector.positions')}`;
       case 'snapshot':
-        return `${formatNumber(event.data.length)} elements`;
+        return `${formatNumber(event.data.length)} ${i18n.t('inspector.elements')}`;
       case 'complete':
-        return event.validated ? 'VALID' : 'INVALID';
+        return event.validated ? i18n.t('inspector.valid') : i18n.t('inspector.invalid');
     }
   }
 </script>
@@ -93,9 +94,9 @@
   <div class="panel-head">
     <h2 class="panel-title" id="inspector-title">
       <Icon name="compare" size={15} />
-      Operation inspector
+      {i18n.t('inspector.title')}
     </h2>
-    <span class="chip">{app.statusLabel}</span>
+    <span class="chip">{i18n.statusLabel(app.status)}</span>
   </div>
 
   <div class="panel-body">
@@ -112,51 +113,51 @@
         </span>
         <span class="mono text-[9px] font-semibold text-muted">{eventIndex(app.currentEvent)}</span>
       </div>
-      <strong class="text-[12.5px] font-bold">{app.currentLabel}</strong>
-      <p class="text-[11px] leading-[1.45] text-muted">{app.currentDetail}</p>
+      <strong class="text-[12.5px] font-bold">{i18n.text(app.currentLabel)}</strong>
+      <p class="text-[11px] leading-[1.45] text-muted">{i18n.text(app.currentDetail)}</p>
     </div>
 
     <div
       class="mt-3 grid grid-cols-3 gap-x-2.5 gap-y-[7px] border-t border-line pt-[11px]"
-      aria-label="Operation legend"
+      aria-label={i18n.t('inspector.legend')}
     >
       <div class="flex items-center gap-1.5 text-[9.5px] text-muted">
         <span
           class="{swatch} border-lime after:absolute after:inset-[2px_-2px_-2px_2px] after:rounded-[2px] after:border after:border-dashed after:border-pink after:content-['']"
           aria-hidden="true"
         ></span>
-        <span>Compare</span>
+        <span>{i18n.t('inspector.compare')}</span>
       </div>
       <div class="flex items-center gap-1.5 text-[9.5px] text-muted">
         <span class="{swatch} border-lime shadow-[2px_2px_0_-1px_var(--pink)]" aria-hidden="true"
         ></span>
-        <span>Swap</span>
+        <span>{i18n.t('inspector.swap')}</span>
       </div>
       <div class="flex items-center gap-1.5 text-[9.5px] text-muted">
         <span class="{swatch} border-dotted border-soft-lime" aria-hidden="true"></span>
-        <span>Write</span>
+        <span>{i18n.t('inspector.write')}</span>
       </div>
       <div class="flex items-center gap-1.5 text-[9.5px] text-muted">
         <span class="{swatch} border-dashed border-pink text-pink" aria-hidden="true">P</span>
-        <span>Pivot</span>
+        <span>{i18n.t('inspector.pivot')}</span>
       </div>
       <div class="flex items-center gap-1.5 text-[9.5px] text-muted">
         <span class="{swatch} border-lime text-lime" aria-hidden="true">
           <Icon name="check" size={10} />
         </span>
-        <span>Sorted</span>
+        <span>{i18n.t('inspector.sorted')}</span>
       </div>
       <div class="flex items-center gap-1.5 text-[9.5px] text-muted">
         <span
           class="{swatch} border-transparent after:size-[5px] after:rounded-full after:bg-soft-lime after:content-['']"
           aria-hidden="true"
         ></span>
-        <span>Read</span>
+        <span>{i18n.t('inspector.read')}</span>
       </div>
     </div>
 
     <div class="mt-3 border-t border-line pt-[11px]">
-      <span class="label">Recent operations</span>
+      <span class="label">{i18n.t('inspector.recent')}</span>
       {#if app.eventLog.length > 0}
         <ol class="mt-[7px] mb-0 grid list-none gap-[5px] p-0">
           {#each app.eventLog as entry (entry.id)}
@@ -167,13 +168,13 @@
               >
                 {entry.type}
               </span>
-              <span class="truncate text-[10px] text-muted">{entry.text}</span>
+              <span class="truncate text-[10px] text-muted">{i18n.text(entry.text)}</span>
             </li>
           {/each}
         </ol>
       {:else}
         <p class="mt-[7px] text-[10.5px] leading-[1.45] text-muted-2">
-          No operations yet. Start or step to inspect the algorithm.
+          {i18n.t('inspector.empty')}
         </p>
       {/if}
     </div>
