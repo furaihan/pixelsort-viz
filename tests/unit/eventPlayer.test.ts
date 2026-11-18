@@ -68,4 +68,26 @@ describe('applyEventToPermutation', () => {
     );
     expect(Array.from(permutation)).toEqual([0, 1, 2]);
   });
+
+  it('rejects a delta whose index and value arrays disagree', () => {
+    const permutation = Uint32Array.from([0, 1, 2]);
+    const event: SortEvent = {
+      type: 'delta',
+      indices: Uint32Array.from([0, 1]),
+      values: Uint32Array.from([2]),
+    };
+    expect(applyEventToPermutation(permutation, event)).toBe(false);
+    expect(Array.from(permutation)).toEqual([0, 1, 2]);
+  });
+
+  it('rejects a delta with an invalid index without partial mutation', () => {
+    const permutation = Uint32Array.from([0, 1, 2]);
+    const event: SortEvent = {
+      type: 'delta',
+      indices: Uint32Array.from([0, 3]),
+      values: Uint32Array.from([2, 1]),
+    };
+    expect(applyEventToPermutation(permutation, event)).toBe(false);
+    expect(Array.from(permutation)).toEqual([0, 1, 2]);
+  });
 });

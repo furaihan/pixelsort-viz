@@ -2,7 +2,13 @@ import { computeGrid } from '../core/image/grid';
 import type { BlockSize, GridSpec, ImageSource } from '../core/image/imageTypes';
 import { ImageLoadError, WARN_IMAGE_PIXELS, decodeImageFile } from '../core/image/decodeImage';
 import { createSampleImage } from '../core/image/sampleImage';
-import { fisherYates, identityPermutation, randomSeed } from '../core/image/shuffle';
+import {
+  fisherYates,
+  identityPermutation,
+  isPermutation,
+  isSorted,
+  randomSeed,
+} from '../core/image/shuffle';
 import { getAlgorithm } from '../core/sorting/registry';
 import {
   emptyCounters,
@@ -140,6 +146,8 @@ export class AppState {
   private pendingRawLogs: SortEvent[] = [];
   private modeManuallySet = false;
   private loadToken = 0;
+  private runSequence = 0;
+  private activeRunId = 0;
 
   get hasImage(): boolean {
     return this.imageInfo !== null;
@@ -226,7 +234,7 @@ export class AppState {
   }
 
   get sampleFps(): number {
-    return Math.round(1000 / this.sampleIntervalMs());
+    return Math.round(1000 / Math.max(16, this.sampleIntervalMs()));
   }
 
   attachRenderer(renderer: CanvasRenderer): void {
@@ -640,6 +648,7 @@ export class AppState {
 
     this.worker?.postMessage({
       type: 'start',
+      runId: this.activeRunId,
       permutation: this.permutation.slice(),
       algorithmId: this.algorithmId,
       mode: this.mode === 'educational' ? 'step' : 'sample',
@@ -664,6 +673,9 @@ export class AppState {
   }
 
   private terminateWorker(): void {
+    // Invalidate responses before detaching the worker. A terminated worker can
+    // still have a message already queued in the browser's event loop.
+    this.activeRunId = ++this.runSequence;
     if (this.worker) {
       this.worker.onmessage = null;
       this.worker.onerror = null;
@@ -679,6 +691,8 @@ export class AppState {
   }
 
   private handleWorkerMessage(message: WorkerResponse): void {
+    if (message.runId !== this.activeRunId) return;
+
     if (message.type === 'batch') {
       this.awaitingBatch = false;
       this.workerElapsed = message.elapsedMs;
@@ -739,28 +753,30 @@ export class AppState {
     const done = this.pendingDone;
     if (!done) return;
     this.pendingDone = null;
+    const validated =
+      done.validated && isPermutation(done.permutation) && isSorted(done.permutation);
     this.permutation = done.permutation;
     this.liveAlignedCount = countAligned(done.permutation);
     this.alignedCount = this.liveAlignedCount;
     this.liveCounters = { ...done.counters };
     this.workerElapsed = done.elapsedMs;
-    this.status = done.validated ? 'completed' : 'error';
+    this.status = validated ? 'completed' : 'error';
     this.currentEvent = {
       type: 'complete',
       counters: done.counters,
       elapsedMs: done.elapsedMs,
-      validated: done.validated,
+      validated,
     };
-    this.currentLabel = done.validated
+    this.currentLabel = validated
       ? 'Complete — original arrangement restored.'
       : 'Validation failed.';
-    this.currentDetail = done.validated
+    this.currentDetail = validated
       ? 'Every element is back in its original position.'
       : 'The final permutation is not the original arrangement. Reset and try again.';
     this.pendingEvent = null;
     this.pendingRawLogs = [];
     this.markCanvasDirty();
-    if (done.validated) {
+    if (validated) {
       this.overlay.setComplete(this.grid?.elementCount ?? 0);
     } else {
       this.overlay.reset();
@@ -771,7 +787,7 @@ export class AppState {
       {
         id: this.logId++,
         type: 'complete',
-        text: done.validated ? 'Complete — original restored' : 'Validation failed',
+        text: validated ? 'Complete — original restored' : 'Validation failed',
       },
       ...this.eventLog,
     ].slice(0, 6);

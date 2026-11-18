@@ -319,6 +319,15 @@ export class SortContext {
     return events;
   }
 
+  /**
+   * Flushes the compact sample window after an algorithm has finished. Without
+   * this tail flush, the last writes could remain in the worker's dirty set and
+   * only appear when the main thread receives the final permutation.
+   */
+  flushPending(): void {
+    if (!this.isStepMode && this.dirtyList.length > 0) this.pushSample();
+  }
+
   finish(): { counters: Counters; permutation: Uint32Array } {
     return {
       counters: { ...this.counters },

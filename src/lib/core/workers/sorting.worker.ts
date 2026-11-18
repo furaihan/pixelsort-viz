@@ -1,4 +1,4 @@
-import { isSorted } from '../image/shuffle';
+import { isPermutation, isSorted } from '../image/shuffle';
 import { SortContext } from '../sorting/instrumentation';
 import { getAlgorithm } from '../sorting/registry';
 import type { SortEvent } from '../sorting/types';
@@ -12,6 +12,7 @@ interface WorkerScope {
 const scope = self as unknown as WorkerScope;
 
 interface RunState {
+  runId: number;
   context: SortContext;
   generator: Generator<void, void, void>;
   cancelled: boolean;
@@ -45,6 +46,15 @@ function release(state: RunState): void {
   resume?.();
 }
 
+function postCancelled(state: RunState): void {
+  scope.postMessage({
+    type: 'cancelled',
+    runId: state.runId,
+    counters: { ...state.context.counters },
+    elapsedMs: state.activeMs,
+  });
+}
+
 async function execute(state: RunState): Promise<void> {
   const step = (): IteratorResult<void, void> => {
     const started = performance.now();
@@ -58,11 +68,7 @@ async function execute(state: RunState): Promise<void> {
 
     while (!result.done) {
       if (state.cancelled) {
-        scope.postMessage({
-          type: 'cancelled',
-          counters: { ...state.context.counters },
-          elapsedMs: state.activeMs,
-        });
+        postCancelled(state);
         return;
       }
 
@@ -72,6 +78,7 @@ async function execute(state: RunState): Promise<void> {
         scope.postMessage(
           {
             type: 'batch',
+            runId: state.runId,
             events,
             counters: { ...state.context.counters },
             elapsedMs: state.activeMs,
@@ -80,11 +87,7 @@ async function execute(state: RunState): Promise<void> {
         );
         await waitForContinue(state);
         if (state.cancelled) {
-          scope.postMessage({
-            type: 'cancelled',
-            counters: { ...state.context.counters },
-            elapsedMs: state.activeMs,
-          });
+          postCancelled(state);
           return;
         }
         state.context.resetSampleClock();
@@ -94,33 +97,33 @@ async function execute(state: RunState): Promise<void> {
     }
 
     if (state.cancelled) {
-      scope.postMessage({
-        type: 'cancelled',
-        counters: { ...state.context.counters },
-        elapsedMs: state.activeMs,
-      });
+      postCancelled(state);
       return;
     }
 
-    // In step mode, flush any trailing events produced after the final yield so
-    // short runs (< batchSize) and tail operations are never dropped before done.
-    if (state.context.mode === 'step') {
-      const remaining = state.context.takeEvents();
-      if (remaining.length > 0) {
-        scope.postMessage({
+    // Flush the tail in both modes. Step mode can finish with fewer than a full
+    // batch; sample mode can have dirty positions since the last time window.
+    state.context.flushPending();
+    const remaining = state.context.takeEvents();
+    if (remaining.length > 0) {
+      scope.postMessage(
+        {
           type: 'batch',
+          runId: state.runId,
           events: remaining,
           counters: { ...state.context.counters },
           elapsedMs: state.activeMs,
-        });
-      }
+        },
+        state.context.mode === 'sample' ? transferablesFor(remaining) : undefined,
+      );
     }
 
     const final = state.context.finish();
-    const validated = isSorted(final.permutation);
+    const validated = isPermutation(final.permutation) && isSorted(final.permutation);
     scope.postMessage(
       {
         type: 'done',
+        runId: state.runId,
         permutation: final.permutation,
         counters: final.counters,
         elapsedMs: state.activeMs,
@@ -130,7 +133,7 @@ async function execute(state: RunState): Promise<void> {
     );
   } catch (error) {
     const message = error instanceof Error ? error.message : 'The sorting worker failed.';
-    scope.postMessage({ type: 'error', message });
+    scope.postMessage({ type: 'error', runId: state.runId, message });
   } finally {
     if (run === state) run = null;
   }
@@ -145,6 +148,15 @@ scope.addEventListener('message', (event) => {
       release(run);
     }
 
+    if (!isPermutation(message.permutation)) {
+      scope.postMessage({
+        type: 'error',
+        runId: message.runId,
+        message: 'The sorting run started with an invalid permutation.',
+      });
+      return;
+    }
+
     const context = new SortContext(message.permutation, {
       mode: message.mode,
       batchSize: message.batchSize,
@@ -152,6 +164,7 @@ scope.addEventListener('message', (event) => {
     });
     const algorithm = getAlgorithm(message.algorithmId);
     const state: RunState = {
+      runId: message.runId,
       context,
       generator: algorithm.run(context),
       cancelled: false,

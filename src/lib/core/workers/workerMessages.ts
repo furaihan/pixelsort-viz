@@ -3,6 +3,7 @@ import type { AlgorithmId, Counters, SortEvent, SortMode } from '../sorting/type
 export type WorkerRequest =
   | {
       type: 'start';
+      runId: number;
       permutation: Uint32Array;
       algorithmId: AlgorithmId;
       mode: SortMode;
@@ -15,13 +16,14 @@ export type WorkerRequest =
   | { type: 'set-batch-size'; batchSize: number };
 
 export type WorkerResponse =
-  | { type: 'batch'; events: SortEvent[]; counters: Counters; elapsedMs: number }
+  | { type: 'batch'; runId: number; events: SortEvent[]; counters: Counters; elapsedMs: number }
   | {
       type: 'done';
+      runId: number;
       permutation: Uint32Array;
       counters: Counters;
       elapsedMs: number;
       validated: boolean;
     }
-  | { type: 'cancelled'; counters: Counters; elapsedMs: number }
-  | { type: 'error'; message: string };
+  | { type: 'cancelled'; runId: number; counters: Counters; elapsedMs: number }
+  | { type: 'error'; runId: number; message: string };

@@ -132,4 +132,17 @@ describe('SortContext instrumentation', () => {
     }
     expect(context.tick()).toBe(true);
   });
+
+  it('flushes dirty sample positions after the final compute slice', () => {
+    const context = createContext([0, 1], 'sample');
+    context.write(0, 1);
+    context.flushPending();
+
+    expect(context.events).toHaveLength(1);
+    expect(context.events[0]).toMatchObject({ type: 'delta' });
+    if (context.events[0]?.type === 'delta') {
+      expect(Array.from(context.events[0].indices)).toEqual([0]);
+      expect(Array.from(context.events[0].values)).toEqual([1]);
+    }
+  });
 });
