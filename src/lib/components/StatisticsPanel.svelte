@@ -28,46 +28,50 @@
     <div class="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-line bg-line">
       <div class={metricCell}>
         <span class="label">{i18n.t('stats.comparisons')}</span>
-        <strong class="{metricValue} text-text">{formatNumber(app.counters.comparisons)}</strong>
+        <strong class="{metricValue} text-muted">{formatNumber(app.counters.comparisons)}</strong>
       </div>
       <div class={metricCell}>
         <span class="label">{i18n.t('stats.swaps')}</span>
-        <strong class="{metricValue} text-text">{formatNumber(app.counters.swaps)}</strong>
+        <strong class="{metricValue} text-muted">{formatNumber(app.counters.swaps)}</strong>
       </div>
       <div class={metricCell}>
         <span class="label">{i18n.t('stats.writes')}</span>
-        <strong class="{metricValue} text-text">{formatNumber(app.counters.writes)}</strong>
+        <strong class="{metricValue} text-muted">{formatNumber(app.counters.writes)}</strong>
       </div>
       <div class={metricCell}>
         <span class="label">{i18n.t('stats.reads')}</span>
-        <strong class="{metricValue} text-text">{formatNumber(app.counters.reads)}</strong>
+        <strong class="{metricValue} text-muted">{formatNumber(app.counters.reads)}</strong>
       </div>
       <div class={metricCell}>
         <span class="label">{i18n.t('stats.totalOps')}</span>
-        <strong class="{metricValue} text-lime">{formatNumber(app.totalOps)}</strong>
+        <strong class="{metricValue} {app.isRunning || app.isComplete ? 'text-lime' : 'text-text'}">
+          {formatNumber(app.totalOps)}
+        </strong>
       </div>
       <div class={metricCell}>
         <span class="label">{i18n.t('stats.activeCompute')}</span>
-        <strong class="{metricValue} text-lime">{formatTime(app.activeMs)}</strong>
+        <strong class="{metricValue} {app.isRunning || app.isComplete ? 'text-lime' : 'text-text'}">
+          {formatTime(app.activeMs)}
+        </strong>
       </div>
     </div>
 
     <div class="mt-3 grid grid-cols-3 gap-2.5 border-t border-line pt-[11px]">
       <div>
         <span class="label">{i18n.t('stats.auxWrites')}</span>
-        <strong class="mt-[3px] block mono text-[12px] font-semibold text-soft-lime">
+        <strong class="mt-[3px] block mono text-[12px] font-semibold text-text">
           {app.counters.auxWrites > 0 ? formatNumber(app.counters.auxWrites) : '—'}
         </strong>
       </div>
       <div>
         <span class="label">{i18n.t('stats.passes')}</span>
-        <strong class="mt-[3px] block mono text-[12px] font-semibold text-soft-lime">
+        <strong class="mt-[3px] block mono text-[12px] font-semibold text-text">
           {app.counters.passes > 0 ? formatNumber(app.counters.passes) : '—'}
         </strong>
       </div>
       <div>
         <span class="label">{i18n.t('stats.maxDepth')}</span>
-        <strong class="mt-[3px] block mono text-[12px] font-semibold text-soft-lime">
+        <strong class="mt-[3px] block mono text-[12px] font-semibold text-text">
           {app.counters.maxDepth > 0 ? formatNumber(app.counters.maxDepth) : '—'}
         </strong>
       </div>
@@ -91,7 +95,7 @@
       </summary>
       <dl class="mt-2.5 grid gap-2">
         <div class="grid grid-cols-[82px_minmax(0,1fr)] gap-2">
-          <dt class="font-mono text-[9px] font-bold tracking-[0.04em] text-soft-lime">
+          <dt class="font-mono text-[9px] font-bold tracking-[0.04em] text-muted">
             {i18n.t('stats.comparisons')}
           </dt>
           <dd class="text-[10.5px] leading-[1.45] text-muted">
@@ -99,7 +103,7 @@
           </dd>
         </div>
         <div class="grid grid-cols-[82px_minmax(0,1fr)] gap-2">
-          <dt class="font-mono text-[9px] font-bold tracking-[0.04em] text-soft-lime">
+          <dt class="font-mono text-[9px] font-bold tracking-[0.04em] text-muted">
             {i18n.t('stats.swaps')}
           </dt>
           <dd class="text-[10.5px] leading-[1.45] text-muted">
@@ -107,7 +111,7 @@
           </dd>
         </div>
         <div class="grid grid-cols-[82px_minmax(0,1fr)] gap-2">
-          <dt class="font-mono text-[9px] font-bold tracking-[0.04em] text-soft-lime">
+          <dt class="font-mono text-[9px] font-bold tracking-[0.04em] text-muted">
             {i18n.t('stats.writes')}
           </dt>
           <dd class="text-[10.5px] leading-[1.45] text-muted">
@@ -115,7 +119,7 @@
           </dd>
         </div>
         <div class="grid grid-cols-[82px_minmax(0,1fr)] gap-2">
-          <dt class="font-mono text-[9px] font-bold tracking-[0.04em] text-soft-lime">
+          <dt class="font-mono text-[9px] font-bold tracking-[0.04em] text-muted">
             {i18n.t('stats.reads')}
           </dt>
           <dd class="text-[10.5px] leading-[1.45] text-muted">
@@ -123,7 +127,7 @@
           </dd>
         </div>
         <div class="grid grid-cols-[82px_minmax(0,1fr)] gap-2">
-          <dt class="font-mono text-[9px] font-bold tracking-[0.04em] text-soft-lime">
+          <dt class="font-mono text-[9px] font-bold tracking-[0.04em] text-muted">
             {i18n.t('stats.totalOps')}
           </dt>
           <dd class="text-[10.5px] leading-[1.45] text-muted">
@@ -131,7 +135,7 @@
           </dd>
         </div>
         <div class="grid grid-cols-[82px_minmax(0,1fr)] gap-2">
-          <dt class="font-mono text-[9px] font-bold tracking-[0.04em] text-soft-lime">
+          <dt class="font-mono text-[9px] font-bold tracking-[0.04em] text-muted">
             {i18n.t('stats.activeCompute')}
           </dt>
           <dd class="text-[10.5px] leading-[1.45] text-muted">
@@ -139,7 +143,7 @@
           </dd>
         </div>
         <div class="grid grid-cols-[82px_minmax(0,1fr)] gap-2">
-          <dt class="font-mono text-[9px] font-bold tracking-[0.04em] text-soft-lime">
+          <dt class="font-mono text-[9px] font-bold tracking-[0.04em] text-muted">
             {i18n.t('stats.auxWrites')}
           </dt>
           <dd class="text-[10.5px] leading-[1.45] text-muted">
@@ -147,7 +151,7 @@
           </dd>
         </div>
         <div class="grid grid-cols-[82px_minmax(0,1fr)] gap-2">
-          <dt class="font-mono text-[9px] font-bold tracking-[0.04em] text-soft-lime">
+          <dt class="font-mono text-[9px] font-bold tracking-[0.04em] text-muted">
             {i18n.t('stats.passes')} / {i18n.t('stats.maxDepth')}
           </dt>
           <dd class="text-[10.5px] leading-[1.45] text-muted">

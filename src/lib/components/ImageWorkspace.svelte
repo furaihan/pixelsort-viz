@@ -80,13 +80,13 @@
 </script>
 
 <section
-  class="relative rounded-[14px] border border-line-strong bg-ink-2 p-3 before:pointer-events-none before:absolute before:inset-1.5 before:rounded-[10px] before:border before:border-dashed before:border-soft-lime/16 before:content-[''] compact:p-[9px]"
+  class="relative rounded-[14px] border border-line-strong bg-ink-2 p-3 before:pointer-events-none before:absolute before:inset-1.5 before:rounded-[10px] before:border before:border-dashed before:border-line-strong/40 before:content-[''] compact:p-[9px]"
   aria-label={i18n.t('workspace.aria')}
 >
   <div class="relative flex items-center justify-between gap-3 px-1 pt-0.5 pb-3">
     <div class="flex min-w-0 items-center gap-2">
       <svg
-        class="flex-none text-lime"
+        class="flex-none text-violet"
         width="16"
         height="16"
         viewBox="0 0 16 16"
@@ -220,7 +220,7 @@
                 : index === 5 || index === 10 || index === 15
                   ? 'bg-pink'
                   : index === 0 || index === 9
-                    ? 'bg-soft-lime'
+                    ? 'bg-bubblegum'
                     : 'bg-ink-4'}"
             ></span>
           {/each}
@@ -245,7 +245,7 @@
     aria-live={app.isRunning ? 'off' : 'polite'}
   >
     <span
-      class="flex-none -rotate-[1.5deg] rounded-[4px] bg-soft-lime px-2 py-1 mono text-[9px] font-extrabold tracking-[0.08em] text-ink data-[tone=lime]:bg-lime data-[tone=pink]:bg-pink"
+      class="flex-none -rotate-[1.5deg] rounded-[4px] border border-line-strong bg-ink-3 px-2 py-1 mono text-[9px] font-extrabold tracking-[0.08em] text-muted data-[tone=lime]:border-lime data-[tone=lime]:bg-lime data-[tone=lime]:text-ink data-[tone=pink]:border-pink data-[tone=pink]:bg-pink data-[tone=pink]:text-ink"
       data-tone={stampTone(app.currentEvent)}
     >
       {eventTypeLabel(app.currentEvent)}
@@ -256,7 +256,7 @@
     </div>
     {#if app.gridInfo}
       <span
-        class="grid flex-none justify-items-end mono text-[12px] leading-[1.1] font-bold text-soft-lime compact:hidden"
+        class="grid flex-none justify-items-end mono text-[12px] leading-[1.1] font-bold text-text compact:hidden"
       >
         {formatNumber(app.gridInfo.elementCount)}
         <small class="text-[7px] font-bold tracking-[0.12em] text-muted-2">

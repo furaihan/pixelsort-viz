@@ -13,7 +13,7 @@
   const modeButton =
     'min-h-7 cursor-pointer rounded-[5px] border-0 px-[9px] text-[10.5px] font-bold disabled:cursor-not-allowed disabled:opacity-45';
   const modeIdle = 'bg-transparent text-muted enabled:hover:text-text';
-  const modeActive = 'bg-lime text-ink';
+  const modeActive = 'bg-lime/10 text-lime';
 
   let speedIndex = $derived(
     Math.max(0, SPEED_PRESETS.indexOf(app.speed as (typeof SPEED_PRESETS)[number])),
@@ -196,7 +196,7 @@
       <div class="grid content-start gap-1.5">
         <div class="flex items-center justify-between gap-2">
           <span class="label">{speedCaption}</span>
-          <span class="mono text-[11px] font-bold text-lime">{speedText}</span>
+          <span class="mono text-[11px] font-bold text-text">{speedText}</span>
         </div>
         <input
           class="speed-range"
@@ -214,7 +214,7 @@
           aria-hidden="true"
         >
           {#each SPEED_PRESETS as preset, index}
-            <span class={index === speedIndex ? 'text-soft-lime' : ''}>
+            <span class={index === speedIndex ? 'text-text' : ''}>
               {app.mode === 'performance' ? performanceFps[index] : `${preset}×`}
             </span>
           {/each}

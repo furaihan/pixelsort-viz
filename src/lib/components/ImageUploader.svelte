@@ -14,7 +14,7 @@
     'min-h-[126px] border border-dashed border-lime/45 p-4 bg-lime/[0.04] hover:border-lime hover:bg-lime/[0.08]';
   const dropzoneFullDragging = 'min-h-[126px] border border-dashed border-lime p-4 bg-lime/[0.1]';
   const dropzoneCompact =
-    'min-h-0 border border-solid border-line-strong bg-ink-3 px-3 py-2.5 hover:border-soft-lime';
+    'min-h-0 border border-solid border-line-strong bg-ink-3 px-3 py-2.5 hover:border-line';
 
   let dropzoneClass = $derived(
     [
@@ -93,7 +93,7 @@
     {#if compact}
       <div class="flex w-full items-center gap-2.5 [&>svg:last-child]:text-muted">
         <span
-          class="inline-flex size-[30px] flex-none items-center justify-center rounded-[6px] bg-lime/10 text-lime"
+          class="inline-flex size-[30px] flex-none items-center justify-center rounded-[6px] bg-bubblegum/10 text-bubblegum"
         >
           <Icon name="upload" size={16} />
         </span>

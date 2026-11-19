@@ -9,9 +9,8 @@
 
   const segmentBase =
     'relative flex cursor-pointer items-baseline justify-center gap-[3px] min-h-11 rounded-[7px] border px-1.5 py-2 transition-colors duration-150';
-  const segmentIdle =
-    'border-line-strong bg-ink-3 text-muted hover:border-soft-lime hover:text-text';
-  const segmentActive = 'border-lime bg-lime text-ink';
+  const segmentIdle = 'border-line-strong bg-ink-3 text-muted hover:border-line hover:text-text';
+  const segmentActive = 'border-lime bg-lime/10 text-lime';
   const segmentFocus =
     'has-[input:focus-visible]:outline-2 has-[input:focus-visible]:outline-offset-2 has-[input:focus-visible]:outline-lime';
 </script>
@@ -72,7 +71,7 @@
       </div>
       <div class="grid gap-[3px]">
         <span class="label">{i18n.t('granularity.sortableElements')}</span>
-        <strong class="mono text-2xl leading-none font-extrabold tracking-[-0.04em] text-lime">
+        <strong class="mono text-2xl leading-none font-extrabold tracking-[-0.04em] text-text">
           {app.gridInfo ? formatNumber(app.gridInfo.elementCount) : '—'}
         </strong>
       </div>

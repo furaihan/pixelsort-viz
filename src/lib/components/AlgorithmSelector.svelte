@@ -14,12 +14,6 @@
     return i18n.propertyLabel(value);
   }
 
-  function chipTone(value: boolean | 'depends'): string {
-    if (value === true) return 'chip-lime';
-    if (value === false) return 'chip-pink';
-    return '';
-  }
-
   function handleChange(event: Event): void {
     const select = event.currentTarget as HTMLSelectElement;
     app.setAlgorithm(select.value as AlgorithmId);
@@ -88,7 +82,7 @@
           id="algorithm-select"
           value={app.algorithmId}
           onchange={handleChange}
-          class="min-h-[40px] w-full cursor-pointer appearance-none rounded-lg border border-line-strong bg-ink-3 py-0 pr-[36px] pl-3 text-[13px] font-[650] text-text hover:border-soft-lime focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lime"
+          class="min-h-[40px] w-full cursor-pointer appearance-none rounded-lg border border-line-strong bg-ink-3 py-0 pr-[36px] pl-3 text-[13px] font-[650] text-text hover:border-line focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lime"
         >
           {#each ALGORITHM_GROUPS as group}
             <optgroup label={i18n.categoryLabel(group.category)}>
@@ -108,7 +102,7 @@
       </div>
 
       <button
-        class="inline-flex size-[40px] flex-none cursor-pointer items-center justify-center rounded-[9px] border border-line-strong bg-ink-3 text-soft-lime transition-colors hover:border-soft-lime hover:text-lime"
+        class="inline-flex size-[40px] flex-none cursor-pointer items-center justify-center rounded-[9px] border border-line-strong bg-ink-3 text-bubblegum transition-colors hover:border-line hover:text-text"
         type="button"
         aria-label={i18n.t('algorithm.about')}
         aria-expanded={infoOpen}
@@ -135,7 +129,7 @@
           </span>
         </div>
         <button
-          class="inline-flex size-[24px] flex-none cursor-pointer items-center justify-center rounded-[6px] border border-line-strong bg-ink-3 text-muted hover:border-soft-lime hover:text-text"
+          class="inline-flex size-[24px] flex-none cursor-pointer items-center justify-center rounded-[6px] border border-line-strong bg-ink-3 text-muted hover:border-line hover:text-text"
           type="button"
           aria-label={i18n.t('common.dismiss')}
           onclick={closeInfo}
@@ -152,35 +146,35 @@
         <dl class="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-line bg-line">
           <div class="bg-ink-3 px-2.5 py-[9px]">
             <dt class="label">{i18n.t('common.best')}</dt>
-            <dd class="mt-[3px] mono text-[10.5px] leading-[1.35] font-semibold text-soft-lime">
+            <dd class="mt-[3px] mono text-[10.5px] leading-[1.35] font-semibold text-text">
               {i18n.complexity(app.algorithm.metadata.bestTime)}
             </dd>
           </div>
           <div class="bg-ink-3 px-2.5 py-[9px]">
             <dt class="label">{i18n.t('common.average')}</dt>
-            <dd class="mt-[3px] mono text-[10.5px] leading-[1.35] font-semibold text-soft-lime">
+            <dd class="mt-[3px] mono text-[10.5px] leading-[1.35] font-semibold text-text">
               {i18n.complexity(app.algorithm.metadata.averageTime)}
             </dd>
           </div>
           <div class="bg-ink-3 px-2.5 py-[9px]">
             <dt class="label">{i18n.t('common.worst')}</dt>
-            <dd class="mt-[3px] mono text-[10.5px] leading-[1.35] font-semibold text-soft-lime">
+            <dd class="mt-[3px] mono text-[10.5px] leading-[1.35] font-semibold text-text">
               {i18n.complexity(app.algorithm.metadata.worstTime)}
             </dd>
           </div>
           <div class="bg-ink-3 px-2.5 py-[9px]">
             <dt class="label">{i18n.t('common.space')}</dt>
-            <dd class="mt-[3px] mono text-[10.5px] leading-[1.35] font-semibold text-soft-lime">
+            <dd class="mt-[3px] mono text-[10.5px] leading-[1.35] font-semibold text-text">
               {i18n.complexity(app.algorithm.metadata.spaceComplexity)}
             </dd>
           </div>
         </dl>
 
         <div class="flex flex-wrap gap-1.5">
-          <span class="chip {chipTone(app.algorithm.metadata.stable)}">
+          <span class="chip">
             {i18n.t('algorithm.stable', { value: propertyLabel(app.algorithm.metadata.stable) })}
           </span>
-          <span class="chip {chipTone(app.algorithm.metadata.inPlace)}">
+          <span class="chip">
             {i18n.t('algorithm.inPlace', { value: propertyLabel(app.algorithm.metadata.inPlace) })}
           </span>
         </div>
@@ -199,7 +193,7 @@
         {/if}
 
         <button
-          class="inline-flex cursor-pointer items-center gap-[5px] border-0 bg-transparent p-0 text-[11.5px] font-[650] text-soft-lime hover:text-lime"
+          class="inline-flex cursor-pointer items-center gap-[5px] border-0 bg-transparent p-0 text-[11.5px] font-[650] text-lime hover:text-text"
           type="button"
           onclick={openReference}
         >

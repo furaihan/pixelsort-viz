@@ -15,7 +15,7 @@
   const bodyTd =
     'border-b border-line px-2.5 py-[9px] text-left align-top whitespace-normal [overflow-wrap:anywhere]';
   const groupTh =
-    'border-b border-line bg-lime/6 px-2.5 py-[7px] text-left font-mono text-[8px] font-extrabold tracking-[0.12em] text-lime uppercase';
+    'border-b border-line bg-bubblegum/10 px-2.5 py-[7px] text-left font-mono text-[8px] font-extrabold tracking-[0.12em] text-muted uppercase';
 
   $effect(() => {
     if (!dialog) return;
@@ -43,8 +43,8 @@
   }
 
   function propertyTone(value: boolean | 'depends'): string {
-    if (value === true) return 'text-lime';
-    if (value === false) return 'text-bubblegum';
+    if (value === true) return 'text-text';
+    if (value === false) return 'text-muted-2';
     return 'text-muted';
   }
 </script>
@@ -70,7 +70,7 @@
         </p>
       </div>
       <button
-        class="inline-flex size-[34px] flex-none cursor-pointer items-center justify-center rounded-[7px] border border-line-strong bg-ink-3 text-muted hover:border-soft-lime hover:text-text"
+        class="inline-flex size-[34px] flex-none cursor-pointer items-center justify-center rounded-[7px] border border-line-strong bg-ink-3 text-muted hover:border-line hover:text-text"
         type="button"
         aria-label={i18n.t('guide.close')}
         onclick={close}
@@ -81,7 +81,7 @@
 
     <div class="overflow-auto px-[22px] pt-5 pb-[26px] compact:p-4">
       <p
-        class="max-w-[72ch] text-[14px] leading-[1.6] text-muted [&_strong]:text-soft-lime"
+        class="max-w-[72ch] text-[14px] leading-[1.6] text-muted [&_strong]:text-text"
         id="guide-intro"
       >
         {@html i18n.t('guide.intro')}
@@ -90,7 +90,7 @@
       <ol class="mt-5 mb-0 grid list-none gap-3.5 p-0">
         <li class="flex items-start gap-3">
           <span
-            class="inline-flex size-7 flex-none items-center justify-center rounded-[5px] border border-line-strong mono text-[9px] font-extrabold text-lime"
+            class="inline-flex size-7 flex-none items-center justify-center rounded-[5px] border border-line-strong mono text-[9px] font-extrabold text-muted"
           >
             01
           </span>
@@ -103,7 +103,7 @@
         </li>
         <li class="flex items-start gap-3">
           <span
-            class="inline-flex size-7 flex-none items-center justify-center rounded-[5px] border border-line-strong mono text-[9px] font-extrabold text-lime"
+            class="inline-flex size-7 flex-none items-center justify-center rounded-[5px] border border-line-strong mono text-[9px] font-extrabold text-muted"
           >
             02
           </span>
@@ -116,7 +116,7 @@
         </li>
         <li class="flex items-start gap-3">
           <span
-            class="inline-flex size-7 flex-none items-center justify-center rounded-[5px] border border-line-strong mono text-[9px] font-extrabold text-lime"
+            class="inline-flex size-7 flex-none items-center justify-center rounded-[5px] border border-line-strong mono text-[9px] font-extrabold text-muted"
           >
             03
           </span>
@@ -133,7 +133,7 @@
 
       <div class="mt-5 grid grid-cols-2 gap-2.5 compact:grid-cols-1">
         <div
-          class="flex items-start gap-2 rounded-lg border border-line bg-ink-3 px-3 py-[11px] [&_svg]:mt-px [&_svg]:flex-none [&_svg]:text-lime"
+          class="flex items-start gap-2 rounded-lg border border-line bg-ink-3 px-3 py-[11px] [&_svg]:mt-px [&_svg]:flex-none [&_svg]:text-bubblegum"
         >
           <Icon name="info" size={15} />
           <p class="text-[11px] leading-[1.5] text-muted">
@@ -141,7 +141,7 @@
           </p>
         </div>
         <div
-          class="flex items-start gap-2 rounded-lg border border-line bg-ink-3 px-3 py-[11px] [&_svg]:mt-px [&_svg]:flex-none [&_svg]:text-lime"
+          class="flex items-start gap-2 rounded-lg border border-line bg-ink-3 px-3 py-[11px] [&_svg]:mt-px [&_svg]:flex-none [&_svg]:text-bubblegum"
         >
           <Icon name="lock" size={15} />
           <p class="text-[11px] leading-[1.5] text-muted">

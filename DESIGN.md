@@ -103,36 +103,39 @@ The canvas is the dominant object. It sits inside a proof frame with registratio
 
 **Key Characteristics:**
 - Obsidian (#111116) main background with a faint halftone dot texture in Quantum Violet.
-- Glacier Blue (#9ACCF0) for primary buttons, selection, links, and call-to-action elements.
-- Signal Red (#F14B50) for compare and swap highlights, pivot markers, and urgent states.
-- Quantum Violet (#6C75A5) for secondary accents, strong lines, and interactive elements.
+- Glacier Blue (#9ACCF0) for the primary action, the selected option, live status and counters, completion marks, links, and focus.
+- Signal Red (#F14B50) for compare and swap highlights, pivot markers, the quadratic warning, errors, and the primary button's offset.
+- Quantum Violet (#6C75A5) for structure: panel icons, input and panel rules, secondary chips, and the speed control. Never small text.
 - Pixel Grey (#D8DCE8) for primary text, headings, dividers, and interface elements.
 - Archivo Variable for typography; JetBrains Mono Variable for measurements, indices, and counters.
 - Misregistered Glacier Blue/Signal Red outlines for compare and swap; line style and labels carry state alongside color.
+- Accent color is a signal, not surface: the chrome stays Obsidian, slate, and grey. Solid blue marks the primary action (Start/Resume, Choose image), the current-operation stamp for sorted or completed states, and the brand mark; a selected block size uses a blue border with a 10% tint.
 
 ## Colors
 
 The palette is Obsidian-based with Glacier Blue as the primary accent, Signal Red as the highlight accent, and Quantum Violet as the secondary accent; Pixel Grey supplies typography, dividers, and interface neutrals. The direction is bold and futuristic: one dominant accent, one punch of red, and a violet that adds dimension without competing.
 
 ### Primary Accents & CTA
-- **Glacier Blue** (#9ACCF0): Primary actions, active selections, sorted states, focus rings, links, and primary buttons.
-- **Signal Red** (#F14B50): Highlight accent — compare/swap boxes, pivot markers, urgent states, and destructive actions.
+- **Glacier Blue** (#9ACCF0): The primary action, the selected option, live status and live counters, sorted/completion marks, focus rings, links, and the empty-state upload action.
+- **Signal Red** (#F14B50): Highlight accent — compare/swap boxes, pivot markers, the quadratic warning, errors and destructive actions, and the primary button's offset.
 
 ### Neutrals & Surfaces
 - **Obsidian** (#111116): Main page background and canvas surround.
 - **Dark Slate** (#171921): Cards, containers, panels, and secondary surfaces (derived Obsidian lift).
 - **Raised Slate** (#1d1f28): Inset metric cells, inputs, and raised surfaces (derived Obsidian lift).
 - **Pixel Grey** (#D8DCE8): Primary text, headings, dividers, and interface elements.
-- **Quantum Violet** (#6C75A5): Secondary accents, strong lines, and interactive elements.
+- **Quantum Violet** (#6C75A5): Structural secondary accent — panel-title icons, panel and input rules, the proof-frame inner rule, secondary chips, the speed control, and hover borders. It is never used for small text: at 3.7:1 against the Obsidian ground it misses the 4.5:1 body-text floor.
 - **Text Muted** (#B8BCC8): Secondary copy, descriptions, and labels.
 - **Text Dim** (#9CA0B0): Tertiary copy and metadata.
 - **Danger** (#F14B50): Errors and destructive actions.
 - **Warning** (#F14B50): Workload warnings and large-run notices.
 
 ### Named Rules
+**The Signal Rule.** Color marks where the user acts or live state changes. Solid Glacier Blue is reserved for the primary action (Start/Resume, Choose image), the current-operation stamp when the event is sorted or complete, and the brand mark; a selected option uses a Glacier Blue border with a 10% tint. Live counters and status are blue while a run is active or complete. Everything else — panel chrome, metadata, labels, values, helper copy — is Pixel Grey or Text Muted.
+
 **The Tone Rule.** Glacier Blue and Quantum Violet provide clear, bold contrast against the Obsidian ground and Pixel Grey text without jarring saturation; Signal Red is the single visual punch.
 
-**The Registration Rule.** Compare and swap highlights use offset Glacier Blue/Signal Red outlines. Sorted states align into a single Signal Red mark.
+**The Registration Rule.** Compare and swap highlights use offset Glacier Blue/Signal Red outlines. Sorted states align into a single Glacier Blue mark.
 
 ## Typography
 
@@ -165,11 +168,11 @@ Controls use a 9px radius. Panels use a 14px radius. Chips use a 5px radius. Sta
 ### Buttons
 - **Shape:** 9px radius, 38px minimum height, 13px horizontal padding, 7px icon gap.
 - **Primary:** Glacier Blue background, Obsidian text, 1px Glacier Blue border, 3px Signal Red offset. Used for Start, Resume, Replay, and empty-state Choose image action.
-- **Secondary / Ghost:** Transparent background, 1px line-strong border, Pixel Grey text. Used for Step, Shuffle, Reset, Restore, and guide trigger.
+- **Secondary / Ghost:** Transparent background, 1px line-strong border, Pixel Grey text; hover raises the fill to Raised Slate and the border to Pixel Grey. Used for Step, Shuffle, Reset, Restore, and guide trigger.
 
 ### Chips
 - **Style:** Transparent background, 1px line-strong border, 5px radius, 22px height, 9px mono uppercase.
-- **State:** Glacier Blue chips for local/active/sorted, Signal Red chips for quadratic/compare metadata, Quantum Violet chips for granularity and secondary metadata.
+- **State:** Glacier Blue chips for live status, Signal Red chips for the quadratic warning, and a Quantum Violet border with Text Muted copy for granularity and secondary metadata. Algorithm properties (stable, in place) use the neutral chip; the value word carries the state.
 
 ### Cards / Containers
 - **Corner Style:** 14px radius.

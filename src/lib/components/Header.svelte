@@ -6,7 +6,7 @@
   let { onopenGuide }: { onopenGuide: () => void } = $props();
 
   const statusTone =
-    'data-[tone=live]:border-lime/50 data-[tone=live]:text-lime data-[tone=paused]:border-pink/50 data-[tone=paused]:text-bubblegum data-[tone=done]:border-lime/50 data-[tone=done]:text-lime data-[tone=error]:border-danger/50 data-[tone=error]:text-danger';
+    'data-[tone=live]:border-lime/50 data-[tone=live]:text-lime data-[tone=paused]:border-bubblegum/60 data-[tone=paused]:text-muted data-[tone=done]:border-lime/50 data-[tone=done]:text-lime data-[tone=error]:border-danger/50 data-[tone=error]:text-danger';
 </script>
 
 <header
@@ -32,7 +32,7 @@
 
   <div class="flex items-center gap-2.5 tight:gap-1.5">
     <span
-      class="inline-flex items-center gap-[5px] mono text-[9px] font-bold tracking-[0.1em] text-muted narrow:hidden [&_svg]:text-lime"
+      class="inline-flex items-center gap-[5px] mono text-[9px] font-bold tracking-[0.1em] text-muted narrow:hidden [&_svg]:text-muted-2"
     >
       <Icon name="lock" size={12} />
       {i18n.t('common.local100')}
@@ -60,7 +60,7 @@
     <label class="sr-only" for="language-select">{i18n.t('language.label')}</label>
     <select
       id="language-select"
-      class="min-h-[34px] max-w-[145px] rounded-[7px] border border-line-strong bg-ink-3 px-2 text-[10px] font-bold text-muted hover:border-soft-lime focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lime tight:max-w-[78px] tight:px-1.5 tight:text-[9px]"
+      class="min-h-[34px] max-w-[145px] rounded-[7px] border border-line-strong bg-ink-3 px-2 text-[10px] font-bold text-muted hover:border-line focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lime tight:max-w-[78px] tight:px-1.5 tight:text-[9px]"
       value={i18n.locale}
       onchange={(event) =>
         i18n.setLocale((event.currentTarget as HTMLSelectElement).value as 'en' | 'id')}

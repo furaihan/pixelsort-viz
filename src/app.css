@@ -200,7 +200,7 @@
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: var(--lime);
+    background: var(--line);
   }
 
   :focus-visible {
@@ -283,7 +283,7 @@
   text-transform: uppercase;
 
   & svg {
-    color: var(--lime);
+    color: var(--line-strong);
   }
 }
 
@@ -341,7 +341,7 @@
 
   &:hover:not(:disabled) {
     background: var(--ink-3);
-    border-color: var(--soft-lime);
+    border-color: var(--line);
   }
 
   &:active:not(:disabled) {
@@ -375,7 +375,7 @@
   background: transparent;
 
   &:hover:not(:disabled) {
-    background: rgba(154, 204, 240, 0.07);
+    background: rgba(216, 220, 232, 0.06);
   }
 }
 
@@ -414,8 +414,8 @@
 }
 
 @utility chip-soft {
-  border-color: rgba(108, 117, 165, 0.35);
-  color: var(--bubblegum);
+  border-color: rgba(108, 117, 165, 0.55);
+  color: var(--muted);
 }
 
 @utility alert {
@@ -477,7 +477,8 @@
   margin: 5px 0 2px;
   appearance: none;
   border-radius: 999px;
-  background: var(--line-strong);
+  background: var(--ink-4);
+  box-shadow: inset 0 0 0 1px rgba(216, 220, 232, 0.14);
   cursor: pointer;
 
   &::-webkit-slider-thumb {
@@ -486,8 +487,8 @@
     appearance: none;
     border: 2px solid var(--ink);
     border-radius: 50%;
-    background: var(--pink);
-    box-shadow: 0 0 0 1px var(--pink);
+    background: var(--line-strong);
+    box-shadow: 0 0 0 1px var(--line-strong);
   }
 
   &::-moz-range-thumb {
@@ -495,8 +496,8 @@
     height: 14px;
     border: 2px solid var(--ink);
     border-radius: 50%;
-    background: var(--pink);
-    box-shadow: 0 0 0 1px var(--pink);
+    background: var(--line-strong);
+    box-shadow: 0 0 0 1px var(--line-strong);
   }
 
   &:focus-visible {

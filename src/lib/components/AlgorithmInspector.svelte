@@ -9,7 +9,7 @@
     'relative inline-flex h-3 w-[18px] flex-none items-center justify-center rounded-[2px] border font-mono text-[7px] font-extrabold';
 
   const logTypeTone =
-    'data-[type=compare]:text-bubblegum data-[type=swap]:text-pink data-[type=write]:text-soft-lime data-[type=pivot]:text-bubblegum data-[type=sorted]:text-lime data-[type=complete]:text-lime';
+    'data-[type=compare]:text-pink data-[type=swap]:text-pink data-[type=write]:text-muted data-[type=pivot]:text-pink data-[type=sorted]:text-lime data-[type=complete]:text-lime';
 
   function eventTypeLabel(event: SortEvent | null): string {
     if (!event) return i18n.t('event.idle');
@@ -107,7 +107,7 @@
     >
       <div class="flex items-center justify-between gap-2">
         <span
-          class="inline-flex min-h-5 items-center rounded-[3px] bg-soft-lime px-1.5 mono text-[8px] font-extrabold tracking-[0.08em] text-ink group-data-[tone=lime]:bg-lime group-data-[tone=pink]:bg-pink"
+          class="inline-flex min-h-5 items-center rounded-[3px] border border-line-strong bg-ink-4 px-1.5 mono text-[8px] font-extrabold tracking-[0.08em] text-muted group-data-[tone=lime]:border-lime group-data-[tone=lime]:bg-lime group-data-[tone=lime]:text-ink group-data-[tone=pink]:border-pink group-data-[tone=pink]:bg-pink group-data-[tone=pink]:text-ink"
         >
           {eventTypeLabel(app.currentEvent)}
         </span>

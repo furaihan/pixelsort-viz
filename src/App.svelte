@@ -122,7 +122,7 @@
     class="flex items-center justify-between gap-3.5 border-t border-line px-6 py-[13px] text-[8px] font-bold tracking-[0.1em] text-muted-2 compact:px-3.5 compact:py-3"
   >
     <div class="flex items-center gap-[7px]">
-      <span class="size-[5px] rounded-full bg-lime" aria-hidden="true"></span>
+      <span class="size-[5px] rounded-full bg-line-strong" aria-hidden="true"></span>
       <span class="mono">{i18n.t('app.footerLocal')}</span>
     </div>
     <div class="flex gap-3.5 mono compact:hidden">
