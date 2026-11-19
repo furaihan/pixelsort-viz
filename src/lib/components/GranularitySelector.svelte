@@ -5,6 +5,8 @@
   import { formatNumber } from '../utils/format';
   import { i18n } from '../i18n/index.svelte';
 
+  let { inline = false }: { inline?: boolean } = $props();
+
   const segmentBase =
     'relative flex cursor-pointer items-baseline justify-center gap-[3px] min-h-11 rounded-[7px] border px-1.5 py-2 transition-colors duration-150';
   const segmentIdle =
@@ -14,12 +16,17 @@
     'has-[input:focus-visible]:outline-2 has-[input:focus-visible]:outline-offset-2 has-[input:focus-visible]:outline-lime';
 </script>
 
-<section class="panel" aria-labelledby="granularity-title">
-  <div class="panel-head">
-    <h2 class="panel-title" id="granularity-title">
+<svelte:element
+  this={inline ? 'div' : 'section'}
+  class={inline ? 'grid content-start gap-2.5' : 'panel panel-compact'}
+  role={inline ? 'group' : undefined}
+  aria-labelledby="granularity-title"
+>
+  <div class={inline ? 'flex items-center justify-between gap-2' : 'panel-head'}>
+    <svelte:element this={inline ? 'h3' : 'h2'} class="panel-title" id="granularity-title">
       <Icon name="grid" size={15} />
       {i18n.t('granularity.title')}
-    </h2>
+    </svelte:element>
     <span class="chip chip-soft">
       {app.blockSize === 1
         ? `1 ${i18n.t('workspace.px')}`
@@ -27,7 +34,7 @@
     </span>
   </div>
 
-  <div class="panel-body">
+  <div class={inline ? 'grid' : 'panel-body'}>
     <fieldset class="m-0 min-w-0 border-0 p-0">
       <legend class="sr-only">{i18n.t('granularity.elementSize')}</legend>
       <div class="grid grid-cols-3 gap-1.5">
@@ -79,4 +86,4 @@
       {/if}
     </p>
   </div>
-</section>
+</svelte:element>

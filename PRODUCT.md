@@ -48,7 +48,7 @@ The app runs entirely in the browser. Images are decoded locally, never uploaded
 
 The working title is Pixel Sorting Visualizer. The interface language is English; content architecture should allow localization later.
 
-The user pinned the visual palette and mood: Electric Pop — Electric Lime `#C6FF00`, Hot Pink `#FF1493`, Jet Black `#111111`, Soft Lime `#E6FF80`, Bubblegum Pink `#FF75BD`. Mood: edgy, Y2K, rebellious, playful, high-energy. Recommended balance: 35% black, 25% electric lime, 20% hot pink, 10% soft lime, 10% bubblegum pink. Treat this as a binding color commitment; adapt it for readable, accessible app UI rather than diluting it.
+The user pinned the visual palette and mood: Warm Minimalist Dark Mode — Midnight Graphite `#252729`, Dark Slate `#343A3D`, Misty Blue `#9CBBC5`, Soft Coral `#E99588`, Cloud Cream `#EAE2D8`. Mood: Warm, minimal, sophisticated, and calming. Treat this as a binding color commitment; adapt it for readable, accessible app UI rather than diluting it.
 
 ## Evidence on Hand
 

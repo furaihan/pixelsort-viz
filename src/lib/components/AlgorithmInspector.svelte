@@ -90,7 +90,7 @@
   }
 </script>
 
-<section class="panel" aria-labelledby="inspector-title">
+<section class="panel panel-compact" aria-labelledby="inspector-title">
   <div class="panel-head">
     <h2 class="panel-title" id="inspector-title">
       <Icon name="compare" size={15} />
@@ -117,14 +117,14 @@
       <p class="text-[11px] leading-[1.45] text-muted">{i18n.text(app.currentDetail)}</p>
     </div>
 
-    <div class="grid gap-2.5 border-b border-line pb-[11px]">
+    <div class="mt-2.5 grid gap-2.5">
       <p class="m-0 text-[10.5px] leading-[1.45] text-muted">
         {i18n.t('inspector.keyNote')}
       </p>
     </div>
 
     <div
-      class="mt-3 grid grid-cols-3 gap-x-2.5 gap-y-[7px] border-t border-line pt-[11px]"
+      class="mt-3 grid grid-cols-3 gap-x-2.5 gap-y-[7px] border-t border-line pt-[11px] tight:grid-cols-2"
       aria-label={i18n.t('inspector.legend')}
     >
       <div class="flex items-center gap-1.5 text-[9.5px] text-muted">

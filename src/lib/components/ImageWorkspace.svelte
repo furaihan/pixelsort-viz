@@ -5,7 +5,7 @@
   import { app } from '../stores/appState.svelte';
   import { CanvasRenderer } from '../core/visualization/CanvasRenderer';
   import type { SortEvent } from '../core/sorting/types';
-  import { formatNumber } from '../utils/format';
+  import { formatBytes, formatNumber, formatSeed } from '../utils/format';
   import { i18n } from '../i18n/index.svelte';
 
   let mainCanvas: HTMLCanvasElement;
@@ -137,28 +137,107 @@
       ></canvas>
     </div>
 
-    <div class="flex items-center justify-between gap-2.5 px-0.5">
-      <button
-        class="btn btn-small btn-ghost"
-        type="button"
-        onclick={() => app.toggleGhost()}
-        aria-pressed={app.ghostOriginal}
-      >
-        <Icon name={app.ghostOriginal ? 'eye-off' : 'eye'} size={15} />
-        {app.ghostOriginal
-          ? i18n.t('workspace.hideOriginalGhost')
-          : i18n.t('workspace.showOriginalGhost')}
-      </button>
-      <span
-        class="text-right mono text-[8px] font-bold tracking-[0.1em] text-muted-2 compact:hidden"
-      >
-        {i18n.t('workspace.sourceResolution')}
-      </span>
-    </div>
+    {#if app.hasImage}
+      <div class="flex flex-wrap items-center gap-2 px-0.5">
+        <div class="min-w-[210px] flex-1">
+          <ImageUploader compact />
+        </div>
+        <button
+          class="btn btn-small btn-ghost"
+          type="button"
+          onclick={() => app.toggleGhost()}
+          aria-pressed={app.ghostOriginal}
+        >
+          <Icon name={app.ghostOriginal ? 'eye-off' : 'eye'} size={15} />
+          {app.ghostOriginal
+            ? i18n.t('workspace.hideOriginalGhost')
+            : i18n.t('workspace.showOriginalGhost')}
+        </button>
+        <button
+          class="btn btn-small btn-ghost hover:border-danger/50 hover:text-danger"
+          type="button"
+          onclick={() => app.clearImage()}
+          title={i18n.t('image.removeTitle')}
+        >
+          <Icon name="trash" size={14} />
+          {i18n.t('common.remove')}
+        </button>
+        <span
+          class="ml-auto text-right mono text-[8px] font-bold tracking-[0.1em] text-muted-2 compact:hidden"
+        >
+          {i18n.t('workspace.sourceResolution')}
+        </span>
+      </div>
+
+      {#if app.imageInfo}
+        <div
+          class="flex flex-wrap items-center gap-x-3 gap-y-1 px-0.5 mono text-[9px] font-semibold text-muted-2"
+        >
+          <span class="max-w-full truncate text-muted">{app.imageInfo.fileName}</span>
+          <span>
+            {app.imageInfo.width} × {app.imageInfo.height} · {i18n.decimal(
+              app.imageInfo.megapixels,
+              1,
+            )} MP · {formatBytes(app.imageInfo.fileSize)}
+          </span>
+          <span>
+            {i18n.t('common.shuffle')}
+            {app.seed ? formatSeed(app.seed) : '—'}
+          </span>
+        </div>
+      {/if}
+
+      {#if app.notice}
+        <div class="alert items-center alert-warning [&>span]:flex-1" role="status">
+          <Icon name="info" size={15} />
+          <span>{i18n.text(app.notice)}</span>
+          <button
+            class="inline-flex size-[22px] flex-none cursor-pointer items-center justify-center rounded border-0 bg-transparent p-0 text-inherit hover:bg-white/8"
+            type="button"
+            aria-label={i18n.t('image.dismissNotice')}
+            onclick={() => app.dismissNotice()}
+          >
+            <Icon name="x" size={13} />
+          </button>
+        </div>
+      {/if}
+    {/if}
   </div>
 
   {#if !app.hasImage}
-    <ImageUploader />
+    <div
+      class="grid gap-3 rounded-lg border border-dashed border-line-strong bg-ink p-4 compact:p-3"
+    >
+      <div class="flex flex-wrap items-start gap-3">
+        <div
+          class="grid grid-cols-[repeat(4,12px)] gap-1 rounded-[6px] border border-line-strong bg-ink-2 p-1.5"
+          aria-hidden="true"
+        >
+          {#each Array(16) as _, index}
+            <span
+              class="size-[12px] rounded-[2px] {index === 2 || index === 7 || index === 13
+                ? 'bg-lime'
+                : index === 5 || index === 10 || index === 15
+                  ? 'bg-pink'
+                  : index === 0 || index === 9
+                    ? 'bg-soft-lime'
+                    : 'bg-ink-4'}"
+            ></span>
+          {/each}
+        </div>
+
+        <div class="grid min-w-[220px] flex-1 gap-1">
+          <h2 class="text-[17px] leading-[1.15] font-extrabold tracking-[-0.03em] text-text">
+            {i18n.t('workspace.emptyHeadline')}
+          </h2>
+          <p class="max-w-[54ch] text-[11.5px] leading-[1.45] text-muted">
+            {i18n.t('workspace.emptyDescription')}
+          </p>
+        </div>
+      </div>
+
+      <ImageUploader />
+    </div>
   {/if}
 
   <div

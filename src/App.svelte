@@ -3,12 +3,12 @@
   import Header from './lib/components/Header.svelte';
   import ImageWorkspace from './lib/components/ImageWorkspace.svelte';
   import PlaybackControls from './lib/components/PlaybackControls.svelte';
-  import ImagePanel from './lib/components/ImagePanel.svelte';
   import GranularitySelector from './lib/components/GranularitySelector.svelte';
   import AlgorithmSelector from './lib/components/AlgorithmSelector.svelte';
   import StatisticsPanel from './lib/components/StatisticsPanel.svelte';
   import AlgorithmInspector from './lib/components/AlgorithmInspector.svelte';
   import GuideDialog from './lib/components/GuideDialog.svelte';
+  import Icon from './lib/components/Icon.svelte';
   import { app } from './lib/stores/appState.svelte';
   import { i18n } from './lib/i18n/index.svelte';
 
@@ -70,21 +70,49 @@
   <Header onopenGuide={() => (guideOpen = true)} />
 
   <main
-    class="mx-auto grid w-[min(1600px,100%)] min-w-0 flex-1 grid-cols-[minmax(0,1.55fr)_minmax(340px,0.9fr)] items-start gap-5 px-6 pt-5 pb-7 shell:grid-cols-1 compact:gap-3.5 compact:p-3.5"
+    class="mx-auto grid w-[min(1600px,100%)] min-w-0 flex-1 grid-cols-[minmax(0,1.65fr)_minmax(330px,0.85fr)] items-start gap-5 px-6 pt-5 pb-7 shell:grid-cols-1 compact:gap-3.5 compact:p-3.5"
     id="workspace"
   >
-    <section
-      class="sticky top-5 grid min-w-0 gap-3.5 shell:static short:static"
-      aria-label={i18n.t('app.visualizationPlayback')}
-    >
+    <section class="grid min-w-0 gap-2.5" aria-label={i18n.t('app.visualizationPlayback')}>
       <ImageWorkspace />
-      <PlaybackControls />
+
+      <section class="panel panel-compact" aria-labelledby="controls-title">
+        <div class="panel-head">
+          <h2 class="panel-title" id="controls-title">
+            <Icon name="layers" size={15} />
+            {i18n.t('controls.title')}
+          </h2>
+          <span class="chip">{i18n.statusLabel(app.status)}</span>
+        </div>
+
+        <div class="grid gap-3 panel-body">
+          <PlaybackControls inline zone="actions" />
+
+          <div
+            class="grid grid-cols-3 items-start gap-3 border-t border-line pt-3 narrow:grid-cols-1"
+          >
+            <div class="min-w-0 pr-3 narrow:pr-0">
+              <GranularitySelector inline />
+            </div>
+            <div
+              class="min-w-0 border-l border-line pl-3 narrow:border-t narrow:border-l-0 narrow:pt-3 narrow:pl-0"
+            >
+              <AlgorithmSelector inline onopenGuide={() => (guideOpen = true)} />
+            </div>
+            <div
+              class="min-w-0 border-l border-line pl-3 narrow:border-t narrow:border-l-0 narrow:pt-3 narrow:pl-0"
+            >
+              <PlaybackControls inline zone="settings" />
+            </div>
+          </div>
+        </div>
+      </section>
     </section>
 
-    <aside class="grid min-w-0 gap-3.5" aria-label={i18n.t('app.configurationStatistics')}>
-      <ImagePanel />
-      <GranularitySelector />
-      <AlgorithmSelector onopenGuide={() => (guideOpen = true)} />
+    <aside
+      class="sticky top-5 grid min-w-0 gap-2.5 shell:static short:static"
+      aria-label={i18n.t('app.configurationStatistics')}
+    >
       <StatisticsPanel />
       <AlgorithmInspector />
     </aside>

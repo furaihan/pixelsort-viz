@@ -24,23 +24,23 @@
  * `var(--ink)`-style references and Tailwind utilities agree.
  */
 @theme {
-  --color-ink: #111111;
-  --color-ink-2: #171717;
-  --color-ink-3: #1d1d1d;
-  --color-ink-4: #242424;
-  --color-line: #2b2b2b;
-  --color-line-strong: #3a3a3a;
+  --color-ink: #252729;
+  --color-ink-2: #343a3d;
+  --color-ink-3: #3f4549;
+  --color-ink-4: #4a5155;
+  --color-line: #42494c;
+  --color-line-strong: #525a5e;
 
-  --color-lime: #c6ff00;
-  --color-pink: #ff1493;
-  --color-soft-lime: #e6ff80;
-  --color-bubblegum: #ff75bd;
+  --color-lime: #e99588;
+  --color-pink: #9cbbc5;
+  --color-soft-lime: #9cbbc5;
+  --color-bubblegum: #9cbbc5;
 
-  --color-text: #f4f4ec;
-  --color-muted: #a6a69a;
-  --color-muted-2: #8a8a80;
-  --color-danger: #ff5c5c;
-  --color-warning: #ffc857;
+  --color-text: #eae2d8;
+  --color-muted: #b5ada3;
+  --color-muted-2: #9a9388;
+  --color-danger: #e27272;
+  --color-warning: #e2a862;
 
   --radius-sm: 9px;
   --radius-md: 14px;
@@ -162,7 +162,7 @@
     inset: 0;
     z-index: -1;
     pointer-events: none;
-    background-image: radial-gradient(rgba(230, 255, 128, 0.055) 0.7px, transparent 0.7px);
+    background-image: radial-gradient(rgba(156, 183, 197, 0.05) 0.7px, transparent 0.7px);
     background-size: 5px 5px;
     opacity: 0.55;
   }
@@ -282,6 +282,16 @@
 
 @utility panel-body {
   padding: 15px;
+}
+
+@utility panel-compact {
+  & .panel-head {
+    padding: 9px 12px;
+  }
+
+  & .panel-body {
+    padding: 11px 12px;
+  }
 }
 
 @utility panel-note {
@@ -432,8 +442,8 @@
 
 /* Transparency checkerboard behind image surfaces. */
 @utility checkerboard {
-  --checker-bg: #0b0b0b;
-  --checker-fg: #171717;
+  --checker-bg: #1f2123;
+  --checker-fg: #343a3d;
   --checker-size: 12px;
 
   background-color: var(--checker-bg);

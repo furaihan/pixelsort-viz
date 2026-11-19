@@ -9,11 +9,10 @@
   let dragging = $state(false);
 
   const dropzoneShell =
-    'relative grid cursor-pointer content-center justify-items-start gap-[22px] rounded-xl transition-[border-color,background,transform] duration-[180ms]';
+    'relative grid cursor-pointer content-center justify-items-start gap-3 rounded-xl transition-[border-color,background,transform] duration-[180ms]';
   const dropzoneFullIdle =
-    'min-h-[390px] border border-dashed border-lime/42 p-[34px] bg-[linear-gradient(135deg,rgba(198,255,0,0.035),transparent_45%),var(--ink)] hover:border-lime hover:bg-[linear-gradient(135deg,rgba(198,255,0,0.08),transparent_55%),var(--ink)] compact:min-h-[320px] compact:p-6';
-  const dropzoneFullDragging =
-    'min-h-[390px] border border-dashed border-lime p-[34px] bg-[linear-gradient(135deg,rgba(198,255,0,0.08),transparent_55%),var(--ink)] compact:min-h-[320px] compact:p-6';
+    'min-h-[126px] border border-dashed border-lime/45 p-4 bg-lime/[0.04] hover:border-lime hover:bg-lime/[0.08]';
+  const dropzoneFullDragging = 'min-h-[126px] border border-dashed border-lime p-4 bg-lime/[0.1]';
   const dropzoneCompact =
     'min-h-0 border border-solid border-line-strong bg-ink-3 px-3 py-2.5 hover:border-soft-lime';
 
@@ -111,40 +110,21 @@
         <Icon name="arrow-right" size={16} />
       </div>
     {:else}
-      <div
-        class="grid grid-cols-[repeat(4,18px)] gap-1 rounded-[6px] border border-line-strong bg-ink-2 p-2"
-        aria-hidden="true"
-      >
-        {#each Array(16) as _, index}
-          <span
-            class="size-[18px] rounded-[2px] {index === 2 || index === 7 || index === 13
-              ? 'bg-lime'
-              : index === 5 || index === 10 || index === 15
-                ? 'bg-pink'
-                : index === 0 || index === 9
-                  ? 'bg-soft-lime'
-                  : 'bg-ink-4'}"
-          ></span>
-        {/each}
-      </div>
-
-      <div class="grid max-w-[560px] gap-3">
-        <h2 class="text-display text-balance compact:text-[30px]">
-          {@html i18n.t('upload.headline')}
-        </h2>
-        <p class="max-w-[48ch] text-[14px] leading-[1.55] text-muted">
-          {i18n.t('upload.description')}
-        </p>
-      </div>
-
-      <div class="flex flex-wrap items-center gap-3.5">
+      <div class="flex flex-wrap items-center gap-3">
         <span
-          class="inline-flex min-h-[42px] items-center gap-2 rounded-[9px] border border-lime bg-lime px-4 text-[13px] font-[750] text-ink shadow-[3px_3px_0_var(--pink)]"
+          class="inline-flex min-h-[38px] items-center gap-2 rounded-[9px] border border-lime bg-lime px-3.5 text-[12.5px] font-[750] text-ink shadow-[3px_3px_0_var(--pink)]"
         >
-          <Icon name="upload" size={17} />
+          <Icon name="upload" size={16} />
           {app.isLoadingImage ? i18n.t('upload.decoding') : i18n.t('upload.choose')}
         </span>
-        <span class="mono text-[9px] font-bold tracking-[0.1em] text-muted-2">
+        <span class="text-[12.5px] font-semibold text-text">
+          {i18n.t('upload.dropPrompt')}
+        </span>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-x-2.5 gap-y-1">
+        <span class="text-[11px] text-muted">{i18n.t('upload.formatsLocal')}</span>
+        <span class="mono text-[9px] font-bold tracking-[0.1em] text-muted">
           {i18n.t('upload.limit')}
         </span>
       </div>
@@ -162,7 +142,7 @@
         <Icon name="sparkles" size={15} />
         {i18n.t('upload.trySample')}
       </button>
-      <span class="text-[11px] text-muted-2">{i18n.t('upload.sampleDescription')}</span>
+      <span class="text-[11px] text-muted">{i18n.t('upload.sampleDescription')}</span>
     </div>
   {/if}
 

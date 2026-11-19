@@ -30,7 +30,7 @@
     </span>
   </a>
 
-  <div class="flex items-center gap-2.5">
+  <div class="flex items-center gap-2.5 tight:gap-1.5">
     <span
       class="inline-flex items-center gap-[5px] mono text-[9px] font-bold tracking-[0.1em] text-muted narrow:hidden [&_svg]:text-lime"
     >
@@ -38,7 +38,7 @@
       {i18n.t('common.local100')}
     </span>
     <span
-      class="group inline-flex min-h-[26px] items-center gap-1.5 rounded-full border border-line-strong px-[9px] mono text-[9px] font-bold tracking-[0.1em] text-muted tight:px-[7px] tight:text-[8px] {statusTone}"
+      class="group inline-flex min-h-[26px] items-center gap-1.5 rounded-full border border-line-strong px-[9px] mono text-[9px] font-bold tracking-[0.1em] text-muted tight:gap-1 tight:px-[5px] tight:text-[8px] {statusTone}"
       data-tone={app.statusTone}
       role="status"
       aria-live="polite"
@@ -60,7 +60,7 @@
     <label class="sr-only" for="language-select">{i18n.t('language.label')}</label>
     <select
       id="language-select"
-      class="min-h-[34px] max-w-[145px] rounded-[7px] border border-line-strong bg-ink-3 px-2 text-[10px] font-bold text-muted hover:border-soft-lime focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lime"
+      class="min-h-[34px] max-w-[145px] rounded-[7px] border border-line-strong bg-ink-3 px-2 text-[10px] font-bold text-muted hover:border-soft-lime focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lime tight:max-w-[78px] tight:px-1.5 tight:text-[9px]"
       value={i18n.locale}
       onchange={(event) =>
         i18n.setLocale((event.currentTarget as HTMLSelectElement).value as 'en' | 'id')}

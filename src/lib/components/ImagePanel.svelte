@@ -132,10 +132,7 @@
         </button>
       </div>
     {:else}
-      <div class="grid gap-2.5">
-        <p class="panel-note">{i18n.t('image.emptyNote')}</p>
-        <ImageUploader compact showError={false} />
-      </div>
+      <ImageUploader />
     {/if}
   </div>
 </section>
