@@ -2,6 +2,8 @@
   import Icon from './Icon.svelte';
   import { app } from '../stores/appState.svelte';
   import { i18n } from '../i18n/index.svelte';
+  import { activeTheme, theme } from '../theme/index.svelte';
+  import { THEME_LIST, type ThemeId } from '../theme/palettes';
 
   let { onopenGuide }: { onopenGuide: () => void } = $props();
 
@@ -10,7 +12,7 @@
 </script>
 
 <header
-  class="flex min-h-16 w-full items-center justify-between gap-[18px] border-b border-line bg-ink/92 px-6 py-2.5 backdrop-blur-[12px] narrow:px-3.5"
+  class="flex min-h-16 w-full items-center justify-between gap-[18px] border-b border-line bg-ink/92 px-6 py-2.5 backdrop-blur-[12px] narrow:px-3.5 tiny:gap-3"
 >
   <a
     class="inline-flex items-center gap-[11px] text-text no-underline hover:text-text"
@@ -38,7 +40,7 @@
       {i18n.t('common.local100')}
     </span>
     <span
-      class="group inline-flex min-h-[26px] items-center gap-1.5 rounded-full border border-line-strong px-[9px] mono text-[9px] font-bold tracking-[0.1em] text-muted tight:gap-1 tight:px-[5px] tight:text-[8px] {statusTone}"
+      class="group inline-flex min-h-[26px] items-center gap-1.5 rounded-full border border-line-strong px-[9px] mono text-[9px] font-bold tracking-[0.1em] text-muted tight:gap-1 tight:px-[5px] tight:text-[8px] tiny:sr-only {statusTone}"
       data-tone={app.statusTone}
       role="status"
       aria-live="polite"
@@ -57,6 +59,25 @@
       <Icon name="help" size={15} />
       {i18n.t('common.howWorks')}
     </button>
+    <div class="flex items-center gap-1.5">
+      <span class="flex items-center gap-1 tight:hidden" aria-hidden="true">
+        <span class="size-2 rounded-full" style:background={activeTheme().tokens.accent}></span>
+        <span class="size-2 rounded-full" style:background={activeTheme().tokens.highlight}></span>
+      </span>
+      <label class="sr-only" for="theme-select">{i18n.t('theme.label')}</label>
+      <select
+        id="theme-select"
+        class="min-h-[34px] max-w-[136px] rounded-[7px] border border-line-strong bg-ink-3 px-2 text-[10px] font-bold text-muted hover:border-line focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lime tight:max-w-[74px] tight:px-1.5 tight:text-[9px]"
+        value={theme.current}
+        onchange={(event) =>
+          theme.setTheme((event.currentTarget as HTMLSelectElement).value as ThemeId)}
+        aria-label={i18n.t('theme.label')}
+      >
+        {#each THEME_LIST as option}
+          <option value={option.id}>{option.name}</option>
+        {/each}
+      </select>
+    </div>
     <label class="sr-only" for="language-select">{i18n.t('language.label')}</label>
     <select
       id="language-select"

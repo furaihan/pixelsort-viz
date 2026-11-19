@@ -15,6 +15,12 @@ colors:
   line-strong: "#6C75A5"
   danger: "#F14B50"
   warning: "#F14B50"
+themes:
+  default: "quantum-signal"
+  registry: "src/lib/theme/palettes.ts"
+  available:
+    - "quantum-signal"
+    - "midnight-splash"
 typography:
   display:
     fontFamily: "Archivo Variable, Archivo, ui-sans-serif, system-ui, sans-serif"
@@ -113,7 +119,7 @@ The canvas is the dominant object. It sits inside a proof frame with registratio
 
 ## Colors
 
-The palette is Obsidian-based with Glacier Blue as the primary accent, Signal Red as the highlight accent, and Quantum Violet as the secondary accent; Pixel Grey supplies typography, dividers, and interface neutrals. The direction is bold and futuristic: one dominant accent, one punch of red, and a violet that adds dimension without competing.
+The palette is Obsidian-based with Glacier Blue as the primary accent, Signal Red as the highlight accent, and Quantum Violet as the secondary accent; Pixel Grey supplies typography, dividers, and interface neutrals. The direction is bold and futuristic: one dominant accent, one punch of red, and a violet that adds dimension without competing. Quantum Signal is the default palette; Midnight Splash is the alternate. Both are defined in the theme registry and selected from the header.
 
 ### Primary Accents & CTA
 - **Glacier Blue** (#9ACCF0): The primary action, the selected option, live status and live counters, sorted/completion marks, focus rings, links, and the empty-state upload action.
@@ -136,6 +142,52 @@ The palette is Obsidian-based with Glacier Blue as the primary accent, Signal Re
 **The Tone Rule.** Glacier Blue and Quantum Violet provide clear, bold contrast against the Obsidian ground and Pixel Grey text without jarring saturation; Signal Red is the single visual punch.
 
 **The Registration Rule.** Compare and swap highlights use offset Glacier Blue/Signal Red outlines. Sorted states align into a single Glacier Blue mark.
+
+## Themes
+
+Themes are data, not CSS. `src/lib/theme/palettes.ts` is the single source of truth: each theme is one entry in `THEMES` with a display name, an optional native `scheme`, and a `tokens` object. The active theme writes the tokens to `--color-*` custom properties on `<html>`; Tailwind utilities already reference those variables, so every component and the canvas overlay follow the selection without per-theme CSS. The choice persists in `localStorage` and is applied by the theme store before the app mounts. A small inline pre-paint hint in `index.html` sets `--color-ink` from the saved theme before the bundle runs, so a cold load does not flash the default background; the theme test keeps that map in sync with `THEMES`.
+
+### Token contract
+
+| Token | Required | Role | CSS variables | Default |
+| --- | --- | --- | --- | --- |
+| `ink` | yes | Primary background | `--color-ink` | — |
+| `ink2` | yes | Panels, containers | `--color-ink-2` | — |
+| `ink3` | yes | Inset/raised surfaces | `--color-ink-3` | — |
+| `ink4` | yes | Highest surface | `--color-ink-4` | — |
+| `line` | yes | Subtle borders | `--color-line` | — |
+| `structural` | yes | Secondary structure | `--color-line-strong`, `--color-bubblegum`, `--color-violet` | — |
+| `accent` | yes | Primary accent | `--color-lime`, `--color-soft-lime` | — |
+| `highlight` | yes | Focal accent | `--color-pink`, `--color-danger`, `--color-warning` | — |
+| `text` | yes | Primary text | `--color-text` | — |
+| `muted` | yes | Secondary copy | `--color-muted` | — |
+| `muted2` | yes | Tertiary copy | `--color-muted-2` | — |
+| `lineStrong` | no | Strong borders | `--color-line-strong` | `structural` |
+| `accentSoft` | no | Hover accent | `--color-soft-lime` | `accent` |
+| `danger` | no | Errors | `--color-danger` | `highlight` |
+| `warning` | no | Warnings | `--color-warning` | `highlight` |
+
+### Palette 02 — Midnight Splash
+
+Mood: bold, immersive, tech-forward, energetic.
+
+| Color | Hex | Role | Token |
+| --- | --- | --- | --- |
+| Arcade Ink | `#182644` | Primary background, structural foundation | `ink` |
+| Pool Blue | `#7EEFFF` | Highlights, interactive elements | `accent` |
+| Bubblegum | `#FF5076` | Focal accent, CTA, emphasis | `highlight` |
+| Deep Navy | `#263D60` | Secondary background, surfaces, containers | `ink2` / `ink3` |
+| Ice Mist | `#DCEBF2` | Light text, subtle surfaces, borders | `text` / `line` |
+| Muted Pool Blue | `#6C9BD1` | Derived secondary structure | `structural` |
+
+### Adding a theme
+
+1. Add one entry to `THEMES` in `src/lib/theme/palettes.ts` with a unique `id`, `name`, optional `scheme`, and a complete `tokens` object. The `satisfies Record<string, ThemeDefinition>` clause makes a missing required token a compile error.
+2. Add the theme's `ink` value to the pre-paint map in `index.html` so a cold load with that theme saved does not flash the default background. The theme test fails if the map is missing or out of sync.
+3. Run `bun run test` and `bun run check`.
+4. Done. The header dropdown, persistence, CSS variables, and canvas palette derive from the registry.
+
+Adding a new *token* (rather than a theme) is the one extension point that touches more than one file: add it to `ThemeTokens` (optional with a default), `resolveCssVars`, the `@theme` fallback, and the expected-variable list in the theme test.
 
 ## Typography
 
@@ -185,4 +237,4 @@ Controls use a 9px radius. Panels use a 14px radius. Chips use a 5px radius. Sta
 
 ## Implementation
 
-The design tokens are defined in `@theme` in `src/app.css` and mirrored in this frontmatter.
+The default theme's tokens are defined in `@theme` in `src/app.css` and mirrored in this frontmatter and in `src/lib/theme/palettes.ts`; a unit test guards the CSS fallback against drift. At runtime the theme store writes the active palette's tokens to `--color-*` on `<html>`, so all utilities and the canvas overlay follow the selection.

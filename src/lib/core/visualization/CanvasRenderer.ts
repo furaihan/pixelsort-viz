@@ -3,17 +3,9 @@ import type { GridSpec, ImageSource } from '../image/imageTypes';
 import type { Highlight, OverlaySnapshot } from './overlayState';
 import { computeRangeShape, type RangeShape, type Rect2D } from './rangeGeometry';
 import { i18n } from '../../i18n/index.svelte';
+import { DEFAULT_THEME, getCanvasPalette, type CanvasPalette } from '../../theme/palettes';
 
 export type { Highlight, OverlaySnapshot };
-
-const LIME = '#9ACCF0'; // Glacier Blue — primary accent
-const LIME_SOFT_STROKE = 'rgba(154, 204, 240, 0.8)';
-const LIME_TINT = 'rgba(154, 204, 240, 0.08)';
-const PINK = '#F14B50'; // Signal Red — highlight accent
-const SOFT_LIME = '#6C75A5'; // Quantum Violet — secondary accent
-const BUBBLEGUM = '#6C75A5'; // Quantum Violet
-const INK = '#111116'; // Obsidian
-const INK_BACKING = 'rgba(17, 17, 22, 0.75)';
 
 function rectsOverlap(a: Rect2D, b: Rect2D): boolean {
   return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
@@ -40,6 +32,7 @@ export class CanvasRenderer {
   private dpr = 1;
   private overlayNeedsRedraw = true;
   private renderedLocale: string | null = null;
+  private palette: CanvasPalette = getCanvasPalette(DEFAULT_THEME);
   private onResizeCallback: (() => void) | null = null;
 
   attach(
@@ -99,6 +92,12 @@ export class CanvasRenderer {
     }
 
     this.resize();
+  }
+
+  /** Swap the overlay color palette and schedule a repaint. */
+  setPalette(palette: CanvasPalette): void {
+    this.palette = palette;
+    this.overlayNeedsRedraw = true;
   }
 
   resize(): void {
@@ -317,7 +316,7 @@ export class CanvasRenderer {
         context,
         overlay.activeRange[0],
         overlay.activeRange[1],
-        SOFT_LIME,
+        this.palette.secondary,
         [6, 5],
         i18n.t('event.range'),
         false,
@@ -326,12 +325,20 @@ export class CanvasRenderer {
 
     // 3. Active element marker (e.g. Selection Sort's current min).
     if (overlay.activeIndex !== null && overlay.activeIndex !== overlay.pivotIndex) {
-      this.drawElement(context, overlay.activeIndex, BUBBLEGUM, [3, 4], 0, 0);
+      this.drawElement(context, overlay.activeIndex, this.palette.secondary, [3, 4], 0, 0);
     }
 
     // 4. Active partition pivot.
     if (overlay.pivotIndex !== null) {
-      this.drawElementWithBadge(context, overlay.pivotIndex, PINK, [4, 4], 0, 0, 'P');
+      this.drawElementWithBadge(
+        context,
+        overlay.pivotIndex,
+        this.palette.highlight,
+        [4, 4],
+        0,
+        0,
+        'P',
+      );
     }
 
     // 5. Transient operation highlights.
@@ -479,7 +486,7 @@ export class CanvasRenderer {
     const total = this.grid.elementCount;
     if (sortedRanges.length === 1 && sortedRanges[0][0] === 0 && sortedRanges[0][1] >= total) {
       context.save();
-      context.strokeStyle = LIME;
+      context.strokeStyle = this.palette.primary;
       context.lineWidth = 2;
       context.setLineDash([]);
       context.strokeRect(1, 1, Math.max(0, this.cssWidth - 2), Math.max(0, this.cssHeight - 2));
@@ -493,13 +500,13 @@ export class CanvasRenderer {
       if (end - start === 1) {
         singletons.push(start);
       } else if (end - start >= 2) {
-        this.drawRange(context, start, end, LIME_SOFT_STROKE, [], '', true);
+        this.drawRange(context, start, end, this.palette.primarySoftStroke, [], '', true);
       }
     }
 
     if (singletons.length > 0) {
       context.save();
-      context.strokeStyle = LIME;
+      context.strokeStyle = this.palette.primary;
       context.lineWidth = 2;
       context.setLineDash([]);
       context.beginPath();
@@ -547,7 +554,7 @@ export class CanvasRenderer {
     }
 
     if (highlight.kind === 'write' && highlight.indices.length >= 1) {
-      const color = highlight.aux ? BUBBLEGUM : SOFT_LIME;
+      const color = this.palette.secondary;
       const dash = highlight.aux ? [3, 3] : [2, 3];
       const base = i18n.shortLabel(highlight.label ?? (highlight.aux ? 'AUX' : 'W'));
       const label = this.targetBadge(base, highlight.values?.[0]);
@@ -556,7 +563,7 @@ export class CanvasRenderer {
     }
 
     if (highlight.kind === 'read' && highlight.indices.length >= 1) {
-      this.drawRead(context, highlight.indices[0], highlight.aux);
+      this.drawRead(context, highlight.indices[0]);
     }
   }
 
@@ -576,8 +583,16 @@ export class CanvasRenderer {
     const rectB = this.displayRect(indexB);
     if (!rectA || !rectB) return;
 
-    this.strokeBox(context, rectA.x - 2, rectA.y - 2, rectA.w, rectA.h, LIME, []);
-    this.strokeBox(context, rectB.x + 2, rectB.y + 2, rectB.w, rectB.h, PINK, [5, 4]);
+    this.strokeBox(context, rectA.x - 2, rectA.y - 2, rectA.w, rectA.h, this.palette.primary, []);
+    this.strokeBox(
+      context,
+      rectB.x + 2,
+      rectB.y + 2,
+      rectB.w,
+      rectB.h,
+      this.palette.highlight,
+      [5, 4],
+    );
 
     const boxA = this.measureBadge(context, labelA, rectA.x - 2, rectA.y - 2, rectA.h, false);
     let boxB = this.measureBadge(context, labelB, rectB.x + 2, rectB.y + 2, rectB.h, false);
@@ -594,17 +609,17 @@ export class CanvasRenderer {
       };
     }
 
-    this.paintBadge(context, labelA, boxA, LIME);
-    this.paintBadge(context, labelB, boxB, PINK);
+    this.paintBadge(context, labelA, boxA, this.palette.primary);
+    this.paintBadge(context, labelB, boxB, this.palette.highlight);
   }
 
   private drawCompareValue(context: CanvasRenderingContext2D, index: number, label: string): void {
     const rect = this.displayRect(index);
     if (!rect) return;
-    this.strokeBox(context, rect.x - 2, rect.y - 2, rect.w, rect.h, LIME, []);
-    this.strokeBox(context, rect.x + 2, rect.y + 2, rect.w, rect.h, PINK, [5, 4]);
+    this.strokeBox(context, rect.x - 2, rect.y - 2, rect.w, rect.h, this.palette.primary, []);
+    this.strokeBox(context, rect.x + 2, rect.y + 2, rect.w, rect.h, this.palette.highlight, [5, 4]);
     const box = this.measureBadge(context, label, rect.x - 2, rect.y - 2, rect.h + 4, false);
-    this.paintBadge(context, label, box, PINK);
+    this.paintBadge(context, label, box, this.palette.highlight);
   }
 
   private drawElement(
@@ -656,7 +671,7 @@ export class CanvasRenderer {
   ): void {
     context.save();
     context.lineWidth = 3.5;
-    context.strokeStyle = INK_BACKING;
+    context.strokeStyle = this.palette.inkBacking;
     context.setLineDash([]);
     context.strokeRect(x, y, w, h);
 
@@ -677,8 +692,8 @@ export class CanvasRenderer {
     const second = this.displayRect(b);
     if (!first || !second) return;
 
-    this.strokeBox(context, first.x, first.y, first.w, first.h, LIME, []);
-    this.strokeBox(context, second.x, second.y, second.w, second.h, PINK, []);
+    this.strokeBox(context, first.x, first.y, first.w, first.h, this.palette.primary, []);
+    this.strokeBox(context, second.x, second.y, second.w, second.h, this.palette.highlight, []);
 
     const ax = first.x + first.w / 2;
     const ay = first.y + first.h / 2;
@@ -687,7 +702,7 @@ export class CanvasRenderer {
     const dist = Math.hypot(bx - ax, by - ay);
 
     context.save();
-    context.strokeStyle = INK_BACKING;
+    context.strokeStyle = this.palette.inkBacking;
     context.lineWidth = 3;
     context.setLineDash([]);
     context.beginPath();
@@ -695,7 +710,7 @@ export class CanvasRenderer {
     context.lineTo(bx, by);
     context.stroke();
 
-    context.strokeStyle = PINK;
+    context.strokeStyle = this.palette.highlight;
     context.lineWidth = 1.5;
     context.beginPath();
     context.moveTo(ax, ay);
@@ -704,8 +719,8 @@ export class CanvasRenderer {
 
     if (dist >= 10) {
       const headSize = Math.min(7, dist * 0.3);
-      this.drawArrowHead(context, ax, ay, bx, by, PINK, headSize);
-      this.drawArrowHead(context, bx, by, ax, ay, LIME, headSize);
+      this.drawArrowHead(context, ax, ay, bx, by, this.palette.highlight, headSize);
+      this.drawArrowHead(context, bx, by, ax, ay, this.palette.primary, headSize);
     }
     context.restore();
 
@@ -719,7 +734,7 @@ export class CanvasRenderer {
         ? `${swapLabel} #${valueA} ↔ #${valueB}`
         : swapLabel;
     const box = this.measureCenteredBadge(context, label, midX, topY, bottomY);
-    this.paintBadge(context, label, box, PINK);
+    this.paintBadge(context, label, box, this.palette.highlight);
   }
 
   private drawArrowHead(
@@ -749,17 +764,17 @@ export class CanvasRenderer {
     context.restore();
   }
 
-  private drawRead(context: CanvasRenderingContext2D, index: number, aux = false): void {
+  private drawRead(context: CanvasRenderingContext2D, index: number): void {
     const rect = this.displayRect(index);
     if (!rect) return;
     const cx = rect.x + rect.w / 2;
     const cy = rect.y + rect.h / 2;
     context.save();
-    context.fillStyle = INK;
+    context.fillStyle = this.palette.ink;
     context.beginPath();
     context.arc(cx, cy, 4.5, 0, Math.PI * 2);
     context.fill();
-    context.fillStyle = aux ? BUBBLEGUM : SOFT_LIME;
+    context.fillStyle = this.palette.secondary;
     context.beginPath();
     context.arc(cx, cy, 3, 0, Math.PI * 2);
     context.fill();
@@ -822,11 +837,11 @@ export class CanvasRenderer {
 
     tracePath();
     if (fillTint) {
-      context.fillStyle = LIME_TINT;
+      context.fillStyle = this.palette.primaryTint;
       context.fill();
     }
 
-    context.strokeStyle = INK_BACKING;
+    context.strokeStyle = this.palette.inkBacking;
     context.lineWidth = 2.75;
     context.setLineDash([]);
     context.stroke();
@@ -891,7 +906,7 @@ export class CanvasRenderer {
   ): void {
     context.save();
     context.font = '700 10px "JetBrains Mono Variable", monospace';
-    context.fillStyle = INK;
+    context.fillStyle = this.palette.ink;
     context.fillRect(box.x, box.y, box.w, box.h);
     context.strokeStyle = color;
     context.lineWidth = 1;

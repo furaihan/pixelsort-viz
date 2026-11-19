@@ -24,11 +24,14 @@
  * `var(--ink)`-style references and Tailwind utilities agree.
  */
 @theme {
-  /* Quantum Signal palette. Obsidian is the background; Glacier Blue is the
-     primary accent; Signal Red is the highlight accent; Quantum Violet is the
-     secondary accent; Pixel Grey is the neutral for typography, dividers and
-     interface elements. The dark lifts between Obsidian and panels are
-     derived, since Pixel Grey is reserved for neutrals. */
+  /* Quantum Signal palette. This block is the pre-JS fallback and must mirror
+     THEMES['quantum-signal'] in src/lib/theme/palettes.ts; a unit test guards
+     the two against drift. At runtime the active theme writes these same
+     --color-* custom properties on <html>, so Tailwind utilities and this
+     stylesheet follow the selected palette without per-theme CSS. Obsidian is
+     the background; Glacier Blue is the primary accent; Signal Red is the
+     highlight accent; Quantum Violet is the secondary accent; Pixel Grey is
+     the neutral for typography, dividers and interface elements. */
   --color-ink: #111116;
   --color-ink-2: #171921;
   --color-ink-3: #1d1f28;
@@ -169,7 +172,10 @@
     inset: 0;
     z-index: -1;
     pointer-events: none;
-    background-image: radial-gradient(rgba(108, 117, 165, 0.05) 0.7px, transparent 0.7px);
+    background-image: radial-gradient(
+      color-mix(in srgb, var(--color-violet) 5%, transparent) 0.7px,
+      transparent 0.7px
+    );
     background-size: 5px 5px;
     opacity: 0.55;
   }
@@ -375,7 +381,7 @@
   background: transparent;
 
   &:hover:not(:disabled) {
-    background: rgba(216, 220, 232, 0.06);
+    background: color-mix(in srgb, var(--color-line) 6%, transparent);
   }
 }
 
@@ -404,17 +410,17 @@
 }
 
 @utility chip-lime {
-  border-color: rgba(154, 204, 240, 0.4);
+  border-color: color-mix(in srgb, var(--color-lime) 40%, transparent);
   color: var(--lime);
 }
 
 @utility chip-pink {
-  border-color: rgba(241, 75, 80, 0.5);
+  border-color: color-mix(in srgb, var(--color-pink) 50%, transparent);
   color: var(--pink);
 }
 
 @utility chip-soft {
-  border-color: rgba(108, 117, 165, 0.55);
+  border-color: color-mix(in srgb, var(--color-violet) 55%, transparent);
   color: var(--muted);
 }
 
@@ -423,10 +429,10 @@
   align-items: flex-start;
   gap: 9px;
   padding: 10px 12px;
-  border: 1px solid rgba(241, 75, 80, 0.45);
+  border: 1px solid color-mix(in srgb, var(--color-danger) 45%, transparent);
   border-radius: var(--radius-sm);
-  background: rgba(241, 75, 80, 0.08);
-  color: #f4d7d7;
+  background: color-mix(in srgb, var(--color-danger) 8%, transparent);
+  color: color-mix(in srgb, var(--color-danger) 25%, var(--color-text));
   font-size: 12px;
   line-height: 1.45;
 
@@ -438,9 +444,9 @@
 }
 
 @utility alert-warning {
-  border-color: rgba(241, 75, 80, 0.4);
-  background: rgba(241, 75, 80, 0.07);
-  color: #f4d7d7;
+  border-color: color-mix(in srgb, var(--color-danger) 40%, transparent);
+  background: color-mix(in srgb, var(--color-danger) 7%, transparent);
+  color: color-mix(in srgb, var(--color-danger) 25%, var(--color-text));
 
   & svg {
     color: var(--warning);
@@ -449,8 +455,8 @@
 
 /* Transparency checkerboard behind image surfaces. */
 @utility checkerboard {
-  --checker-bg: #13151a;
-  --checker-fg: #6c75a5;
+  --checker-bg: var(--color-ink);
+  --checker-fg: var(--color-ink-3);
   --checker-size: 12px;
 
   background-color: var(--checker-bg);
@@ -478,7 +484,7 @@
   appearance: none;
   border-radius: 999px;
   background: var(--ink-4);
-  box-shadow: inset 0 0 0 1px rgba(216, 220, 232, 0.14);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-line) 14%, transparent);
   cursor: pointer;
 
   &::-webkit-slider-thumb {

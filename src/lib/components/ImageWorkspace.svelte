@@ -7,10 +7,13 @@
   import type { SortEvent } from '../core/sorting/types';
   import { formatBytes, formatNumber, formatSeed } from '../utils/format';
   import { i18n } from '../i18n/index.svelte';
+  import { theme } from '../theme/index.svelte';
+  import { getCanvasPalette } from '../theme/palettes';
 
   let mainCanvas: HTMLCanvasElement;
   let overlayCanvas: HTMLCanvasElement;
   let wrapper: HTMLElement;
+  let renderer: CanvasRenderer | null = null;
 
   let aspect = $derived(app.imageInfo ? app.imageInfo.width / app.imageInfo.height : 1.6);
 
@@ -70,12 +73,18 @@
   }
 
   onMount(() => {
-    const renderer = new CanvasRenderer();
+    renderer = new CanvasRenderer();
     renderer.attach(mainCanvas, overlayCanvas, wrapper);
+    renderer.setPalette(getCanvasPalette(theme.current));
     app.attachRenderer(renderer);
     return () => {
       app.detachRenderer();
+      renderer = null;
     };
+  });
+
+  $effect(() => {
+    renderer?.setPalette(getCanvasPalette(theme.current));
   });
 </script>
 
@@ -118,7 +127,7 @@
 
   <div class={app.hasImage ? 'grid gap-2' : 'hidden'}>
     <div
-      class="relative mx-auto w-[min(100%,calc(48vh*var(--aspect)))] overflow-hidden rounded-lg border border-line-strong checkerboard [--checker-fg:#0b0d12] [--checker-size:16px] compact:w-[min(100%,calc(52vh*var(--aspect)))]"
+      class="relative mx-auto w-[min(100%,calc(48vh*var(--aspect)))] overflow-hidden rounded-lg border border-line-strong checkerboard [--checker-size:16px] compact:w-[min(100%,calc(52vh*var(--aspect)))]"
       bind:this={wrapper}
       role="img"
       aria-label={canvasLabel}

@@ -6,6 +6,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="dark" />
     <meta name="theme-color" content="#111116" />
+    <script>
+      // Pre-paint background hint: the full token set is applied by the theme
+      // store once the bundle runs, but the empty body would otherwise flash
+      // the default background on a cold load with a saved non-default theme.
+      // The theme test keeps this map in sync with THEMES in
+      // src/lib/theme/palettes.ts.
+      (function () {
+        var inks = { 'quantum-signal': '#111116', 'midnight-splash': '#182644' };
+        var theme = 'quantum-signal';
+        try {
+          var saved = localStorage.getItem('pixel-sort-theme');
+          if (saved && typeof inks[saved] === 'string') theme = saved;
+        } catch (error) {
+          // Storage can be unavailable; the default theme is fine.
+        }
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.setProperty('--color-ink', inks[theme]);
+      })();
+    </script>
     <meta
       name="description"
       content="Turn an image into a sorting-algorithm playground. Choose a block size, pick an algorithm, and watch the original composition reconstruct itself — entirely in your browser."

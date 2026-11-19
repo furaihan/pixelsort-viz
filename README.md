@@ -17,6 +17,7 @@ The image is the data structure. The algorithm is the process. Live image recons
 - Switch between educational playback (one event at a time) and performance playback (batched updates for large runs).
 - Inspect the current operation, its indices, and a short explanation.
 - Open the full algorithm reference with complexity, stability, in-place, and implementation notes.
+- Switch between the Quantum Signal and Midnight Splash palettes; the choice persists and recolors both the interface and the canvas highlights.
 - See worker errors and validation failures as actionable alerts, and large-image notices with a clear suggestion to use a larger block size.
 
 Everything is client-side. Image bytes, thumbnails, and pixel data never leave the browser.
@@ -62,8 +63,9 @@ src/
       workers/                   worker protocol and sorting worker
     stores/
       appState.svelte.ts         run lifecycle, playback queue, worker client
+    theme/                       palette registry and active-theme store
     utils/                       formatting and workload guardrails
-tests/unit/                      shuffle, grid, algorithms, instrumentation, events
+tests/unit/                      shuffle, grid, algorithms, instrumentation, events, themes
 scripts/                         optional Playwright verification scripts
 ```
 
@@ -130,6 +132,7 @@ The unit suite covers:
 - Step/sample mode equivalence and event-stream replay.
 - Instrumentation counters and per-event deltas.
 - Event application to the working permutation.
+- Theme registry completeness, unique ids, canvas palette derivation, and the CSS `@theme` fallback drift guard.
 
 The optional `scripts/verify-*.mjs` files drive the app in headless Chrome with `playwright-core` for visual and integration checks. They require a local Chrome install and a dev server on `127.0.0.1:5173` (`bun run dev --host 127.0.0.1`). They are not part of the unit test suite. `verify-upload`, `verify-state` and `verify-interrupt` currently fail on stale expectations that predate the current UI.
 
@@ -137,20 +140,29 @@ The optional `scripts/verify-*.mjs` files drive the app in headless Chrome with 
 
 Tailwind 4 is the styling layer, configured entirely in `src/app.css` (no `tailwind.config.js`):
 
-- `@theme` holds the design tokens from `DESIGN.md`. The legacy `:root` custom properties alias them, so `var(--lime)` and `bg-lime` resolve to the same value.
+- `@theme` holds the design tokens from `DESIGN.md`. It mirrors the default theme in `src/lib/theme/palettes.ts` and is the pre-JS fallback; a unit test guards the two against drift. At runtime the active theme writes the same `--color-*` properties on `<html>`, so every utility follows the selected palette.
+- The theme registry (`src/lib/theme/palettes.ts`) is the single source of truth for palettes. Adding a theme is one registry entry plus its `ink` value in the `index.html` pre-paint hint; the dropdown, persistence, CSS variables, and canvas palette derive from it automatically.
 - `@custom-variant` defines the design's max-width breakpoints (`shell`, `narrow`, `compact`, `tight`, `tiny`) plus `short` for `max-height: 820px`. Tailwind's own `max-*` variants are exclusive, which would shift each boundary by a pixel.
 - `@utility` holds the shared primitives (`panel`, `btn`, `chip`, `alert`, `label`, `mono`, `checkerboard`, `speed-range`). Component markup uses utilities directly; there are no component `<style>` blocks.
 - `@source` is explicit and automatic detection is off (`@import 'tailwindcss' source(none)`), so only `src/` and `index.html` are scanned. Without that, class names mentioned in `README.md`, `DESIGN.md` or the verify scripts would generate dead utilities.
 
 Two conventions worth knowing: overlapping utilities of the same property resolve by stylesheet order, not class order, so state variants are built as whole class strings rather than layered on top of a base; and `--radius-sm`/`--radius-md` are overridden to the design's 9px/14px, so `rounded-sm`/`rounded-md` are not Tailwind's defaults.
 
+### Adding a theme
+
+1. Add one entry to `THEMES` in `src/lib/theme/palettes.ts` with a unique `id`, `name`, optional `scheme`, and a complete `tokens` object.
+2. Add its `ink` value to the pre-paint map in `index.html`.
+3. Run `bun run test` and `bun run check`.
+
+The header dropdown, persistence, CSS variables, and canvas palette derive from the registry. The theme test enforces token completeness, canvas palette derivation, the `@theme` fallback, and the pre-paint map.
+
 ## Known limitations and post-MVP work
 
 - The UI supports English and Bahasa Indonesia. The first visit follows the browser language when it is Indonesian; the header selector overrides and persists the choice locally.
-- Pseudocode highlighting, race mode, side-by-side metric comparison, export, and theme customization are post-MVP.
+- Pseudocode highlighting, race mode, side-by-side metric comparison, and export are post-MVP.
 - Performance thresholds are initial guardrails; benchmark on representative desktop and mobile devices before treating them as final.
 - Fully transparent pixels may have their RGB values normalized by the browser's canvas pipeline. The visible result matches the browser-decoded image, not necessarily the original file bytes.
-- The app intentionally ships a single dark print-lab theme. A light theme would be a different visual world, not a toggle.
+- The app ships two dark palettes, Quantum Signal and Midnight Splash, plus a registry that makes adding more a one-object change. Both are dark; a light palette would be a different visual world, but the theme contract already carries a per-theme `scheme` for native controls.
 
 ## Design and product context
 
