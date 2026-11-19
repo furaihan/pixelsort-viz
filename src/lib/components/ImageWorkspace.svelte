@@ -118,7 +118,7 @@
 
   <div class={app.hasImage ? 'grid gap-2' : 'hidden'}>
     <div
-      class="relative mx-auto w-[min(100%,calc(48vh*var(--aspect)))] overflow-hidden rounded-lg border border-line-strong checkerboard [--checker-fg:#151515] [--checker-size:16px] compact:w-[min(100%,calc(52vh*var(--aspect)))]"
+      class="relative mx-auto w-[min(100%,calc(48vh*var(--aspect)))] overflow-hidden rounded-lg border border-line-strong checkerboard [--checker-fg:#0b0d12] [--checker-size:16px] compact:w-[min(100%,calc(52vh*var(--aspect)))]"
       bind:this={wrapper}
       role="img"
       aria-label={canvasLabel}

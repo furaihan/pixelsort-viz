@@ -1,19 +1,20 @@
 ---
 name: Pixel Sort Visualizer
-description: A warm minimalist sorting-algorithm playground where an image is the data structure.
+description: A minimalist sorting-algorithm playground where an image is the data structure.
 colors:
-  midnight-graphite: "#252729"
-  dark-slate: "#343A3D"
-  raised-slate: "#3f4549"
-  soft-coral: "#E99588"
-  misty-blue: "#9CBBC5"
-  cloud-cream: "#EAE2D8"
-  text-muted: "#b5ada3"
-  text-dim: "#9a9388"
-  line: "#42494c"
-  line-strong: "#525a5e"
-  danger: "#e27272"
-  warning: "#e2a862"
+  obsidian: "#111116"
+  dark-slate: "#171921"
+  raised-slate: "#1d1f28"
+  glacier-blue: "#9ACCF0"
+  quantum-violet: "#6C75A5"
+  signal-red: "#F14B50"
+  pixel-grey: "#D8DCE8"
+  text-muted: "#B8BCC8"
+  text-dim: "#9CA0B0"
+  line: "#D8DCE8"
+  line-strong: "#6C75A5"
+  danger: "#F14B50"
+  warning: "#F14B50"
 typography:
   display:
     fontFamily: "Archivo Variable, Archivo, ui-sans-serif, system-ui, sans-serif"
@@ -63,23 +64,23 @@ spacing:
   xl: "28px"
 components:
   button-primary:
-    backgroundColor: "{colors.soft-coral}"
-    textColor: "{colors.midnight-graphite}"
+    backgroundColor: "{colors.glacier-blue}"
+    textColor: "{colors.obsidian}"
     rounded: "{rounded.sm}"
     padding: "0 13px"
     height: "38px"
   button-primary-hover:
-    backgroundColor: "{colors.soft-coral}"
-    textColor: "{colors.midnight-graphite}"
+    backgroundColor: "{colors.glacier-blue}"
+    textColor: "{colors.obsidian}"
   button-ghost:
     backgroundColor: "transparent"
-    textColor: "{colors.cloud-cream}"
+    textColor: "{colors.pixel-grey}"
     rounded: "{rounded.sm}"
     padding: "0 13px"
     height: "38px"
   panel:
     backgroundColor: "{colors.dark-slate}"
-    textColor: "{colors.cloud-cream}"
+    textColor: "{colors.pixel-grey}"
     rounded: "{rounded.md}"
     padding: "15px"
   chip:
@@ -96,42 +97,42 @@ components:
 
 **Creative North Star: "Warm Minimalist Algorithmic Lab"**
 
-Pixel Sort Visualizer is a working algorithm lab presented in a warm, sophisticated, and calming dark mode aesthetic. The image is the data structure, the sorting algorithm is the process, and every operation is visualized with clean precision. The interface uses a soft, warm dark theme that balances cool blue tones with subtle coral warmth, providing high contrast without harshness.
+Pixel Sort Visualizer is a working algorithm lab presented in an Obsidian-based, minimalist, futuristic dark aesthetic. The image is the data structure, the sorting algorithm is the process, and every operation is visualized with clean precision. The interface is dominated by the palette's dark background and Glacier Blue accents, with Signal Red as the urgent highlight and Quantum Violet as the secondary accent, providing high contrast without harshness.
 
 The canvas is the dominant object. It sits inside a proof frame with registration marks, a dashed inner rule, and a live impression strip. The right rail is a compact stack of functional panels: image, granularity, algorithm, statistics, inspector. The panels share a shell but not a template; each one is shaped by its data.
 
 **Key Characteristics:**
-- Midnight Graphite (#252729) main background with a faint halftone dot texture in misty blue.
-- Soft Coral (#E99588) for primary buttons, highlights, and call-to-action elements.
-- Misty Blue (#9CBBC5) for secondary accents, links, and interactive elements.
-- Cloud Cream (#EAE2D8) for primary text, headings, and important content.
-- Dark Slate (#343A3D) for cards, containers, and secondary surfaces.
+- Obsidian (#111116) main background with a faint halftone dot texture in Quantum Violet.
+- Glacier Blue (#9ACCF0) for primary buttons, selection, links, and call-to-action elements.
+- Signal Red (#F14B50) for compare and swap highlights, pivot markers, and urgent states.
+- Quantum Violet (#6C75A5) for secondary accents, strong lines, and interactive elements.
+- Pixel Grey (#D8DCE8) for primary text, headings, dividers, and interface elements.
 - Archivo Variable for typography; JetBrains Mono Variable for measurements, indices, and counters.
-- Misregistered coral/blue outlines for compare and swap; line style and labels carry state alongside color.
+- Misregistered Glacier Blue/Signal Red outlines for compare and swap; line style and labels carry state alongside color.
 
 ## Colors
 
-The palette balances cool blue tones with subtle coral warmth on a sophisticated dark graphite ground.
+The palette is Obsidian-based with Glacier Blue as the primary accent, Signal Red as the highlight accent, and Quantum Violet as the secondary accent; Pixel Grey supplies typography, dividers, and interface neutrals. The direction is bold and futuristic: one dominant accent, one punch of red, and a violet that adds dimension without competing.
 
 ### Primary Accents & CTA
-- **Soft Coral** (#E99588): Primary actions, active selections, sorted states, focus rings, and primary buttons.
-- **Misty Blue** (#9CBBC5): Secondary accents, links, interactive elements, compare/swap highlights, and secondary emphasis.
+- **Glacier Blue** (#9ACCF0): Primary actions, active selections, sorted states, focus rings, links, and primary buttons.
+- **Signal Red** (#F14B50): Highlight accent — compare/swap boxes, pivot markers, urgent states, and destructive actions.
 
 ### Neutrals & Surfaces
-- **Midnight Graphite** (#252729): Main page background and canvas surround.
-- **Dark Slate** (#343A3D): Cards, containers, panels, and secondary surfaces.
-- **Raised Slate** (#3f4549): Inset metric cells, inputs, and raised surfaces.
-- **Cloud Cream** (#EAE2D8): Primary text, headings, and important content.
-- **Text Muted** (#b5ada3): Secondary copy, descriptions, and labels.
-- **Line** (#42494c): Panel borders and dividers.
-- **Line Strong** (#525a5e): Input borders, proof-frame borders, and control outlines.
-- **Danger** (#e27272): Errors and destructive actions.
-- **Warning** (#e2a862): Workload warnings and large-run notices.
+- **Obsidian** (#111116): Main page background and canvas surround.
+- **Dark Slate** (#171921): Cards, containers, panels, and secondary surfaces (derived Obsidian lift).
+- **Raised Slate** (#1d1f28): Inset metric cells, inputs, and raised surfaces (derived Obsidian lift).
+- **Pixel Grey** (#D8DCE8): Primary text, headings, dividers, and interface elements.
+- **Quantum Violet** (#6C75A5): Secondary accents, strong lines, and interactive elements.
+- **Text Muted** (#B8BCC8): Secondary copy, descriptions, and labels.
+- **Text Dim** (#9CA0B0): Tertiary copy and metadata.
+- **Danger** (#F14B50): Errors and destructive actions.
+- **Warning** (#F14B50): Workload warnings and large-run notices.
 
 ### Named Rules
-**The Tone Rule.** Soft coral and misty blue provide clear, balanced contrast against dark slate and midnight graphite surfaces without jarring saturation.
+**The Tone Rule.** Glacier Blue and Quantum Violet provide clear, bold contrast against the Obsidian ground and Pixel Grey text without jarring saturation; Signal Red is the single visual punch.
 
-**The Registration Rule.** Compare and swap highlights use offset coral/blue outlines. Sorted states align into a single coral mark.
+**The Registration Rule.** Compare and swap highlights use offset Glacier Blue/Signal Red outlines. Sorted states align into a single Signal Red mark.
 
 ## Typography
 
@@ -153,31 +154,31 @@ The app is a single-page workspace with a 1600px maximum width. On desktop it is
 
 ## Elevation & Depth
 
-The system is flat by default with tonal steps between Dark Slate panels and Midnight Graphite ground. The primary button carries a 3px misty-blue offset (`box-shadow: 3px 3px 0 #9CBBC5`). On press, the button translates 2px and the offset collapses to 1px.
+The system is flat by default with tonal steps between Dark Slate panels and Obsidian ground. The primary button carries a 3px Signal Red offset (`box-shadow: 3px 3px 0 #F14B50`). On press, the button translates 2px and the offset collapses to 1px.
 
 ## Shapes
 
-Controls use a 9px radius. Panels use a 14px radius. Chips use a 5px radius. Status pills use a 999px radius. Borders are 1px, except the proof frame's 1px line-strong border and primary button's 1px coral border.
+Controls use a 9px radius. Panels use a 14px radius. Chips use a 5px radius. Status pills use a 999px radius. Borders are 1px, except the proof frame's 1px line-strong border and primary button's 1px Glacier Blue border.
 
 ## Components
 
 ### Buttons
 - **Shape:** 9px radius, 38px minimum height, 13px horizontal padding, 7px icon gap.
-- **Primary:** Soft coral background, midnight graphite text, 1px coral border, 3px misty-blue offset. Used for Start, Resume, Replay, and empty-state Choose image action.
-- **Secondary / Ghost:** Transparent background, 1px line-strong border, cloud cream text. Used for Step, Shuffle, Reset, Restore, and guide trigger.
+- **Primary:** Glacier Blue background, Obsidian text, 1px Glacier Blue border, 3px Signal Red offset. Used for Start, Resume, Replay, and empty-state Choose image action.
+- **Secondary / Ghost:** Transparent background, 1px line-strong border, Pixel Grey text. Used for Step, Shuffle, Reset, Restore, and guide trigger.
 
 ### Chips
 - **Style:** Transparent background, 1px line-strong border, 5px radius, 22px height, 9px mono uppercase.
-- **State:** Coral chips for local/active/sorted, misty-blue chips for quadratic/compare/neutral metadata.
+- **State:** Glacier Blue chips for local/active/sorted, Signal Red chips for quadratic/compare metadata, Quantum Violet chips for granularity and secondary metadata.
 
 ### Cards / Containers
 - **Corner Style:** 14px radius.
-- **Background:** Dark slate (#343A3D) on midnight graphite page; raised slate (#3f4549) for inset metric cells and inputs.
-- **Border:** 1px line (#42494c) for panels, 1px line-strong (#525a5e) for inputs and proof frame.
+- **Background:** Dark slate (#171921) on Obsidian page; raised slate (#1d1f28) for inset metric cells and inputs.
+- **Border:** 1px Pixel Grey (#D8DCE8) for panels, 1px Quantum Violet (#6C75A5) for inputs and proof frame.
 
 ### Inputs / Fields
-- **Style:** Raised slate background, 1px line-strong border, 8px radius, 42px minimum height, 12px horizontal padding.
-- **Focus:** 2px soft coral outline with a 2px offset.
+- **Style:** Raised slate background, 1px Quantum Violet border, 8px radius, 42px minimum height, 12px horizontal padding.
+- **Focus:** 2px Glacier Blue outline with a 2px offset.
 
 ## Implementation
 

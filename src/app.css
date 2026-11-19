@@ -24,23 +24,29 @@
  * `var(--ink)`-style references and Tailwind utilities agree.
  */
 @theme {
-  --color-ink: #252729;
-  --color-ink-2: #343a3d;
-  --color-ink-3: #3f4549;
-  --color-ink-4: #4a5155;
-  --color-line: #42494c;
-  --color-line-strong: #525a5e;
+  /* Quantum Signal palette. Obsidian is the background; Glacier Blue is the
+     primary accent; Signal Red is the highlight accent; Quantum Violet is the
+     secondary accent; Pixel Grey is the neutral for typography, dividers and
+     interface elements. The dark lifts between Obsidian and panels are
+     derived, since Pixel Grey is reserved for neutrals. */
+  --color-ink: #111116;
+  --color-ink-2: #171921;
+  --color-ink-3: #1d1f28;
+  --color-ink-4: #23252f;
+  --color-line: #d8dce8;
+  --color-line-strong: #6c75a5;
 
-  --color-lime: #e99588;
-  --color-pink: #9cbbc5;
-  --color-soft-lime: #9cbbc5;
-  --color-bubblegum: #9cbbc5;
+  --color-lime: #9accf0;
+  --color-pink: #f14b50;
+  --color-soft-lime: #9accf0;
+  --color-bubblegum: #6c75a5;
+  --color-violet: #6c75a5;
 
-  --color-text: #eae2d8;
-  --color-muted: #b5ada3;
-  --color-muted-2: #9a9388;
-  --color-danger: #e27272;
-  --color-warning: #e2a862;
+  --color-text: #d8dce8;
+  --color-muted: #b8bcc8;
+  --color-muted-2: #9ca0b0;
+  --color-danger: #f14b50;
+  --color-warning: #f14b50;
 
   --radius-sm: 9px;
   --radius-md: 14px;
@@ -114,6 +120,7 @@
   --pink: var(--color-pink);
   --soft-lime: var(--color-soft-lime);
   --bubblegum: var(--color-bubblegum);
+  --violet: var(--color-violet);
 
   --text: var(--color-text);
   --muted: var(--color-muted);
@@ -162,7 +169,7 @@
     inset: 0;
     z-index: -1;
     pointer-events: none;
-    background-image: radial-gradient(rgba(156, 183, 197, 0.05) 0.7px, transparent 0.7px);
+    background-image: radial-gradient(rgba(108, 117, 165, 0.05) 0.7px, transparent 0.7px);
     background-size: 5px 5px;
     opacity: 0.55;
   }
@@ -368,7 +375,7 @@
   background: transparent;
 
   &:hover:not(:disabled) {
-    background: rgba(230, 255, 128, 0.07);
+    background: rgba(154, 204, 240, 0.07);
   }
 }
 
@@ -397,18 +404,18 @@
 }
 
 @utility chip-lime {
-  border-color: rgba(198, 255, 0, 0.45);
+  border-color: rgba(154, 204, 240, 0.4);
   color: var(--lime);
 }
 
 @utility chip-pink {
-  border-color: rgba(255, 20, 147, 0.5);
-  color: var(--bubblegum);
+  border-color: rgba(241, 75, 80, 0.5);
+  color: var(--pink);
 }
 
 @utility chip-soft {
-  border-color: rgba(230, 255, 128, 0.35);
-  color: var(--soft-lime);
+  border-color: rgba(108, 117, 165, 0.35);
+  color: var(--bubblegum);
 }
 
 @utility alert {
@@ -416,10 +423,10 @@
   align-items: flex-start;
   gap: 9px;
   padding: 10px 12px;
-  border: 1px solid rgba(255, 92, 92, 0.45);
+  border: 1px solid rgba(241, 75, 80, 0.45);
   border-radius: var(--radius-sm);
-  background: rgba(255, 92, 92, 0.08);
-  color: #ffd7d7;
+  background: rgba(241, 75, 80, 0.08);
+  color: #f4d7d7;
   font-size: 12px;
   line-height: 1.45;
 
@@ -431,9 +438,9 @@
 }
 
 @utility alert-warning {
-  border-color: rgba(255, 200, 87, 0.4);
-  background: rgba(255, 200, 87, 0.07);
-  color: #ffe9b8;
+  border-color: rgba(241, 75, 80, 0.4);
+  background: rgba(241, 75, 80, 0.07);
+  color: #f4d7d7;
 
   & svg {
     color: var(--warning);
@@ -442,8 +449,8 @@
 
 /* Transparency checkerboard behind image surfaces. */
 @utility checkerboard {
-  --checker-bg: #1f2123;
-  --checker-fg: #343a3d;
+  --checker-bg: #13151a;
+  --checker-fg: #6c75a5;
   --checker-size: 12px;
 
   background-color: var(--checker-bg);

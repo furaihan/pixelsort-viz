@@ -19,11 +19,11 @@ export async function createSampleImage(): Promise<File> {
     }
   }
 
-  context.fillStyle = '#252729';
+  context.fillStyle = '#111116';
   context.fillRect(0, 0, width, height);
 
   // A faint print grid gives the sample a proof-sheet character.
-  context.strokeStyle = 'rgba(156, 183, 197, 0.15)';
+  context.strokeStyle = 'rgba(108, 117, 165, 0.15)';
   context.lineWidth = 1;
   for (let x = 0; x <= width; x += 80) {
     context.beginPath();
@@ -41,14 +41,14 @@ export async function createSampleImage(): Promise<File> {
   context.save();
   context.globalCompositeOperation = 'screen';
 
-  // Coral field.
-  context.fillStyle = '#E99588';
+  // Glacier Blue field.
+  context.fillStyle = '#9ACCF0';
   context.beginPath();
   context.arc(930, 300, 270, 0, Math.PI * 2);
   context.fill();
 
-  // Misty blue overprint.
-  context.fillStyle = '#9CBBC5';
+  // Quantum violet overprint.
+  context.fillStyle = '#6C75A5';
   context.save();
   context.translate(300, 300);
   context.rotate(-0.18);
@@ -56,7 +56,7 @@ export async function createSampleImage(): Promise<File> {
   context.restore();
 
   // Halftone dots.
-  context.fillStyle = '#EAE2D8';
+  context.fillStyle = '#D8DCE8';
   for (let row = 0; row < 9; row += 1) {
     for (let column = 0; column < 14; column += 1) {
       const radius = 2 + ((row + column) % 4);
@@ -67,7 +67,7 @@ export async function createSampleImage(): Promise<File> {
   }
 
   // Registration bars.
-  context.fillStyle = '#9CBBC5';
+  context.fillStyle = '#6C75A5';
   context.fillRect(80, 650, 420, 10);
   context.fillRect(80, 676, 260, 10);
   context.restore();
@@ -75,23 +75,23 @@ export async function createSampleImage(): Promise<File> {
   // Display type with a deliberate misregistration.
   context.font = '900 210px "Archivo Variable", Archivo, sans-serif';
   context.textBaseline = 'alphabetic';
-  context.fillStyle = '#9CBBC5';
+  context.fillStyle = '#9ACCF0';
   context.fillText('SORT', 78, 560);
-  context.fillStyle = '#E99588';
+  context.fillStyle = '#F14B50';
   context.fillText('SORT', 70, 552);
 
   context.font = '700 26px "JetBrains Mono Variable", monospace';
-  context.fillStyle = '#EAE2D8';
+  context.fillStyle = '#D8DCE8';
   context.fillText('WARM / MINIMAL', 82, 96);
-  context.fillStyle = '#9CBBC5';
+  context.fillStyle = '#6C75A5';
   context.fillText('WARM MINIMALIST — 01', 82, 132);
 
   context.font = '500 18px "JetBrains Mono Variable", monospace';
-  context.fillStyle = '#EAE2D8';
+  context.fillStyle = '#D8DCE8';
   context.fillText('1280 × 800 / LOCAL SAMPLE', 82, 748);
 
   // A barcode-like block, drawn as geometry rather than a picture.
-  context.fillStyle = '#9CBBC5';
+  context.fillStyle = '#6C75A5';
   let x = 980;
   for (let i = 0; i < 34; i += 1) {
     const bar = 2 + ((i * 7) % 9);

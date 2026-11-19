@@ -140,7 +140,7 @@
         <span>{i18n.t('inspector.swap')}</span>
       </div>
       <div class="flex items-center gap-1.5 text-[9.5px] text-muted">
-        <span class="{swatch} border-dotted border-soft-lime" aria-hidden="true"></span>
+        <span class="{swatch} border-dotted border-bubblegum" aria-hidden="true"></span>
         <span>{i18n.t('inspector.write')}</span>
       </div>
       <div class="flex items-center gap-1.5 text-[9.5px] text-muted">
@@ -155,7 +155,7 @@
       </div>
       <div class="flex items-center gap-1.5 text-[9.5px] text-muted">
         <span
-          class="{swatch} border-transparent after:size-[5px] after:rounded-full after:bg-soft-lime after:content-['']"
+          class="{swatch} border-transparent after:size-[5px] after:rounded-full after:bg-bubblegum after:content-['']"
           aria-hidden="true"
         ></span>
         <span>{i18n.t('inspector.read')}</span>

@@ -99,7 +99,7 @@ The worker waits for an acknowledgement after each batch, so the main-thread que
 
 ### Rendering
 
-`CanvasRenderer` owns the source RGBA buffer, a reusable output `ImageData`, and a separate overlay canvas. The main canvas is rendered at the image's natural resolution; the overlay is rendered at display resolution with device-pixel-ratio awareness. Compare and swap highlights are drawn as misregistered lime/pink outlines with labels, so state is not communicated by color alone.
+`CanvasRenderer` owns the source RGBA buffer, a reusable output `ImageData`, and a separate overlay canvas. The main canvas is rendered at the image's natural resolution; the overlay is rendered at display resolution with device-pixel-ratio awareness. Compare and swap highlights are drawn as misregistered Glacier Blue/Signal Red outlines with labels, so state is not communicated by color alone.
 
 Edge tiles keep their natural size. The unused part of their block cell is transparent, so a small edge tile never stretches. The final permutation is validated, and the reconstructed image matches the original decoded arrangement.
 

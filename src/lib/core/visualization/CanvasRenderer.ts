@@ -6,14 +6,14 @@ import { i18n } from '../../i18n/index.svelte';
 
 export type { Highlight, OverlaySnapshot };
 
-const LIME = '#E99588';
-const LIME_SOFT_STROKE = 'rgba(233, 149, 136, 0.8)';
-const LIME_TINT = 'rgba(233, 149, 136, 0.08)';
-const PINK = '#9CBBC5';
-const SOFT_LIME = '#9CBBC5';
-const BUBBLEGUM = '#9CBBC5';
-const INK = '#252729';
-const INK_BACKING = 'rgba(37, 39, 41, 0.75)';
+const LIME = '#9ACCF0'; // Glacier Blue — primary accent
+const LIME_SOFT_STROKE = 'rgba(154, 204, 240, 0.8)';
+const LIME_TINT = 'rgba(154, 204, 240, 0.08)';
+const PINK = '#F14B50'; // Signal Red — highlight accent
+const SOFT_LIME = '#6C75A5'; // Quantum Violet — secondary accent
+const BUBBLEGUM = '#6C75A5'; // Quantum Violet
+const INK = '#111116'; // Obsidian
+const INK_BACKING = 'rgba(17, 17, 22, 0.75)';
 
 function rectsOverlap(a: Rect2D, b: Rect2D): boolean {
   return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
