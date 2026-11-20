@@ -17,6 +17,8 @@
   function handleKeydown(event: KeyboardEvent): void {
     const target = event.target as HTMLElement | null;
     if (target?.closest('input, select, textarea, button, a, [contenteditable="true"]')) return;
+    // Never hijack browser/OS chords such as Ctrl/Cmd+R (reload) or Alt+Arrow (history).
+    if (event.ctrlKey || event.metaKey || event.altKey) return;
 
     if (event.code === 'Space') {
       event.preventDefault();
@@ -39,13 +41,11 @@
   }
 
   onMount(() => {
-    document.documentElement.lang = i18n.locale;
-    document.title = i18n.t('app.title');
     app.start();
     window.addEventListener('keydown', handleKeydown);
     return () => {
       window.removeEventListener('keydown', handleKeydown);
-      app.stop();
+      app.dispose();
     };
   });
 

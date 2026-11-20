@@ -861,7 +861,7 @@ export class CanvasRenderer {
     anchorHeight: number,
     preferBottom: boolean,
   ): Rect2D {
-    context.font = '700 10px "JetBrains Mono Variable", monospace';
+    context.font = '700 10px "Courier Prime", ui-monospace, monospace';
     const width = context.measureText(text).width + 8;
     const height = 15;
     const x = Math.max(0, Math.min(anchorX, this.cssWidth - width));
@@ -883,7 +883,7 @@ export class CanvasRenderer {
     topY: number,
     bottomY: number,
   ): Rect2D {
-    context.font = '700 10px "JetBrains Mono Variable", monospace';
+    context.font = '700 10px "Courier Prime", ui-monospace, monospace';
     const width = context.measureText(text).width + 8;
     const height = 15;
     const x = Math.max(0, Math.min(centerX - width / 2, this.cssWidth - width));
@@ -905,7 +905,7 @@ export class CanvasRenderer {
     color: string,
   ): void {
     context.save();
-    context.font = '700 10px "JetBrains Mono Variable", monospace';
+    context.font = '700 10px "Courier Prime", ui-monospace, monospace';
     context.fillStyle = this.palette.ink;
     context.fillRect(box.x, box.y, box.w, box.h);
     context.strokeStyle = color;

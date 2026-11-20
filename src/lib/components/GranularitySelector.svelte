@@ -30,11 +30,7 @@
       {#if !inline}<Icon name="grid" size={16} />{/if}
       {i18n.t('granularity.title')}
     </svelte:element>
-    <span class="chip chip-soft">
-      {app.blockSize === 1
-        ? `1 ${i18n.t('workspace.px')}`
-        : `${app.blockSize} ${i18n.t('workspace.px')}`}
-    </span>
+    <span class="chip chip-soft">{`${app.blockSize} ${i18n.t('workspace.px')}`}</span>
   </div>
 
   <div class={inline ? 'grid' : 'panel-body'}>

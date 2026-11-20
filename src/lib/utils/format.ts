@@ -4,14 +4,6 @@ export function formatNumber(value: number): string {
   return i18n.number(value);
 }
 
-export function formatCompact(value: number): string {
-  if (value < 1_000) return i18n.number(value);
-  if (value < 1_000_000) return `${i18n.decimal(value / 1_000, value < 10_000 ? 1 : 0)}k`;
-  if (value < 1_000_000_000)
-    return `${i18n.decimal(value / 1_000_000, value < 10_000_000 ? 1 : 0)}m`;
-  return `${i18n.decimal(value / 1_000_000_000, 1)}b`;
-}
-
 export function formatTime(ms: number): string {
   if (!Number.isFinite(ms) || ms < 0) return '0.00 s';
   if (ms < 1) return `${i18n.decimal(ms * 1000, 0)} µs`;
@@ -30,12 +22,4 @@ export function formatBytes(bytes: number): string {
 
 export function formatSeed(seed: number): string {
   return seed.toString(16).toUpperCase().padStart(8, '0');
-}
-
-export function formatMegapixels(width: number, height: number): string {
-  return `${i18n.decimal((width * height) / 1_000_000, 1)} MP`;
-}
-
-export function pluralize(count: number, singular: string, plural = `${singular}s`): string {
-  return count === 1 ? singular : plural;
 }

@@ -1,5 +1,6 @@
 import type { GridSpec } from '../core/image/imageTypes';
 import type { AlgorithmId } from '../core/sorting/types';
+import { getAlgorithm } from '../core/sorting/registry';
 import type { LocalizedText } from '../i18n/index.svelte';
 import { msg } from '../i18n/index.svelte';
 
@@ -11,8 +12,6 @@ export const O_N2_MAX = 25_000;
 export const EDUCATIONAL_RECOMMENDED_MAX = 12_000;
 export const EDUCATIONAL_HARD_MAX = 60_000;
 export const MAX_ELEMENTS = 8_000_000;
-
-const QUADRATIC_ALGORITHMS = new Set<AlgorithmId>(['bubble', 'selection', 'insertion']);
 
 export interface WorkloadAssessment {
   elementCount: number;
@@ -29,7 +28,8 @@ export function assessWorkload(
   mode: PlaybackMode,
 ): WorkloadAssessment {
   const elementCount = grid.elementCount;
-  const isQuadratic = QUADRATIC_ALGORITHMS.has(algorithmId);
+  // Single source of truth: the registry's quadratic flag (also used by the UI chip).
+  const isQuadratic = getAlgorithm(algorithmId).metadata.quadratic;
   const warnings: LocalizedText[] = [];
   const blockers: LocalizedText[] = [];
 

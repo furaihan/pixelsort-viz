@@ -65,6 +65,27 @@ export function speedLabel(speed: number): string {
   return `${speed}×`;
 }
 
+/** Target sampling rate (frames per second) for performance playback at a speed. */
+export function speedToSampleFps(speed: number): number {
+  return speed <= 0.5
+    ? 4
+    : speed <= 1
+      ? 6
+      : speed <= 2
+        ? 10
+        : speed <= 4
+          ? 15
+          : speed <= 8
+            ? 20
+            : speed <= 16
+              ? 24
+              : 22;
+}
+
+export function speedToSampleIntervalMs(speed: number): number {
+  return Math.round(1000 / speedToSampleFps(speed));
+}
+
 const STEP_BATCH_SIZE = 512;
 const STEP_LOW_WATERMARK = 256;
 const FAST_BATCH_SIZE = 4096;
@@ -593,21 +614,7 @@ export class AppState {
   }
 
   private sampleIntervalMs(): number {
-    const fps =
-      this.speed <= 0.5
-        ? 4
-        : this.speed <= 1
-          ? 6
-          : this.speed <= 2
-            ? 10
-            : this.speed <= 4
-              ? 15
-              : this.speed <= 8
-                ? 20
-                : this.speed <= 16
-                  ? 24
-                  : 22;
-    return Math.round(1000 / fps);
+    return speedToSampleIntervalMs(this.speed);
   }
 
   private beginRun(paused: boolean): void {

@@ -78,7 +78,7 @@ export const EN = {
     'Choose a PNG, JPEG, or WebP. The app decodes, shuffles, and sorts it in this browser. Your image is never uploaded.',
   'upload.limit': 'MAX 20 MP / 40 MB',
   'upload.trySample': 'Load sample image',
-  'upload.sampleDescription': 'A locally generated Electric Pop poster.',
+  'upload.sampleDescription': 'A locally generated Warm Minimalist poster.',
   'upload.dismissError': 'Dismiss upload error',
   'image.thumbnailAria': 'Original image thumbnail',
   'image.privacy': 'Stays in this browser. No image data is uploaded.',
@@ -333,6 +333,8 @@ export const EN = {
   'pass.sortBucket': 'Sort bucket {bucket}/{count}',
   'pass.bucketBoundaries': 'Build bucket boundaries',
   'pass.bubble': 'Bubble pass · end {end}',
+  'pass.countTargets': 'Count target indices',
+  'pass.writeBucketsBack': 'Write buckets back to the image',
   'canvas.key': 'KEY',
   'canvas.aux': 'AUX',
   'canvas.write': 'W',
@@ -344,7 +346,8 @@ export const EN = {
   'algorithm.selection.name': 'Selection Sort',
   'algorithm.selection.description':
     'Scans the unsorted region for the smallest target index, then swaps it into the next position. The number of swaps is linear even though the number of comparisons is quadratic.',
-  'algorithm.selection.note1': 'Always performs n−1 swaps, even when the array is already sorted.',
+  'algorithm.selection.note1':
+    'Performs at most n−1 swaps; the swap is skipped when the minimum is already in place.',
   'algorithm.selection.note2': 'The scan is quadratic even though the number of swaps is linear.',
   'algorithm.insertion.name': 'Insertion Sort',
   'algorithm.insertion.description':
@@ -497,7 +500,7 @@ export const ID: Record<TranslationKey, string> = {
     'Pilih PNG, JPEG, atau WebP. Gambar didekode, diacak, dan diurutkan di browser ini. Gambar Anda tidak pernah diunggah.',
   'upload.limit': 'MAKS. 20 MP / 40 MB',
   'upload.trySample': 'Muat gambar contoh',
-  'upload.sampleDescription': 'Poster Electric Pop yang dibuat secara lokal.',
+  'upload.sampleDescription': 'Poster Warm Minimalist yang dibuat secara lokal.',
   'upload.dismissError': 'Tutup galat unggahan',
   'image.thumbnailAria': 'Thumbnail gambar asli',
   'image.privacy': 'Tetap di browser ini. Data gambar tidak diunggah.',
@@ -753,6 +756,8 @@ export const ID: Record<TranslationKey, string> = {
   'pass.sortBucket': 'Urutkan bucket {bucket}/{count}',
   'pass.bucketBoundaries': 'Buat batas bucket',
   'pass.bubble': 'Pass bubble · akhir {end}',
+  'pass.countTargets': 'Hitung indeks target',
+  'pass.writeBucketsBack': 'Tulis bucket kembali ke gambar',
   'canvas.key': 'KUNCI',
   'canvas.aux': 'BANTU',
   'canvas.write': 'T',
@@ -764,7 +769,8 @@ export const ID: Record<TranslationKey, string> = {
   'algorithm.selection.name': 'Selection Sort',
   'algorithm.selection.description':
     'Memindai wilayah yang belum terurut untuk mencari indeks target terkecil, lalu menukarnya ke posisi berikutnya. Jumlah pertukaran linear meskipun jumlah perbandingannya kuadratik.',
-  'algorithm.selection.note1': 'Selalu melakukan n−1 pertukaran, bahkan saat array sudah terurut.',
+  'algorithm.selection.note1':
+    'Melakukan paling banyak n−1 pertukaran; pertukaran dilewati jika minimum sudah di tempatnya.',
   'algorithm.selection.note2':
     'Pemindaian bersifat kuadratik meskipun jumlah pertukarannya linear.',
   'algorithm.insertion.name': 'Insertion Sort',

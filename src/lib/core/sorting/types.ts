@@ -53,10 +53,6 @@ export interface OpDelta {
   p: number;
 }
 
-export function zeroOps(): OpDelta {
-  return { c: 0, r: 0, w: 0, s: 0, aw: 0, p: 0 };
-}
-
 /**
  * An algorithm operation that can be drawn on the visualization overlay.
  *

@@ -58,6 +58,10 @@
 
   function handleDragLeave(event: DragEvent): void {
     event.preventDefault();
+    const zone = event.currentTarget as HTMLElement;
+    const next = event.relatedTarget as Node | null;
+    // Moving onto a child still fires dragleave; keep the highlight until we truly exit.
+    if (next && zone.contains(next)) return;
     dragging = false;
   }
 

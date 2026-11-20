@@ -1,14 +1,12 @@
 <script lang="ts">
   import Icon, { type IconName } from './Icon.svelte';
-  import { app, SPEED_PRESETS } from '../stores/appState.svelte';
+  import { app, SPEED_PRESETS, speedToSampleFps } from '../stores/appState.svelte';
   import { i18n } from '../i18n/index.svelte';
 
   let {
     inline = false,
     zone = 'full',
   }: { inline?: boolean; zone?: 'full' | 'actions' | 'settings' } = $props();
-
-  const performanceFps = [4, 6, 10, 15, 20, 24, 45];
 
   const modeButton =
     'min-h-7 cursor-pointer rounded-[4px] border-0 px-2.5 text-[11px] font-bold disabled:cursor-not-allowed disabled:opacity-45';
@@ -211,7 +209,7 @@
         >
           {#each SPEED_PRESETS as preset, index}
             <span class={index === speedIndex ? 'text-text' : ''}>
-              {app.mode === 'performance' ? performanceFps[index] : `${preset}×`}
+              {app.mode === 'performance' ? speedToSampleFps(preset) : `${preset}×`}
             </span>
           {/each}
         </div>

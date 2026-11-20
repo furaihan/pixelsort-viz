@@ -29,11 +29,3 @@ export function elementRect(index: number, grid: GridSpec): ElementRect {
     h: Math.min(grid.blockSize, grid.height - y),
   };
 }
-
-export function elementColumn(index: number, grid: GridSpec): number {
-  return index % grid.columns;
-}
-
-export function elementRow(index: number, grid: GridSpec): number {
-  return Math.floor(index / grid.columns);
-}

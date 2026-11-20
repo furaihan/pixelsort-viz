@@ -25,8 +25,10 @@
       : i18n.t('workspace.ariaNoImage'),
   );
 
+  // The entry date is fixed when the sheet mounts; only its formatting tracks the locale.
+  const entryTimestamp = Date.now();
   let entryDate = $derived(
-    new Date().toLocaleDateString(i18n.locale === 'id' ? 'id-ID' : 'en-US', {
+    new Date(entryTimestamp).toLocaleDateString(i18n.locale === 'id' ? 'id-ID' : 'en-US', {
       year: 'numeric',
       month: 'short',
       day: '2-digit',

@@ -1,11 +1,4 @@
-import {
-  DEFAULT_THEME,
-  THEMES,
-  isThemeId,
-  resolveCssVars,
-  type ThemeDefinition,
-  type ThemeId,
-} from './palettes';
+import { DEFAULT_THEME, THEMES, isThemeId, resolveCssVars, type ThemeId } from './palettes';
 
 const STORAGE_KEY = 'pixel-sort-theme';
 
@@ -62,7 +55,3 @@ class ThemeStore {
 }
 
 export const theme = new ThemeStore();
-
-export function activeTheme(): ThemeDefinition {
-  return THEMES[theme.current];
-}

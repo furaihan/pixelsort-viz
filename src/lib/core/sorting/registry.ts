@@ -47,7 +47,7 @@ export const ALGORITHMS: Record<AlgorithmId, AlgorithmDefinition> = {
       inPlace: true,
       quadratic: true,
       notes: [
-        'Always performs n−1 swaps, even when the array is already sorted.',
+        'Performs at most n−1 swaps; the swap is skipped when the minimum is already in place.',
         'The scan is quadratic even though the number of swaps is linear.',
       ],
     },
