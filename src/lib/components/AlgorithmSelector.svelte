@@ -118,7 +118,7 @@
           <strong class="text-[14px] font-bold tracking-[-0.02em]">
             {i18n.algorithmName(app.algorithmId)}
           </strong>
-          <span class="mono text-[10px] font-bold tracking-[0.1em] text-muted uppercase">
+          <span class="mono text-[11px] font-bold tracking-[0.1em] text-muted uppercase">
             {i18n.categoryLabel(app.algorithm.metadata.category)}
           </span>
         </div>

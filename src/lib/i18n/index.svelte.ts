@@ -92,9 +92,25 @@ class I18n {
       running: 'status.running',
       paused: 'status.paused',
       completed: 'status.completed',
+      restored: 'status.restored',
       error: 'status.error',
     };
     return this.t(key[status] ?? 'status.empty');
+  }
+
+  /** Localized short type token for the recent-operations log (compare/swap/…). */
+  logToken(type: string): string {
+    const key: Record<string, TranslationKey> = {
+      compare: 'logToken.compare',
+      swap: 'logToken.swap',
+      write: 'logToken.write',
+      pivot: 'logToken.pivot',
+      sorted: 'logToken.sorted',
+      range: 'logToken.range',
+      pass: 'logToken.pass',
+      complete: 'logToken.complete',
+    };
+    return key[type] ? this.t(key[type]) : type;
   }
 
   categoryLabel(category: AlgorithmCategory): string {

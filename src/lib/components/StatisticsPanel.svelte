@@ -19,6 +19,7 @@
     ['stats.activeCompute', 'stats.definitionActiveCompute'],
     ['stats.auxWrites', 'stats.definitionAuxWrites'],
     ['stats.passes', 'stats.definitionPasses'],
+    ['stats.maxDepth', 'stats.definitionMaxDepth'],
   ];
 </script>
 

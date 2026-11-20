@@ -79,6 +79,7 @@
   <main
     class="mx-auto grid w-[min(1600px,100%)] min-w-0 flex-1 grid-cols-[minmax(0,1.78fr)_minmax(340px,1fr)] items-start gap-6 px-6 pt-5 pb-7 shell:grid-cols-1 compact:gap-3.5 compact:p-3.5"
     id="workspace"
+    tabindex="-1"
   >
     <div class="grid min-w-0 gap-4 shell:contents">
       <section

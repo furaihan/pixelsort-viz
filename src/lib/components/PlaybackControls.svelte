@@ -160,6 +160,7 @@
           class="inline-flex w-fit rounded-[6px] border border-rule bg-inset p-0.5"
           role="group"
           aria-label={i18n.t('playback.mode')}
+          title={modeDisabled ? i18n.t('playback.modeLockedTitle') : undefined}
         >
           <button
             type="button"

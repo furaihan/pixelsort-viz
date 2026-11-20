@@ -110,8 +110,11 @@
       {i18n.t('workspace.px')} · {i18n.t('common.shuffle')}
       <span class="text-text">{app.seed ? formatSeed(app.seed) : '—'}</span>
     </span>
-    <span class="ml-auto mono text-[20px] font-bold text-text">
-      {app.runNumber > 0 ? formatTime(app.activeMs) : '—'}
+    <span
+      class="ml-auto mono text-[20px] font-bold text-text"
+      title={i18n.t('workspace.elapsedTitle')}
+    >
+      {app.runNumber > 0 && app.status !== 'restored' ? formatTime(app.elapsedMs) : '—'}
     </span>
   </div>
 

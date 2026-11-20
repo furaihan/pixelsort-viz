@@ -39,6 +39,30 @@
     if (event.target === dialog) close();
   }
 
+  // Keep Tab focus inside the modal. The native :dialog trap can leak a stop onto
+  // <body> once per lap (Chromium + scrollable region), so wrap at the boundaries.
+  function handleDialogKeydown(event: KeyboardEvent): void {
+    if (event.key !== 'Tab' || !dialog) return;
+    const focusables = Array.from(
+      dialog.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+      ),
+    ).filter((el) => !el.hasAttribute('disabled') && el.getClientRects().length > 0);
+    if (focusables.length === 0) return;
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+    const active = document.activeElement;
+    if (event.shiftKey) {
+      if (active === first || active === dialog) {
+        event.preventDefault();
+        last.focus();
+      }
+    } else if (active === last || active === dialog) {
+      event.preventDefault();
+      first.focus();
+    }
+  }
+
   function propertyLabel(value: boolean | 'depends'): string {
     return i18n.propertyLabel(value);
   }
@@ -57,6 +81,7 @@
   aria-describedby="guide-intro"
   onclose={handleClose}
   onclick={handleDialogClick}
+  onkeydown={handleDialogKeydown}
 >
   <div class="grid max-h-[88vh] grid-rows-[auto_minmax(0,1fr)]">
     <header
@@ -80,7 +105,13 @@
       </button>
     </header>
 
-    <div class="overflow-auto px-[22px] pt-5 pb-[26px] compact:p-4">
+    <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+    <div
+      class="overflow-auto px-[22px] pt-5 pb-[26px] compact:p-4"
+      tabindex="0"
+      role="region"
+      aria-labelledby="guide-title"
+    >
       <p
         class="max-w-[72ch] text-[14px] leading-[1.6] text-muted [&_strong]:text-text"
         id="guide-intro"
@@ -165,7 +196,7 @@
                         <ul class="mt-1 mb-0 grid list-none gap-0.5 p-0">
                           {#each i18n.algorithmNotes(algorithm.metadata.id) as note}
                             <li
-                              class="max-w-[30ch] text-[9.5px] leading-[1.4] font-normal whitespace-normal text-muted-2"
+                              class="max-w-[30ch] text-[10px] leading-[1.4] font-normal whitespace-normal text-muted-2"
                             >
                               {note}
                             </li>

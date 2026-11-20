@@ -37,6 +37,7 @@ export type RunStatus =
   | 'running'
   | 'paused'
   | 'completed'
+  | 'restored'
   | 'error';
 
 export interface ImageInfo {
@@ -125,6 +126,7 @@ export class AppState {
   speed = $state(1);
   counters = $state<Counters>(emptyCounters());
   activeMs = $state(0);
+  elapsedMs = $state(0);
   alignedCount = $state(0);
   currentEvent = $state<SortEvent | null>(null);
   currentLabel = $state<LocalizedText>(msg('state.dropLabel'));
@@ -155,6 +157,8 @@ export class AppState {
   private liveAlignedCount = 0;
   private initialAlignedCount = 0;
   private workerElapsed = 0;
+  private elapsedBase = 0;
+  private runningSince = 0;
   private lastFrame = 0;
   private lastStatsFlush = 0;
   private eventBudget = 0;
@@ -493,15 +497,10 @@ export class AppState {
     this.terminateWorker();
     this.permutation = identityPermutation(this.grid.elementCount);
     this.liveAlignedCount = this.grid.elementCount;
-    this.status = 'completed';
+    // Showing the original is not a sorting run: no COMPLETE status, no VERIFIED stamp.
+    this.status = 'restored';
     this.resetRunStats();
     this.alignedCount = this.grid.elementCount;
-    this.currentEvent = {
-      type: 'complete',
-      counters: emptyCounters(),
-      elapsedMs: 0,
-      validated: true,
-    };
     this.currentLabel = msg('state.restoredLabel');
     this.currentDetail = msg('state.restoredDetail');
     this.overlay.setComplete(this.grid.elementCount);
@@ -517,7 +516,7 @@ export class AppState {
       return;
     }
     if (this.workload && !this.workload.canStart) return;
-    if (this.status === 'completed' || this.status === 'error') {
+    if (this.status === 'completed' || this.status === 'error' || this.status === 'restored') {
       this.permutation = this.initialPermutation?.slice() ?? this.permutation;
       this.liveAlignedCount = this.initialPermutation
         ? this.initialAlignedCount
@@ -532,6 +531,8 @@ export class AppState {
   pause(): void {
     if (this.status !== 'running') return;
     this.status = 'paused';
+    this.elapsedBase += performance.now() - this.runningSince;
+    this.runningSince = 0;
     if (this.overlay.onPause()) this.overlayDirty = true;
     this.flushStats();
   }
@@ -540,6 +541,7 @@ export class AppState {
     if (this.status !== 'paused') return;
     this.status = 'running';
     this.lastFrame = performance.now();
+    this.runningSince = performance.now();
     this.eventBudget = 0;
     if (this.overlay.onResume()) this.overlayDirty = true;
     this.requestMore();
@@ -551,7 +553,7 @@ export class AppState {
     if (this.status !== 'paused' && this.workload && !this.workload.canStart) return;
     if (this.status === 'running') this.pause();
 
-    if (this.status === 'completed' || this.status === 'error') {
+    if (this.status === 'completed' || this.status === 'error' || this.status === 'restored') {
       this.permutation = this.initialPermutation?.slice() ?? this.permutation;
       this.liveAlignedCount = this.initialPermutation
         ? this.initialAlignedCount
@@ -630,6 +632,7 @@ export class AppState {
     this.spawnWorker();
     this.runNumber += 1;
     this.status = paused ? 'paused' : 'running';
+    this.runningSince = paused ? 0 : performance.now();
     this.awaitingBatch = true;
     this.stepPending = paused;
     this.lastFrame = performance.now();
@@ -751,6 +754,10 @@ export class AppState {
     this.alignedCount = this.liveAlignedCount;
     this.liveCounters = { ...done.counters };
     this.workerElapsed = done.elapsedMs;
+    if (this.runningSince > 0) {
+      this.elapsedBase += performance.now() - this.runningSince;
+      this.runningSince = 0;
+    }
     this.status = validated ? 'completed' : 'error';
     this.currentEvent = {
       type: 'complete',
@@ -984,6 +991,8 @@ export class AppState {
   private flushStats(): void {
     this.counters = { ...this.liveCounters };
     this.activeMs = this.workerElapsed;
+    this.elapsedMs =
+      this.elapsedBase + (this.runningSince > 0 ? performance.now() - this.runningSince : 0);
     this.alignedCount = this.liveAlignedCount;
 
     if (this.pendingRawLogs.length > 0) {
@@ -1010,8 +1019,11 @@ export class AppState {
   private resetRunStats(): void {
     this.liveCounters = emptyCounters();
     this.workerElapsed = 0;
+    this.elapsedBase = 0;
+    this.runningSince = 0;
     this.counters = emptyCounters();
     this.activeMs = 0;
+    this.elapsedMs = 0;
     this.currentEvent = null;
     this.currentLabel = msg('state.readyLabel');
     this.currentDetail = msg('state.readyDetail');

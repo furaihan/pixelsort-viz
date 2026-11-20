@@ -4,7 +4,7 @@
   import { i18n } from '../i18n/index.svelte';
 
   const swatch =
-    'relative inline-flex h-3 w-[18px] flex-none items-center justify-center rounded-[2px] border mono text-[7px] font-bold';
+    'relative inline-flex h-3 w-[18px] flex-none items-center justify-center rounded-[2px] border mono text-[10px] font-bold';
 
   const logTypeTone =
     'data-[type=compare]:text-focal data-[type=swap]:text-focal data-[type=write]:text-muted data-[type=pivot]:text-focal data-[type=sorted]:text-accent data-[type=complete]:text-accent';
@@ -75,7 +75,7 @@
                 class="w-14 flex-none mono text-[10px] font-bold tracking-[0.04em] text-muted-2 uppercase {logTypeTone}"
                 data-type={entry.type}
               >
-                {entry.type}
+                {i18n.logToken(entry.type)}
               </span>
               <span class="truncate text-[11px] text-muted">{i18n.text(entry.text)}</span>
             </li>

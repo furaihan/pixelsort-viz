@@ -110,7 +110,7 @@
                 ? i18n.t('upload.replace')
                 : i18n.t('upload.choose')}
           </strong>
-          <span class="text-[10px] text-muted">{i18n.t('upload.formatsLocal')}</span>
+          <span class="text-[11px] text-muted">{i18n.t('upload.formatsLocal')}</span>
         </span>
         <Icon name="arrow-right" size={16} />
       </div>
