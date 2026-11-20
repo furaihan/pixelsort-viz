@@ -98,6 +98,30 @@ export const THEMES = {
       muted2: '#9aadc2',
     },
   },
+  'tropical-espresso': {
+    id: 'tropical-espresso',
+    name: 'Tropical Espresso',
+    scheme: 'dark',
+    tokens: {
+      // Dark Cocoa: primary foundation, structure, contrast.
+      ink: '#3D231E',
+      ink2: '#3D231E',
+      ink3: '#3D231E',
+      // Sage Mist: supporting color, secondary surfaces.
+      ink4: '#A8C5BE',
+      // Oat Milk: neutral background, breathing space.
+      line: '#F5EFE5',
+      // Pool Blue: secondary foundation, freshness; interactive + structure.
+      structural: '#8BE5EC',
+      accent: '#8BE5EC',
+      // Solar Yellow: focal accent, CTA, visual emphasis.
+      highlight: '#FFD230',
+      // Sage Mist: primary text and secondary copy.
+      text: '#A8C5BE',
+      muted: '#A8C5BE',
+      muted2: '#A8C5BE',
+    },
+  },
 } as const satisfies Record<string, ThemeDefinition>;
 
 export type ThemeId = keyof typeof THEMES;
