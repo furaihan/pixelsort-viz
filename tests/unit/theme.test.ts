@@ -12,17 +12,16 @@ import {
 } from '../../src/lib/theme/palettes';
 
 const EXPECTED_VARS = [
-  '--color-ink',
-  '--color-ink-2',
-  '--color-ink-3',
-  '--color-ink-4',
-  '--color-line',
-  '--color-line-strong',
-  '--color-lime',
-  '--color-soft-lime',
-  '--color-pink',
-  '--color-bubblegum',
-  '--color-violet',
+  '--color-ground',
+  '--color-panel',
+  '--color-inset',
+  '--color-raised',
+  '--color-rule',
+  '--color-rule-strong',
+  '--color-accent',
+  '--color-accent-soft',
+  '--color-focal',
+  '--color-structure',
   '--color-text',
   '--color-muted',
   '--color-muted-2',
@@ -53,12 +52,12 @@ describe('theme registry', () => {
     for (const entry of THEME_LIST) {
       const palette = getCanvasPalette(entry.id as ThemeId);
       expect(palette.primary).toBe(entry.tokens.accent);
-      expect(palette.highlight).toBe(entry.tokens.highlight);
-      expect(palette.secondary).toBe(entry.tokens.structural);
-      expect(palette.ink).toBe(entry.tokens.ink);
+      expect(palette.highlight).toBe(entry.tokens.focal);
+      expect(palette.secondary).toBe(entry.tokens.structure);
+      expect(palette.ink).toBe(entry.tokens.ground);
       expect(palette.primarySoftStroke).toBe(withAlpha(entry.tokens.accent, 0.8));
       expect(palette.primaryTint).toBe(withAlpha(entry.tokens.accent, 0.08));
-      expect(palette.inkBacking).toBe(withAlpha(entry.tokens.ink, 0.75));
+      expect(palette.inkBacking).toBe(withAlpha(entry.tokens.ground, 0.75));
     }
   });
 
@@ -68,19 +67,20 @@ describe('theme registry', () => {
   });
 
   it('keeps the CSS @theme fallback in sync with the default theme', () => {
-    const css = readFileSync(new URL('../../src/app.css', import.meta.url), 'utf8');
+    const css = readFileSync(new URL('../../src/app.css', import.meta.url), 'utf8').toLowerCase();
     for (const [name, value] of Object.entries(resolveCssVars(THEMES[DEFAULT_THEME].tokens))) {
-      expect(css, `app.css is missing ${name}: ${value};`).toContain(`${name}: ${value};`);
+      const needle = `${name}: ${value};`.toLowerCase();
+      expect(css, `app.css is missing ${name}: ${value};`).toContain(needle);
     }
   });
 
   it('keeps the pre-paint background hint in sync with the theme registry', () => {
     const html = readFileSync(new URL('../../index.html', import.meta.url), 'utf8');
     for (const entry of THEME_LIST) {
-      const pattern = new RegExp(`['"]${entry.id}['"]\\s*:\\s*['"]${entry.tokens.ink}['"]`);
+      const pattern = new RegExp(`['"]${entry.id}['"]\\s*:\\s*['"]${entry.tokens.ground}['"]`);
       expect(
         html,
-        `index.html is missing the pre-paint hint for ${entry.id}: ${entry.tokens.ink}`,
+        `index.html is missing the pre-paint hint for ${entry.id}: ${entry.tokens.ground}`,
       ).toMatch(pattern);
     }
   });

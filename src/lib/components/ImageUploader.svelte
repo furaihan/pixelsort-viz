@@ -9,12 +9,13 @@
   let dragging = $state(false);
 
   const dropzoneShell =
-    'relative grid cursor-pointer content-center justify-items-start gap-3 rounded-xl transition-[border-color,background,transform] duration-[180ms]';
+    'relative grid cursor-pointer content-center justify-items-start gap-3 rounded-[12px] transition-[border-color,background,transform] duration-[180ms]';
   const dropzoneFullIdle =
-    'min-h-[126px] border border-dashed border-lime/45 p-4 bg-lime/[0.04] hover:border-lime hover:bg-lime/[0.08]';
-  const dropzoneFullDragging = 'min-h-[126px] border border-dashed border-lime p-4 bg-lime/[0.1]';
+    'min-h-[126px] border border-dashed border-rule-strong p-4 bg-inset/40 hover:border-accent hover:bg-accent/[0.06]';
+  const dropzoneFullDragging =
+    'min-h-[126px] border border-dashed border-accent p-4 bg-accent/[0.1]';
   const dropzoneCompact =
-    'min-h-0 border border-solid border-line-strong bg-ink-3 px-3 py-2.5 hover:border-line';
+    'min-h-0 border border-solid border-rule bg-inset px-3 py-2.5 hover:border-rule-strong';
 
   let dropzoneClass = $derived(
     [
@@ -93,7 +94,7 @@
     {#if compact}
       <div class="flex w-full items-center gap-2.5 [&>svg:last-child]:text-muted">
         <span
-          class="inline-flex size-[30px] flex-none items-center justify-center rounded-[6px] bg-bubblegum/10 text-bubblegum"
+          class="inline-flex size-[30px] flex-none items-center justify-center rounded-[6px] bg-accent/10 text-accent"
         >
           <Icon name="upload" size={16} />
         </span>
@@ -112,7 +113,7 @@
     {:else}
       <div class="flex flex-wrap items-center gap-3">
         <span
-          class="inline-flex min-h-[38px] items-center gap-2 rounded-[9px] border border-lime bg-lime px-3.5 text-[12.5px] font-[750] text-ink shadow-[3px_3px_0_var(--pink)]"
+          class="inline-flex min-h-[38px] items-center gap-2 rounded-[6px] border border-focal bg-focal px-3.5 text-[12.5px] font-bold text-ground"
         >
           <Icon name="upload" size={16} />
           {app.isLoadingImage ? i18n.t('upload.decoding') : i18n.t('upload.choose')}
@@ -135,6 +136,7 @@
     <div class="flex flex-wrap items-center gap-2.5">
       <button
         class="btn btn-small btn-ghost"
+        id="load-sample"
         type="button"
         onclick={() => void app.loadSample()}
         disabled={app.isLoadingImage}
@@ -151,7 +153,7 @@
       <Icon name="alert" size={16} />
       <span>{i18n.text(app.uploadError)}</span>
       <button
-        class="inline-flex size-6 cursor-pointer items-center justify-center rounded border-0 bg-transparent p-0 text-inherit hover:bg-white/8"
+        class="inline-flex size-6 cursor-pointer items-center justify-center rounded border-0 bg-transparent p-0 text-inherit hover:bg-text/10"
         type="button"
         aria-label={i18n.t('upload.dismissError')}
         onclick={() => app.dismissUploadError()}

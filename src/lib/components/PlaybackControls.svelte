@@ -11,9 +11,9 @@
   const performanceFps = [4, 6, 10, 15, 20, 24, 45];
 
   const modeButton =
-    'min-h-7 cursor-pointer rounded-[5px] border-0 px-[9px] text-[10.5px] font-bold disabled:cursor-not-allowed disabled:opacity-45';
+    'min-h-7 cursor-pointer rounded-[4px] border-0 px-2.5 text-[11px] font-bold disabled:cursor-not-allowed disabled:opacity-45';
   const modeIdle = 'bg-transparent text-muted enabled:hover:text-text';
-  const modeActive = 'bg-lime/10 text-lime';
+  const modeActive = 'bg-accent/15 text-accent';
 
   let speedIndex = $derived(
     Math.max(0, SPEED_PRESETS.indexOf(app.speed as (typeof SPEED_PRESETS)[number])),
@@ -76,7 +76,7 @@
 
 <svelte:element
   this={inline ? 'div' : 'section'}
-  class={inline ? 'grid content-start gap-2.5' : 'grid gap-2.5 panel p-2.5'}
+  class={inline ? 'grid content-start gap-3' : 'grid gap-3 panel p-3'}
   role={inline ? 'group' : undefined}
   aria-label={i18n.t('playback.title')}
 >
@@ -95,7 +95,7 @@
       </div>
     {/if}
 
-    <div class="flex flex-wrap items-center gap-[7px]">
+    <div class="flex flex-wrap items-center gap-2">
       <button
         class="btn min-w-[142px] btn-primary compact:flex-1"
         type="button"
@@ -155,15 +155,11 @@
   {/if}
 
   {#if showSettings}
-    <div
-      class={inline
-        ? 'grid grid-cols-1 gap-3'
-        : 'grid grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] gap-4 border-t border-line pt-3 compact:grid-cols-1 compact:gap-3'}
-    >
+    <div class="grid gap-3">
       <div class="grid content-start gap-1.5">
         <span class="label">{i18n.t('playback.mode')}</span>
         <div
-          class="inline-flex w-fit rounded-[7px] border border-line-strong bg-ink p-0.5"
+          class="inline-flex w-fit rounded-[6px] border border-rule bg-inset p-0.5"
           role="group"
           aria-label={i18n.t('playback.mode')}
         >
@@ -186,7 +182,7 @@
             {i18n.t('playback.performance')}
           </button>
         </div>
-        <span class="text-[10px] leading-[1.4] text-muted-2">
+        <span class="text-[11px] leading-[1.4] text-muted-2">
           {app.mode === 'educational'
             ? i18n.t('playback.educationalNote')
             : i18n.t('playback.performanceNote')}
@@ -196,7 +192,7 @@
       <div class="grid content-start gap-1.5">
         <div class="flex items-center justify-between gap-2">
           <span class="label">{speedCaption}</span>
-          <span class="mono text-[11px] font-bold text-text">{speedText}</span>
+          <span class="mono text-[13px] font-bold text-text">{speedText}</span>
         </div>
         <input
           class="speed-range"
@@ -210,7 +206,7 @@
           aria-valuetext={speedText}
         />
         <div
-          class="flex justify-between gap-0.5 mono text-[8px] font-bold text-muted-2"
+          class="flex justify-between gap-0.5 mono text-[11px] font-bold text-muted-2"
           aria-hidden="true"
         >
           {#each SPEED_PRESETS as preset, index}
@@ -222,15 +218,15 @@
       </div>
     </div>
 
-    <div class="flex items-center justify-between gap-2.5 border-t border-line pt-[9px]">
+    <div class="flex items-center justify-between gap-2.5 border-t border-rule pt-2.5">
       <span
-        class="mono text-[8px] font-semibold tracking-[0.04em] text-muted-2 compact:hidden {inline
+        class="mono text-[11px] font-semibold tracking-[0.04em] text-muted-2 compact:hidden {inline
           ? 'hidden'
           : ''}"
       >
         {i18n.t('playback.shortcuts')}
       </span>
-      <span class="mono text-[8px] font-bold tracking-[0.1em] text-muted">
+      <span class="mono text-[11px] font-bold tracking-[0.1em] text-muted">
         {app.modeLabel} · {app.isRunning
           ? i18n.t('playback.live')
           : app.isPaused

@@ -3,20 +3,38 @@
   import { app } from '../stores/appState.svelte';
   import { formatNumber, formatTime } from '../utils/format';
   import { i18n } from '../i18n/index.svelte';
+  import type { TranslationKey } from '../i18n/messages';
 
-  const metricCell = 'grid gap-[3px] bg-ink-3 px-[11px] py-2.5';
-  const metricValue = 'mono text-data';
+  const rowLabel =
+    'mono py-[5px] pr-3 text-left align-middle text-[11px] font-bold uppercase tracking-[0.12em] text-muted';
+  const rowValue = 'mono py-[5px] text-right align-middle text-[20px]';
+  const rowLine = 'border-b border-rule/60';
+
+  const definitions: [TranslationKey, TranslationKey][] = [
+    ['stats.comparisons', 'stats.definitionComparisons'],
+    ['stats.swaps', 'stats.definitionSwaps'],
+    ['stats.writes', 'stats.definitionWrites'],
+    ['stats.reads', 'stats.definitionReads'],
+    ['stats.totalOps', 'stats.definitionTotalOps'],
+    ['stats.activeCompute', 'stats.definitionActiveCompute'],
+    ['stats.auxWrites', 'stats.definitionAuxWrites'],
+    ['stats.passes', 'stats.definitionPasses'],
+  ];
 </script>
 
 <section class="panel" aria-labelledby="stats-title">
   <div class="panel-head">
     <h2 class="panel-title" id="stats-title">
-      <Icon name="clock" size={15} />
-      {i18n.t('stats.title')}
+      {i18n.t('stats.tableTitle')}
+      {#if app.runNumber > 0}
+        <small class="mono text-[11px] font-bold tracking-[0.1em] text-muted-2">
+          {i18n.t('workspace.runStamp', { n: String(app.runNumber).padStart(3, '0') })}
+        </small>
+      {/if}
     </h2>
     {#if app.isRunning}
-      <span class="chip gap-[5px] chip-lime">
-        <span class="size-[5px] animate-pulse-soft rounded-full bg-lime" aria-hidden="true"></span>
+      <span class="chip chip-focal">
+        <span class="size-[5px] animate-pulse-soft rounded-full bg-focal" aria-hidden="true"></span>
         {i18n.t('stats.live')}
       </span>
     {:else}
@@ -25,65 +43,68 @@
   </div>
 
   <div class="panel-body">
-    <div class="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-line bg-line">
-      <div class={metricCell}>
-        <span class="label">{i18n.t('stats.comparisons')}</span>
-        <strong class="{metricValue} text-muted">{formatNumber(app.counters.comparisons)}</strong>
-      </div>
-      <div class={metricCell}>
-        <span class="label">{i18n.t('stats.swaps')}</span>
-        <strong class="{metricValue} text-muted">{formatNumber(app.counters.swaps)}</strong>
-      </div>
-      <div class={metricCell}>
-        <span class="label">{i18n.t('stats.writes')}</span>
-        <strong class="{metricValue} text-muted">{formatNumber(app.counters.writes)}</strong>
-      </div>
-      <div class={metricCell}>
-        <span class="label">{i18n.t('stats.reads')}</span>
-        <strong class="{metricValue} text-muted">{formatNumber(app.counters.reads)}</strong>
-      </div>
-      <div class={metricCell}>
-        <span class="label">{i18n.t('stats.totalOps')}</span>
-        <strong class="{metricValue} {app.isRunning || app.isComplete ? 'text-lime' : 'text-text'}">
-          {formatNumber(app.totalOps)}
-        </strong>
-      </div>
-      <div class={metricCell}>
-        <span class="label">{i18n.t('stats.activeCompute')}</span>
-        <strong class="{metricValue} {app.isRunning || app.isComplete ? 'text-lime' : 'text-text'}">
-          {formatTime(app.activeMs)}
-        </strong>
-      </div>
-    </div>
+    <table class="w-full border-collapse">
+      <caption class="sr-only">{i18n.t('stats.title')}</caption>
+      <tbody>
+        <tr class={rowLine}>
+          <th class={rowLabel} scope="row">{i18n.t('stats.comparisons')}</th>
+          <td class="{rowValue} text-text">{formatNumber(app.counters.comparisons)}</td>
+        </tr>
+        <tr class={rowLine}>
+          <th class={rowLabel} scope="row">{i18n.t('stats.swaps')}</th>
+          <td class="{rowValue} text-text">{formatNumber(app.counters.swaps)}</td>
+        </tr>
+        <tr class={rowLine}>
+          <th class={rowLabel} scope="row">{i18n.t('stats.writes')}</th>
+          <td class="{rowValue} text-text">{formatNumber(app.counters.writes)}</td>
+        </tr>
+        <tr class={rowLine}>
+          <th class={rowLabel} scope="row">{i18n.t('stats.reads')}</th>
+          <td class="{rowValue} text-text">{formatNumber(app.counters.reads)}</td>
+        </tr>
+        <tr class={rowLine}>
+          <th class={rowLabel} scope="row">{i18n.t('stats.totalOps')}</th>
+          <td class="{rowValue} {app.isRunning || app.isComplete ? 'text-focal' : 'text-text'}">
+            {formatNumber(app.totalOps)}
+          </td>
+        </tr>
+        <tr>
+          <th class={rowLabel} scope="row">{i18n.t('stats.activeCompute')}</th>
+          <td class="{rowValue} {app.isRunning || app.isComplete ? 'text-focal' : 'text-text'}">
+            {formatTime(app.activeMs)}
+          </td>
+        </tr>
+      </tbody>
+    </table>
 
-    <div class="mt-3 grid grid-cols-3 gap-2.5 border-t border-line pt-[11px]">
+    <div class="mt-2.5 grid grid-cols-3 gap-2.5 border-t border-rule pt-2.5">
       <div>
         <span class="label">{i18n.t('stats.auxWrites')}</span>
-        <strong class="mt-[3px] block mono text-[12px] font-semibold text-text">
+        <strong class="mt-1 block mono text-data-sm text-text">
           {app.counters.auxWrites > 0 ? formatNumber(app.counters.auxWrites) : '—'}
         </strong>
       </div>
       <div>
         <span class="label">{i18n.t('stats.passes')}</span>
-        <strong class="mt-[3px] block mono text-[12px] font-semibold text-text">
+        <strong class="mt-1 block mono text-data-sm text-text">
           {app.counters.passes > 0 ? formatNumber(app.counters.passes) : '—'}
         </strong>
       </div>
       <div>
         <span class="label">{i18n.t('stats.maxDepth')}</span>
-        <strong class="mt-[3px] block mono text-[12px] font-semibold text-text">
+        <strong class="mt-1 block mono text-data-sm text-text">
           {app.counters.maxDepth > 0 ? formatNumber(app.counters.maxDepth) : '—'}
         </strong>
       </div>
     </div>
 
-    <p class="mt-3 mono text-[8px] font-bold tracking-[0.08em] text-muted-2">
+    <p class="mt-2.5 mono text-[11px] font-bold tracking-[0.08em] text-muted-2">
       {i18n.t('stats.totalFormula')}
     </p>
 
-    <details class="group mt-2.5 border-t border-line">
+    <details class="group mt-2.5 border-t border-rule">
       <summary
-        class="flex cursor-pointer list-none items-center justify-between gap-2 px-0 pt-2.5 pb-0 text-[11px] font-[650] text-muted [&_svg]:text-bubblegum [&::-webkit-details-marker]:hidden"
+        class="flex cursor-pointer list-none items-center justify-between gap-2 pt-2.5 text-[12px] font-semibold text-muted [&_svg]:text-structure [&::-webkit-details-marker]:hidden"
       >
         <span class="inline-flex items-center gap-1.5">
           <Icon name="info" size={13} />
@@ -93,71 +114,15 @@
           <Icon name="chevron-down" size={14} />
         </span>
       </summary>
-      <dl class="mt-2.5 grid gap-2">
-        <div class="grid grid-cols-[82px_minmax(0,1fr)] gap-2">
-          <dt class="font-mono text-[9px] font-bold tracking-[0.04em] text-muted">
-            {i18n.t('stats.comparisons')}
-          </dt>
-          <dd class="text-[10.5px] leading-[1.45] text-muted">
-            {i18n.t('stats.definitionComparisons')}
-          </dd>
-        </div>
-        <div class="grid grid-cols-[82px_minmax(0,1fr)] gap-2">
-          <dt class="font-mono text-[9px] font-bold tracking-[0.04em] text-muted">
-            {i18n.t('stats.swaps')}
-          </dt>
-          <dd class="text-[10.5px] leading-[1.45] text-muted">
-            {i18n.t('stats.definitionSwaps')}
-          </dd>
-        </div>
-        <div class="grid grid-cols-[82px_minmax(0,1fr)] gap-2">
-          <dt class="font-mono text-[9px] font-bold tracking-[0.04em] text-muted">
-            {i18n.t('stats.writes')}
-          </dt>
-          <dd class="text-[10.5px] leading-[1.45] text-muted">
-            {i18n.t('stats.definitionWrites')}
-          </dd>
-        </div>
-        <div class="grid grid-cols-[82px_minmax(0,1fr)] gap-2">
-          <dt class="font-mono text-[9px] font-bold tracking-[0.04em] text-muted">
-            {i18n.t('stats.reads')}
-          </dt>
-          <dd class="text-[10.5px] leading-[1.45] text-muted">
-            {i18n.t('stats.definitionReads')}
-          </dd>
-        </div>
-        <div class="grid grid-cols-[82px_minmax(0,1fr)] gap-2">
-          <dt class="font-mono text-[9px] font-bold tracking-[0.04em] text-muted">
-            {i18n.t('stats.totalOps')}
-          </dt>
-          <dd class="text-[10.5px] leading-[1.45] text-muted">
-            {i18n.t('stats.definitionTotalOps')}
-          </dd>
-        </div>
-        <div class="grid grid-cols-[82px_minmax(0,1fr)] gap-2">
-          <dt class="font-mono text-[9px] font-bold tracking-[0.04em] text-muted">
-            {i18n.t('stats.activeCompute')}
-          </dt>
-          <dd class="text-[10.5px] leading-[1.45] text-muted">
-            {i18n.t('stats.definitionActiveCompute')}
-          </dd>
-        </div>
-        <div class="grid grid-cols-[82px_minmax(0,1fr)] gap-2">
-          <dt class="font-mono text-[9px] font-bold tracking-[0.04em] text-muted">
-            {i18n.t('stats.auxWrites')}
-          </dt>
-          <dd class="text-[10.5px] leading-[1.45] text-muted">
-            {i18n.t('stats.definitionAuxWrites')}
-          </dd>
-        </div>
-        <div class="grid grid-cols-[82px_minmax(0,1fr)] gap-2">
-          <dt class="font-mono text-[9px] font-bold tracking-[0.04em] text-muted">
-            {i18n.t('stats.passes')} / {i18n.t('stats.maxDepth')}
-          </dt>
-          <dd class="text-[10.5px] leading-[1.45] text-muted">
-            {i18n.t('stats.definitionPasses')}
-          </dd>
-        </div>
+      <dl class="mt-3 grid gap-2">
+        {#each definitions as [term, definition]}
+          <div class="grid grid-cols-[92px_minmax(0,1fr)] gap-2">
+            <dt class="mono text-[11px] font-bold tracking-[0.04em] text-muted">
+              {i18n.t(term)}
+            </dt>
+            <dd class="text-[11px] leading-[1.45] text-muted">{i18n.t(definition)}</dd>
+          </div>
+        {/each}
       </dl>
     </details>
   </div>

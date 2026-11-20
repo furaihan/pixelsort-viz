@@ -54,7 +54,7 @@ class ThemeStore {
 
     document
       .querySelector('meta[name="theme-color"]')
-      ?.setAttribute('content', definition.tokens.ink);
+      ?.setAttribute('content', definition.tokens.ground);
     document
       .querySelector('meta[name="color-scheme"]')
       ?.setAttribute('content', definition.scheme ?? 'dark');

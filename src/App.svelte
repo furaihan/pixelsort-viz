@@ -56,10 +56,17 @@
       .querySelector('meta[name="description"]')
       ?.setAttribute('content', i18n.t('app.description'));
   });
+
+  // The sheet's ruling is the sorting grid: re-rule the page when the block
+  // size changes, clamped so the finest grids stay legible as paper rhythm.
+  $effect(() => {
+    const pitch = Math.min(128, Math.max(8, app.blockSize));
+    document.documentElement.style.setProperty('--ruling-pitch', `${pitch}px`);
+  });
 </script>
 
 <a
-  class="fixed top-2 left-2 z-100 -translate-y-[160%] rounded-[6px] bg-lime px-3 py-2 text-[12px] font-bold text-ink no-underline transition-transform duration-150 focus:translate-y-0"
+  class="fixed top-2 left-2 z-100 -translate-y-[160%] rounded-[6px] bg-accent px-3 py-2 text-[12px] font-bold text-ground no-underline opacity-0 transition-transform duration-150 focus:translate-y-0 focus:opacity-100"
   href="#workspace"
 >
   {i18n.t('app.skipToWorkspace')}
@@ -70,65 +77,59 @@
   <Header onopenGuide={() => (guideOpen = true)} />
 
   <main
-    class="mx-auto grid w-[min(1600px,100%)] min-w-0 flex-1 grid-cols-[minmax(0,1.65fr)_minmax(330px,0.85fr)] items-start gap-5 px-6 pt-5 pb-7 shell:grid-cols-1 compact:gap-3.5 compact:p-3.5"
+    class="mx-auto grid w-[min(1600px,100%)] min-w-0 flex-1 grid-cols-[minmax(0,1.78fr)_minmax(340px,1fr)] items-start gap-6 px-6 pt-5 pb-7 shell:grid-cols-1 compact:gap-3.5 compact:p-3.5"
     id="workspace"
   >
-    <section class="grid min-w-0 gap-2.5" aria-label={i18n.t('app.visualizationPlayback')}>
-      <ImageWorkspace />
+    <div class="grid min-w-0 gap-4 shell:contents">
+      <section
+        class="grid min-w-0 gap-4 shell:order-1"
+        aria-label={i18n.t('app.visualizationPlayback')}
+      >
+        <ImageWorkspace />
+      </section>
+      <div class="shell:order-5">
+        <AlgorithmInspector />
+      </div>
+    </div>
 
-      <section class="panel panel-compact" aria-labelledby="controls-title">
+    <aside
+      class="sticky top-5 grid min-w-0 gap-4 shell:static shell:contents short:static"
+      aria-label={i18n.t('app.configurationStatistics')}
+    >
+      <div class="grid min-w-0 gap-4 shell:order-3">
+        <StatisticsPanel />
+      </div>
+
+      <div class="shell:order-2">
+        <PlaybackControls inline zone="actions" />
+      </div>
+
+      <section class="panel shell:order-4" aria-labelledby="conditions-title">
         <div class="panel-head">
-          <h2 class="panel-title" id="controls-title">
-            <Icon name="layers" size={15} />
-            {i18n.t('controls.title')}
+          <h2 class="panel-title" id="conditions-title">
+            <Icon name="layers" size={16} />
+            {i18n.t('conditions.title')}
           </h2>
           <span class="chip">{i18n.statusLabel(app.status)}</span>
         </div>
-
         <div class="grid gap-3 panel-body">
-          <PlaybackControls inline zone="actions" />
-
-          <div
-            class="grid grid-cols-3 items-start gap-3 border-t border-line pt-3 narrow:grid-cols-1"
-          >
-            <div class="min-w-0 pr-3 narrow:pr-0">
-              <GranularitySelector inline />
-            </div>
-            <div
-              class="min-w-0 border-l border-line pl-3 narrow:border-t narrow:border-l-0 narrow:pt-3 narrow:pl-0"
-            >
-              <AlgorithmSelector inline onopenGuide={() => (guideOpen = true)} />
-            </div>
-            <div
-              class="min-w-0 border-l border-line pl-3 narrow:border-t narrow:border-l-0 narrow:pt-3 narrow:pl-0"
-            >
-              <PlaybackControls inline zone="settings" />
-            </div>
-          </div>
+          <GranularitySelector inline />
+          <AlgorithmSelector inline onopenGuide={() => (guideOpen = true)} />
+          <PlaybackControls inline zone="settings" />
         </div>
       </section>
-    </section>
-
-    <aside
-      class="sticky top-5 grid min-w-0 gap-2.5 shell:static short:static"
-      aria-label={i18n.t('app.configurationStatistics')}
-    >
-      <StatisticsPanel />
-      <AlgorithmInspector />
     </aside>
   </main>
 
   <footer
-    class="flex items-center justify-between gap-3.5 border-t border-line px-6 py-[13px] text-[8px] font-bold tracking-[0.1em] text-muted-2 compact:px-3.5 compact:py-3"
+    class="flex items-center justify-between gap-3.5 border-t border-rule px-6 py-3 text-[10px] font-bold tracking-[0.1em] text-muted-2 compact:px-3.5"
   >
-    <div class="flex items-center gap-[7px]">
-      <span class="size-[5px] rounded-full bg-line-strong" aria-hidden="true"></span>
-      <span class="mono">{i18n.t('app.footerLocal')}</span>
+    <div class="flex items-center gap-2 mono">
+      <Icon name="lock" size={12} />
+      {i18n.t('app.footerLocal')}
     </div>
     <div class="flex gap-3.5 mono compact:hidden">
-      <span>SVELTE 5</span>
-      <span>{i18n.t('app.footerCanvas')}</span>
-      <span>{i18n.t('app.footerWorker')}</span>
+      <span>{i18n.t('playback.shortcuts')}</span>
     </div>
   </footer>
 

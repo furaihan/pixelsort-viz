@@ -5,7 +5,7 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="dark" />
-    <meta name="theme-color" content="#111116" />
+    <meta name="theme-color" content="#252729" />
     <script>
       // Pre-paint background hint: the full token set is applied by the theme
       // store once the bundle runs, but the empty body would otherwise flash
@@ -14,11 +14,11 @@
       // src/lib/theme/palettes.ts.
       (function () {
         var inks = {
-          'quantum-signal': '#111116',
-          'midnight-splash': '#182644',
-          'tropical-espresso': '#3D231E',
+          'warm-graphite': '#252729',
+          'misty-blue': '#1F262B',
+          'coral-dusk': '#2B2523',
         };
-        var theme = 'quantum-signal';
+        var theme = 'warm-graphite';
         try {
           var saved = localStorage.getItem('pixel-sort-theme');
           if (saved && typeof inks[saved] === 'string') theme = saved;
@@ -26,7 +26,7 @@
           // Storage can be unavailable; the default theme is fine.
         }
         document.documentElement.dataset.theme = theme;
-        document.documentElement.style.setProperty('--color-ink', inks[theme]);
+        document.documentElement.style.setProperty('--color-ground', inks[theme]);
       })();
     </script>
     <meta
@@ -42,8 +42,8 @@
         style="
           padding: 24px;
           font-family: system-ui, sans-serif;
-          color: #d8dce8;
-          background: #111116;
+          color: #eae2d8;
+          background: #252729;
         "
       >
         Pixel Sort needs JavaScript to decode, shuffle, and sort the image locally in your browser.

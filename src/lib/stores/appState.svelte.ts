@@ -115,6 +115,7 @@ export class AppState {
   isLoadingImage = $state(false);
   ghostOriginal = $state(false);
   seed = $state(0);
+  runNumber = $state(0);
 
   image: ImageSource | null = null;
   grid: GridSpec | null = null;
@@ -315,6 +316,7 @@ export class AppState {
       const image = await decodeImageFile(file);
       if (token !== this.loadToken) return;
       this.terminateWorker();
+      this.runNumber = 0;
       this.image = image;
       this.imageInfo = {
         width: image.width,
@@ -365,6 +367,7 @@ export class AppState {
     this.liveAlignedCount = 0;
     this.alignedCount = 0;
     this.seed = 0;
+    this.runNumber = 0;
     this.status = 'empty';
     this.resetRunStats();
     this.currentLabel = msg('state.dropLabel');
@@ -618,6 +621,7 @@ export class AppState {
     this.terminateWorker();
     this.resetRunStats();
     this.spawnWorker();
+    this.runNumber += 1;
     this.status = paused ? 'paused' : 'running';
     this.awaitingBatch = true;
     this.stepPending = paused;

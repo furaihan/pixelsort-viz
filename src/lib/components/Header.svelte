@@ -2,86 +2,71 @@
   import Icon from './Icon.svelte';
   import { app } from '../stores/appState.svelte';
   import { i18n } from '../i18n/index.svelte';
-  import { activeTheme, theme } from '../theme/index.svelte';
+  import type { TranslationKey } from '../i18n/messages';
+  import { theme } from '../theme/index.svelte';
   import { THEME_LIST, type ThemeId } from '../theme/palettes';
 
   let { onopenGuide }: { onopenGuide: () => void } = $props();
 
   const statusTone =
-    'data-[tone=live]:border-lime/50 data-[tone=live]:text-lime data-[tone=paused]:border-bubblegum/60 data-[tone=paused]:text-muted data-[tone=done]:border-lime/50 data-[tone=done]:text-lime data-[tone=error]:border-danger/50 data-[tone=error]:text-danger';
+    'data-[tone=live]:border-focal/60 data-[tone=live]:text-focal data-[tone=paused]:border-rule-strong data-[tone=paused]:text-muted data-[tone=done]:border-accent/60 data-[tone=done]:text-accent data-[tone=error]:border-danger/60 data-[tone=error]:text-danger';
 </script>
 
 <header
-  class="flex min-h-16 w-full items-center justify-between gap-[18px] border-b border-line bg-ink/92 px-6 py-2.5 backdrop-blur-[12px] narrow:px-3.5 tiny:gap-3"
+  class="flex min-h-[58px] w-full flex-wrap items-center justify-between gap-4 gap-y-1.5 border-b border-rule bg-panel/90 px-6 py-2 backdrop-blur-[8px] narrow:px-3.5 tiny:gap-2"
 >
   <a
-    class="inline-flex items-center gap-[11px] text-text no-underline hover:text-text"
+    class="inline-flex items-baseline gap-3 text-text no-underline hover:text-text"
     href="/"
     aria-label={i18n.t('app.homeLabel')}
   >
-    <span class="relative block size-[30px] flex-none" aria-hidden="true">
-      <span class="absolute top-0 left-0 size-5 border-2 border-ink bg-lime"></span>
-      <span class="absolute right-0 bottom-0 size-5 border-2 border-ink bg-pink mix-blend-screen"
-      ></span>
+    <span class="text-[23px] font-bold tracking-[-0.02em] whitespace-nowrap tight:text-[20px]">
+      PIXEL SORT
     </span>
-    <span class="grid gap-px leading-none">
-      <span class="text-[17px] font-black tracking-[-0.025em]">PIXEL SORT</span>
-      <span class="font-mono text-[8px] font-bold tracking-[0.24em] text-muted tight:hidden">
-        VISUALIZER
-      </span>
+    <span class="mono text-[11px] font-bold tracking-[0.14em] text-structure tight:hidden">
+      {i18n.t('app.notebookTag')}
     </span>
   </a>
 
-  <div class="flex items-center gap-2.5 tight:gap-1.5">
+  <div class="flex min-w-0 flex-wrap items-center justify-end gap-2.5 gap-y-1.5 tight:gap-1.5">
     <span
-      class="inline-flex items-center gap-[5px] mono text-[9px] font-bold tracking-[0.1em] text-muted narrow:hidden [&_svg]:text-muted-2"
+      class="inline-flex items-center gap-1.5 mono text-[11px] font-bold tracking-[0.1em] text-muted-2 narrow:hidden [&_svg]:text-structure"
     >
       <Icon name="lock" size={12} />
       {i18n.t('common.local100')}
     </span>
-    <span
-      class="group inline-flex min-h-[26px] items-center gap-1.5 rounded-full border border-line-strong px-[9px] mono text-[9px] font-bold tracking-[0.1em] text-muted tight:gap-1 tight:px-[5px] tight:text-[8px] tiny:sr-only {statusTone}"
-      data-tone={app.statusTone}
-      role="status"
-      aria-live="polite"
-    >
+    <span class="chip {statusTone}" data-tone={app.statusTone} role="status" aria-live="polite">
       <span
-        class="size-1.5 rounded-full bg-current group-data-[tone=live]:animate-pulse-soft"
+        class="size-1.5 rounded-full bg-current {app.isRunning ? 'animate-pulse-soft' : ''}"
         aria-hidden="true"
       ></span>
       {i18n.statusLabel(app.status)}
     </span>
     <button
-      class="btn btn-small btn-ghost narrow:w-[34px] narrow:gap-0 narrow:p-0 narrow:text-[0px] narrow:[&_svg]:size-4"
+      class="btn btn-small btn-ghost narrow:size-[34px] narrow:gap-0 narrow:p-0 narrow:text-[0px] narrow:[&_svg]:size-4"
       type="button"
       onclick={onopenGuide}
     >
       <Icon name="help" size={15} />
       {i18n.t('common.howWorks')}
     </button>
-    <div class="flex items-center gap-1.5">
-      <span class="flex items-center gap-1 tight:hidden" aria-hidden="true">
-        <span class="size-2 rounded-full" style:background={activeTheme().tokens.accent}></span>
-        <span class="size-2 rounded-full" style:background={activeTheme().tokens.highlight}></span>
-      </span>
-      <label class="sr-only" for="theme-select">{i18n.t('theme.label')}</label>
-      <select
-        id="theme-select"
-        class="min-h-[34px] max-w-[136px] rounded-[7px] border border-line-strong bg-ink-3 px-2 text-[10px] font-bold text-muted hover:border-line focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lime tight:max-w-[74px] tight:px-1.5 tight:text-[9px]"
-        value={theme.current}
-        onchange={(event) =>
-          theme.setTheme((event.currentTarget as HTMLSelectElement).value as ThemeId)}
-        aria-label={i18n.t('theme.label')}
-      >
-        {#each THEME_LIST as option}
-          <option value={option.id}>{option.name}</option>
-        {/each}
-      </select>
-    </div>
+    <label class="sr-only" for="theme-select">{i18n.t('theme.label')}</label>
+    <select
+      id="theme-select"
+      class="btn btn-small max-w-[150px] min-w-0 mono text-[11px] tight:max-w-[120px]"
+      value={theme.current}
+      onchange={(event) =>
+        theme.setTheme((event.currentTarget as HTMLSelectElement).value as ThemeId)}
+      aria-label={i18n.t('theme.label')}
+    >
+      {#each THEME_LIST as option}
+        <option value={option.id}>{i18n.t(option.nameKey as TranslationKey)}</option>
+      {/each}
+    </select>
     <label class="sr-only" for="language-select">{i18n.t('language.label')}</label>
     <select
       id="language-select"
-      class="min-h-[34px] max-w-[145px] rounded-[7px] border border-line-strong bg-ink-3 px-2 text-[10px] font-bold text-muted hover:border-line focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lime tight:max-w-[78px] tight:px-1.5 tight:text-[9px]"
+      class="btn btn-small max-w-[150px] min-w-0 mono text-[11px] tight:max-w-[120px]"
       value={i18n.locale}
       onchange={(event) =>
         i18n.setLocale((event.currentTarget as HTMLSelectElement).value as 'en' | 'id')}
