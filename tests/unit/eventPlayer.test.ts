@@ -51,7 +51,7 @@ describe('applyEventToPermutation', () => {
       { type: 'compare-value', index: 0, value: 0, against: 1, ops },
       { type: 'read', index: 0, value: 0, ops },
       { type: 'mark', indices: [0], role: 'sorted', ops },
-      { type: 'pass', label: 'Pass', ops },
+      { type: 'pass', key: 'pass.gap', params: { gap: 1 }, ops },
     ];
     for (const event of events) {
       expect(applyEventToPermutation(permutation, event)).toBe(false);
@@ -70,6 +70,17 @@ describe('applyEventToPermutation', () => {
     expect(applyEventToPermutation(permutation, { type: 'write', index: 5, value: 1, ops })).toBe(
       false,
     );
+    expect(Array.from(permutation)).toEqual([0, 1, 2]);
+  });
+
+  it('reports no change for a delta whose values already match', () => {
+    const permutation = Uint32Array.from([0, 1, 2]);
+    const event: SortEvent = {
+      type: 'delta',
+      indices: Uint32Array.from([0, 2]),
+      values: Uint32Array.from([0, 2]),
+    };
+    expect(applyEventToPermutation(permutation, event)).toBe(false);
     expect(Array.from(permutation)).toEqual([0, 1, 2]);
   });
 

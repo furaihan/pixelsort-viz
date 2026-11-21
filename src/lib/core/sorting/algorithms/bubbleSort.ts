@@ -13,7 +13,7 @@ export function* bubbleSort(ctx: SortContext): SortGenerator {
   }
 
   for (let end = n - 1; end > 0; end -= 1) {
-    ctx.pass(`Bubble pass · end ${end}`);
+    ctx.pass('pass.bubble', { end });
     let swapped = false;
 
     for (let i = 0; i < end; i += 1) {

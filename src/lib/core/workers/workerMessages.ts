@@ -10,10 +10,10 @@ export type WorkerRequest =
       batchSize: number;
       sampleIntervalMs: number;
     }
-  | { type: 'continue' }
-  | { type: 'cancel' }
-  | { type: 'set-sample-interval'; ms: number }
-  | { type: 'set-batch-size'; batchSize: number };
+  | { type: 'continue'; runId: number }
+  | { type: 'cancel'; runId: number }
+  | { type: 'set-sample-interval'; runId: number; ms: number }
+  | { type: 'set-batch-size'; runId: number; batchSize: number };
 
 export type WorkerResponse =
   | { type: 'batch'; runId: number; events: SortEvent[]; counters: Counters; elapsedMs: number }

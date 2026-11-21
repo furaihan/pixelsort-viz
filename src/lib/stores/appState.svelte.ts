@@ -66,7 +66,10 @@ export function speedLabel(speed: number): string {
   return `${speed}×`;
 }
 
-/** Target sampling rate (frames per second) for performance playback at a speed. */
+/** Target sampling rate (frames per second) for performance playback at a speed.
+ * The top preset is deliberately capped below the 16× rate: at very high sample
+ * rates the main thread needs headroom to render each frame, so 32× trades a
+ * little cadence for smoother playback. */
 export function speedToSampleFps(speed: number): number {
   return speed <= 0.5
     ? 4
@@ -150,7 +153,7 @@ export class AppState {
   private queue: SortEvent[] = [];
   private queueIndex = 0;
   private awaitingBatch = false;
-  private stepPending = false;
+  private pendingSteps = 0;
   private pendingDone: Extract<WorkerResponse, { type: 'done' }> | null = null;
   private pendingCounters: Counters | null = null;
   private liveCounters: Counters = emptyCounters();
@@ -438,7 +441,11 @@ export class AppState {
     }
     this.mode = mode;
     if (this.worker) {
-      this.worker.postMessage({ type: 'set-sample-interval', ms: this.sampleIntervalMs() });
+      this.worker.postMessage({
+        type: 'set-sample-interval',
+        runId: this.activeRunId,
+        ms: this.sampleIntervalMs(),
+      });
     }
   }
 
@@ -448,9 +455,17 @@ export class AppState {
     const nextTurbo = this.speed >= 32;
     if (this.worker) {
       if (this.mode === 'performance') {
-        this.worker.postMessage({ type: 'set-sample-interval', ms: this.sampleIntervalMs() });
+        this.worker.postMessage({
+          type: 'set-sample-interval',
+          runId: this.activeRunId,
+          ms: this.sampleIntervalMs(),
+        });
       } else if (prevTurbo !== nextTurbo) {
-        this.worker.postMessage({ type: 'set-batch-size', batchSize: this.currentBatchSize() });
+        this.worker.postMessage({
+          type: 'set-batch-size',
+          runId: this.activeRunId,
+          batchSize: this.currentBatchSize(),
+        });
       }
     }
   }
@@ -582,7 +597,7 @@ export class AppState {
     } else if (this.pendingDone) {
       this.finalizeDone();
     } else {
-      this.stepPending = true;
+      this.pendingSteps += 1;
       this.requestMore(true);
     }
   }
@@ -634,7 +649,7 @@ export class AppState {
     this.status = paused ? 'paused' : 'running';
     this.runningSince = paused ? 0 : performance.now();
     this.awaitingBatch = true;
-    this.stepPending = paused;
+    this.pendingSteps = paused ? 1 : 0;
     this.lastFrame = performance.now();
     this.eventBudget = 0;
     this.currentLabel = paused ? msg('state.pausedLabel') : msg('state.sortingLabel');
@@ -679,7 +694,7 @@ export class AppState {
     this.awaitingBatch = false;
     this.queue = [];
     this.queueIndex = 0;
-    this.stepPending = false;
+    this.pendingSteps = 0;
     this.pendingDone = null;
     this.pendingCounters = null;
   }
@@ -696,10 +711,12 @@ export class AppState {
       }
       this.queue.push(...message.events);
 
-      if (this.stepPending) {
-        this.stepPending = false;
+      if (this.pendingSteps > 0) {
         if (this.overlay.prepareForStep()) this.overlayDirty = true;
-        this.applyNextEvent(performance.now());
+        while (this.pendingSteps > 0 && this.queueIndex < this.queue.length) {
+          this.pendingSteps -= 1;
+          this.applyNextEvent(performance.now());
+        }
         this.flushStats();
         if (this.pendingDone && this.queue.length === this.queueIndex) this.finalizeDone();
         return;
@@ -725,7 +742,7 @@ export class AppState {
 
     if (message.type === 'cancelled') {
       this.awaitingBatch = false;
-      this.worker = null;
+      this.terminateWorker();
       return;
     }
 
@@ -844,7 +861,7 @@ export class AppState {
     const low = this.mode === 'performance' ? 0 : this.currentLowWatermark();
     if (force || queued <= low) {
       this.awaitingBatch = true;
-      this.worker.postMessage({ type: 'continue' });
+      this.worker.postMessage({ type: 'continue', runId: this.activeRunId });
     }
   }
 
@@ -908,7 +925,7 @@ export class AppState {
             let alignedDelta = 0;
             for (let k = 0; k < event.indices.length; k += 1) {
               const idx = event.indices[k];
-              if (idx < p.length) {
+              if (idx >= 0 && idx < p.length) {
                 if (p[idx] === idx) alignedDelta -= 1;
                 p[idx] = event.values[k];
                 if (p[idx] === idx) alignedDelta += 1;
@@ -1039,7 +1056,7 @@ export class AppState {
     this.queue = [];
     this.queueIndex = 0;
     this.awaitingBatch = false;
-    this.stepPending = false;
+    this.pendingSteps = 0;
     this.eventBudget = 0;
     this.lastFrame = 0;
   }
@@ -1211,11 +1228,11 @@ export class AppState {
       case 'pass':
         return {
           label: msg('event.passLabel'),
-          detail: msg('event.passDetail', { label: i18n.passMessage(event.label) }),
+          detail: msg('event.passDetail', { label: i18n.passMessage(event.key, event.params) }),
           log: {
             id: this.logId++,
             type: 'pass',
-            text: msg('log.pass', { label: i18n.passMessage(event.label) }),
+            text: msg('log.pass', { label: i18n.passMessage(event.key, event.params) }),
           },
         };
       case 'delta':

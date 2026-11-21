@@ -1,11 +1,11 @@
 import { elementRect } from '../image/grid';
 import type { GridSpec, ImageSource } from '../image/imageTypes';
-import type { Highlight, OverlaySnapshot } from './overlayState';
+import type { CountActivity, Highlight, OverlaySnapshot } from './overlayState';
 import { computeRangeShape, type RangeShape, type Rect2D } from './rangeGeometry';
 import { i18n } from '../../i18n/index.svelte';
 import { DEFAULT_THEME, getCanvasPalette, type CanvasPalette } from '../../theme/palettes';
 
-export type { Highlight, OverlaySnapshot };
+export type { CountActivity, Highlight, OverlaySnapshot };
 
 function rectsOverlap(a: Rect2D, b: Rect2D): boolean {
   return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
@@ -348,6 +348,12 @@ export class CanvasRenderer {
       }
       this.drawHighlight(context, highlight);
     }
+
+    // 6. Count-table readout: count arrays have no image-grid position, so the
+    // latest counts operation is narrated in the corner instead of on a tile.
+    if (overlay.countActivity) {
+      this.drawCountActivity(context, overlay.countActivity);
+    }
   }
 
   clear(): void {
@@ -534,6 +540,9 @@ export class CanvasRenderer {
         highlight.indices[1],
         this.targetBadge(highlight.aux ? 'A*' : 'A', a),
         this.targetBadge(highlight.aux ? 'B*' : 'B', b),
+        // Auxiliary comparisons happen in the buffer, not on image tiles:
+        // badges only, so no unchanged tile is outlined.
+        !highlight.aux,
       );
       return;
     }
@@ -554,11 +563,23 @@ export class CanvasRenderer {
     }
 
     if (highlight.kind === 'write' && highlight.indices.length >= 1) {
-      const color = this.palette.secondary;
-      const dash = highlight.aux ? [3, 3] : [2, 3];
       const base = i18n.shortLabel(highlight.label ?? (highlight.aux ? 'AUX' : 'W'));
       const label = this.targetBadge(base, highlight.values?.[0]);
-      this.drawElementWithBadge(context, highlight.indices[0], color, dash, 0, 0, label);
+      if (highlight.aux) {
+        // Buffer write: badge only. Outlining the tile would imply the image
+        // changed, which it has not.
+        this.drawAuxBadge(context, highlight.indices[0], label, this.palette.secondary);
+        return;
+      }
+      this.drawElementWithBadge(
+        context,
+        highlight.indices[0],
+        this.palette.secondary,
+        [2, 3],
+        0,
+        0,
+        label,
+      );
       return;
     }
 
@@ -572,27 +593,53 @@ export class CanvasRenderer {
     return value === undefined ? base : `${base} #${value}`;
   }
 
+  /** Auxiliary-buffer badge without a tile outline (the image did not change). */
+  private drawAuxBadge(
+    context: CanvasRenderingContext2D,
+    index: number,
+    label: string,
+    color: string,
+  ): void {
+    const rect = this.displayRect(index);
+    if (!rect) return;
+    const box = this.measureBadge(context, label, rect.x, rect.y, rect.h, false);
+    this.paintBadge(context, label, box, color);
+  }
+
+  private drawCountActivity(context: CanvasRenderingContext2D, activity: CountActivity): void {
+    const arrow = activity.kind === 'write' ? '←' : '→';
+    const label = `${i18n.t('canvas.counts')} [${activity.index}] ${arrow} ${activity.value}`;
+    const color = activity.kind === 'write' ? this.palette.secondary : this.palette.primary;
+    context.font = '700 11px "Courier Prime", ui-monospace, monospace';
+    const width = context.measureText(label).width + 8;
+    const box: Rect2D = { x: 8, y: Math.max(8, this.cssHeight - 23), w: width, h: 15 };
+    this.paintBadge(context, label, box, color);
+  }
+
   private drawCompare(
     context: CanvasRenderingContext2D,
     indexA: number,
     indexB: number,
     labelA: string,
     labelB: string,
+    drawBoxes = true,
   ): void {
     const rectA = this.displayRect(indexA);
     const rectB = this.displayRect(indexB);
     if (!rectA || !rectB) return;
 
-    this.strokeBox(context, rectA.x - 2, rectA.y - 2, rectA.w, rectA.h, this.palette.primary, []);
-    this.strokeBox(
-      context,
-      rectB.x + 2,
-      rectB.y + 2,
-      rectB.w,
-      rectB.h,
-      this.palette.highlight,
-      [5, 4],
-    );
+    if (drawBoxes) {
+      this.strokeBox(context, rectA.x - 2, rectA.y - 2, rectA.w, rectA.h, this.palette.primary, []);
+      this.strokeBox(
+        context,
+        rectB.x + 2,
+        rectB.y + 2,
+        rectB.w,
+        rectB.h,
+        this.palette.highlight,
+        [5, 4],
+      );
+    }
 
     const boxA = this.measureBadge(context, labelA, rectA.x - 2, rectA.y - 2, rectA.h, false);
     let boxB = this.measureBadge(context, labelB, rectB.x + 2, rectB.y + 2, rectB.h, false);

@@ -171,7 +171,7 @@ export const EN = {
   'inspector.empty':
     'No operations yet. Start sorting or run the next operation to inspect the algorithm.',
   'inspector.keyNote':
-    'Each tile carries its original position as its target index. The algorithm moves tiles until each target matches its current slot; color is only the image.',
+    'Each tile carries its original position as its target index. The algorithm moves tiles until each target matches its current slot; color is only the image. AUX badges mark auxiliary-buffer slots, not image tiles; the COUNTS readout shows count-table activity.',
   'guide.title': 'How this works',
   'guide.subtitle': 'PIXEL SORT / FIELD GUIDE',
   'guide.close': 'Close guide',
@@ -248,6 +248,8 @@ export const EN = {
     'The final arrangement could not be verified. Choose Retry sorting, or Reset shuffle to start from the beginning.',
   'workload.quadraticWarning':
     'This is a quadratic run with {count} elements. It may take a long time. Choose a larger block size or a faster algorithm to finish sooner.',
+  'workload.superlinearWarning':
+    'This algorithm grows faster than O(n log n). With {count} elements it may take a while; a larger block size or a linearithmic algorithm will finish sooner.',
   'workload.educationalWarning':
     'Educational mode is for smaller runs. Switch to Performance to batch operations and keep the interface responsive.',
   'workload.largeWarning':
@@ -336,11 +338,16 @@ export const EN = {
   'pass.sortBucket': 'Sort bucket {bucket}/{count}',
   'pass.bucketBoundaries': 'Build bucket boundaries',
   'pass.bubble': 'Bubble pass · end {end}',
+  'pass.select': 'Select position {index}',
+  'pass.insert': 'Insert key {index}',
+  'pass.buildHeap': 'Build max-heap',
+  'pass.extract': 'Extract max → {index}',
   'pass.countTargets': 'Count target indices',
   'pass.writeBucketsBack': 'Write buckets back to the image',
   'canvas.key': 'KEY',
   'canvas.aux': 'AUX',
   'canvas.write': 'W',
+  'canvas.counts': 'COUNTS',
   'logToken.compare': 'Compare',
   'logToken.swap': 'Swap',
   'logToken.write': 'Write',
@@ -372,10 +379,10 @@ export const EN = {
   'algorithm.merge.note2': 'Auxiliary writes are counted separately in the statistics panel.',
   'algorithm.quick.name': 'Quick Sort',
   'algorithm.quick.description':
-    'Chooses a pivot, partitions the other elements around it, then sorts each side. This implementation uses Lomuto partitioning with the last element as pivot.',
-  'algorithm.quick.note1': 'Lomuto partition with the last element as pivot.',
+    'Chooses a pivot, partitions the other elements around it, then sorts each side. This implementation uses Lomuto partitioning with a median-of-three pivot.',
+  'algorithm.quick.note1': 'Median-of-three pivot; Lomuto partition.',
   'algorithm.quick.note2':
-    'Worst case on already-sorted input; the initial shuffle avoids it in normal use.',
+    'Recurses into the smaller side, so stack depth stays O(log n) even on sorted input.',
   'algorithm.shell.name': 'Shell Sort',
   'algorithm.shell.description':
     "Runs insertion sort over progressively smaller gaps. The gap sequence determines the complexity; this implementation uses Knuth's 1, 4, 13, 40, ... sequence.",
@@ -605,7 +612,7 @@ export const ID: Record<TranslationKey, string> = {
   'inspector.empty':
     'Belum ada operasi. Mulai pengurutan atau jalankan operasi berikutnya untuk memeriksa algoritma.',
   'inspector.keyNote':
-    'Setiap tile membawa posisi aslinya sebagai indeks target. Algoritma memindahkan tile sampai targetnya cocok dengan slot saat ini; warna hanya bagian dari gambar.',
+    'Setiap tile membawa posisi aslinya sebagai indeks target. Algoritma memindahkan tile sampai targetnya cocok dengan slot saat ini; warna hanya bagian dari gambar. Lencana BANTU menandai slot buffer bantu, bukan tile gambar; pembacaan CACAH menampilkan aktivitas tabel cacah.',
   'guide.title': 'Cara kerja',
   'guide.subtitle': 'PIXEL SORT / PANDUAN LAPANGAN',
   'guide.close': 'Tutup panduan',
@@ -683,6 +690,8 @@ export const ID: Record<TranslationKey, string> = {
     'Susunan akhir tidak dapat diverifikasi. Pilih Ulangi pengurutan, atau Atur ulang acak untuk memulai dari awal.',
   'workload.quadraticWarning':
     'Ini adalah proses kuadratik dengan {count} elemen. Prosesnya bisa lama. Pilih ukuran blok yang lebih besar atau algoritma yang lebih cepat agar selesai lebih cepat.',
+  'workload.superlinearWarning':
+    'Algoritma ini tumbuh lebih cepat dari O(n log n). Dengan {count} elemen prosesnya bisa lama; ukuran blok yang lebih besar atau algoritma linieritmik akan selesai lebih cepat.',
   'workload.educationalWarning':
     'Mode edukasi digunakan untuk proses yang lebih kecil. Beralih ke Performa untuk mengelompokkan operasi dan menjaga antarmuka tetap responsif.',
   'workload.largeWarning':
@@ -771,11 +780,16 @@ export const ID: Record<TranslationKey, string> = {
   'pass.sortBucket': 'Urutkan bucket {bucket}/{count}',
   'pass.bucketBoundaries': 'Buat batas bucket',
   'pass.bubble': 'Pass bubble · akhir {end}',
+  'pass.select': 'Pilih posisi {index}',
+  'pass.insert': 'Sisipkan kunci {index}',
+  'pass.buildHeap': 'Buat max-heap',
+  'pass.extract': 'Ambil maks → {index}',
   'pass.countTargets': 'Hitung indeks target',
   'pass.writeBucketsBack': 'Tulis bucket kembali ke gambar',
   'canvas.key': 'KUNCI',
   'canvas.aux': 'BANTU',
   'canvas.write': 'T',
+  'canvas.counts': 'CACAH',
   'logToken.compare': 'Banding',
   'logToken.swap': 'Tukar',
   'logToken.write': 'Tulis',
@@ -809,10 +823,10 @@ export const ID: Record<TranslationKey, string> = {
   'algorithm.merge.note2': 'Penulisan bantu dihitung terpisah di panel statistik.',
   'algorithm.quick.name': 'Quick Sort',
   'algorithm.quick.description':
-    'Memilih pivot, mempartisi elemen lain di sekitarnya, lalu mengurutkan tiap sisi. Implementasi ini menggunakan partisi Lomuto dengan elemen terakhir sebagai pivot.',
-  'algorithm.quick.note1': 'Partisi Lomuto dengan elemen terakhir sebagai pivot.',
+    'Memilih pivot, mempartisi elemen lain di sekitarnya, lalu mengurutkan tiap sisi. Implementasi ini menggunakan partisi Lomuto dengan pivot median-dari-tiga.',
+  'algorithm.quick.note1': 'Pivot median-dari-tiga; partisi Lomuto.',
   'algorithm.quick.note2':
-    'Kasus terburuk terjadi pada input yang sudah terurut; pengacakan awal biasanya menghindarinya.',
+    'Rekursi ke sisi yang lebih kecil, jadi kedalaman stack tetap O(log n) bahkan pada input terurut.',
   'algorithm.shell.name': 'Shell Sort',
   'algorithm.shell.description':
     'Menjalankan insertion sort dengan gap yang makin kecil. Urutan gap menentukan kompleksitas; implementasi ini menggunakan urutan Knuth 1, 4, 13, 40, ...',

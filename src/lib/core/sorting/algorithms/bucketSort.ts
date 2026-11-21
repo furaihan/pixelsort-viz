@@ -21,7 +21,7 @@ export function* bucketSort(ctx: SortContext): SortGenerator {
   const bucketOf = (key: number): number =>
     Math.min(bucketCount - 1, Math.floor((key * bucketCount) / n));
 
-  ctx.pass(`Count ${bucketCount} buckets`);
+  ctx.pass('pass.countBuckets', { count: bucketCount });
   for (let i = 0; i < n; i += 1) {
     const key = ctx.read(i);
     const bucket = bucketOf(key);
@@ -30,7 +30,7 @@ export function* bucketSort(ctx: SortContext): SortGenerator {
     if (ctx.tick()) yield;
   }
 
-  ctx.pass('Build bucket boundaries');
+  ctx.pass('pass.bucketBoundaries');
   for (let bucket = 0; bucket < bucketCount; bucket += 1) {
     const count = ctx.countRead(counts, bucket + 1);
     const previous = ctx.countRead(counts, bucket);
@@ -38,7 +38,7 @@ export function* bucketSort(ctx: SortContext): SortGenerator {
     if (ctx.tick()) yield;
   }
 
-  ctx.pass('Scatter into buckets');
+  ctx.pass('pass.scatterBuckets');
   for (let i = 0; i < n; i += 1) {
     const key = ctx.read(i);
     const bucket = bucketOf(key);
@@ -49,18 +49,18 @@ export function* bucketSort(ctx: SortContext): SortGenerator {
   }
 
   for (let bucket = 0; bucket < bucketCount; bucket += 1) {
-    const start = bucket === 0 ? 0 : counts[bucket - 1];
-    const end = counts[bucket];
+    const start = bucket === 0 ? 0 : ctx.countRead(counts, bucket - 1);
+    const end = ctx.countRead(counts, bucket);
     if (end - start < 2) continue;
 
-    ctx.pass(`Sort bucket ${bucket + 1}/${bucketCount}`);
+    ctx.pass('pass.sortBucket', { bucket: bucket + 1, count: bucketCount });
     for (let i = start + 1; i < end; i += 1) {
       const key = ctx.readAux(output, i);
       let j = i - 1;
 
       while (j >= start) {
         const value = ctx.readAux(output, j);
-        if (ctx.compareValues(value, key, j, i, true) <= 0) break;
+        if (ctx.compareValues(value, key, j, j + 1, true) <= 0) break;
         ctx.writeAux(output, j + 1, value);
         j -= 1;
         if (ctx.tick()) yield;
@@ -71,7 +71,7 @@ export function* bucketSort(ctx: SortContext): SortGenerator {
     }
   }
 
-  ctx.pass('Write buckets back to the image');
+  ctx.pass('pass.writeBucketsBack');
   for (let i = 0; i < n; i += 1) {
     ctx.write(i, ctx.readAux(output, i));
     if (ctx.tick()) yield;

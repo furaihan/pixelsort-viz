@@ -223,16 +223,14 @@ export class SortContext {
   countRead(counts: Uint32Array, index: number): number {
     const value = counts[index];
     this.counters.reads += 1;
-    if (this.isStepMode) {
-      this.emitVisual({
-        type: 'read',
-        index,
-        value,
-        aux: true,
-        auxKind: 'counts',
-        ops: OPS_READ,
-      });
-    }
+    this.emitVisual({
+      type: 'read',
+      index,
+      value,
+      aux: true,
+      auxKind: 'counts',
+      ops: OPS_READ,
+    });
     return value;
   }
 
@@ -240,25 +238,23 @@ export class SortContext {
     counts[index] = value;
     this.counters.writes += 1;
     this.counters.auxWrites += 1;
-    if (this.isStepMode) {
-      this.emitVisual({
-        type: 'write',
-        index,
-        value,
-        aux: true,
-        auxKind: 'counts',
-        ops: OPS_WRITE_AUX,
-      });
-    }
+    this.emitVisual({
+      type: 'write',
+      index,
+      value,
+      aux: true,
+      auxKind: 'counts',
+      ops: OPS_WRITE_AUX,
+    });
   }
 
   mark(indices: number[], role: MarkRole, range?: [number, number]): void {
     this.emitVisual({ type: 'mark', indices, role, range, ops: OPS_ZERO });
   }
 
-  pass(label: string): void {
+  pass(key: string, params?: Record<string, number>): void {
     this.counters.passes += 1;
-    this.emitVisual({ type: 'pass', label, ops: OPS_PASS });
+    this.emitVisual({ type: 'pass', key, ...(params ? { params } : {}), ops: OPS_PASS });
   }
 
   enterDepth(): void {
@@ -355,9 +351,8 @@ function visualPriority(event: SortVisualEvent): number {
   if (event.type === 'write') return event.aux ? 2 : 3;
   if (event.type === 'mark') {
     if (event.role === 'pivot' || event.role === 'sorted') return 3;
-    if (event.role === 'range' || event.role === 'active') return 2;
-    return 0;
+    return 2;
   }
   if (event.type === 'pass') return 2;
-  return event.auxKind === 'counts' ? 0 : 1;
+  return 1;
 }

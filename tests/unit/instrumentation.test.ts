@@ -53,9 +53,13 @@ describe('SortContext instrumentation', () => {
 
   it('counts a pass', () => {
     const context = createContext([0, 1]);
-    context.pass('Gap 4');
+    context.pass('pass.gap', { gap: 4 });
     expect(context.counters.passes).toBe(1);
-    expect(context.events[0]).toMatchObject({ type: 'pass', label: 'Gap 4' });
+    expect(context.events[0]).toMatchObject({
+      type: 'pass',
+      key: 'pass.gap',
+      params: { gap: 4 },
+    });
   });
 
   it('yields when the step batch is full', () => {

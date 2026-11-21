@@ -135,36 +135,13 @@ class I18n {
     return this.t(value === 'depends' ? 'common.depends' : value ? 'common.yes' : 'common.no');
   }
 
-  passMessage(label: string): LocalizedText {
-    let match = /^Gap (\d+)$/.exec(label);
-    if (match) return msg('pass.gap', { gap: Number(match[1]) });
-    match = /^Radix pass (\d+)\/(\d+) · byte (\d+)$/.exec(label);
-    if (match)
-      return msg('pass.radix', {
-        pass: Number(match[1]),
-        passes: Number(match[2]),
-        byte: Number(match[3]),
-      });
-    match = /^Partition (\d+)–(\d+)$/.exec(label);
-    if (match) return msg('pass.partition', { start: Number(match[1]), end: Number(match[2]) });
-    match = /^Merge (\d+)–(\d+)$/.exec(label);
-    if (match) return msg('pass.merge', { start: Number(match[1]), end: Number(match[2]) });
-    match = /^Count (\d+) buckets$/.exec(label);
-    if (match) return msg('pass.countBuckets', { count: Number(match[1]) });
-    match = /^Sort bucket (\d+)\/(\d+)$/.exec(label);
-    if (match) return msg('pass.sortBucket', { bucket: Number(match[1]), count: Number(match[2]) });
-    match = /^Bubble pass · end (\d+)$/.exec(label);
-    if (match) return msg('pass.bubble', { end: Number(match[1]) });
-    const staticPasses: Record<string, TranslationKey> = {
-      'Count target indices': 'pass.countTargets',
-      'Build starting positions': 'pass.buildPositions',
-      'Place elements': 'pass.placeElements',
-      'Write back to the image': 'pass.writeBackImage',
-      'Scatter into buckets': 'pass.scatterBuckets',
-      'Build bucket boundaries': 'pass.bucketBoundaries',
-      'Write buckets back to the image': 'pass.writeBucketsBack',
-    };
-    return staticPasses[label] ? msg(staticPasses[label]) : label;
+  passMessage(key: string, params?: Record<string, number>): LocalizedText {
+    // Pass events carry a translation key directly; unknown keys fall back to
+    // the raw key so a missing catalog entry is visible instead of silent.
+    if (Object.prototype.hasOwnProperty.call(EN, key)) {
+      return msg(key as TranslationKey, params);
+    }
+    return key;
   }
 
   complexity(value: string): string {

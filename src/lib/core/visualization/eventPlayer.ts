@@ -32,8 +32,10 @@ export function applyEventToPermutation(permutation: Uint32Array, event: SortEve
       let changed = false;
       for (let i = 0; i < event.indices.length; i += 1) {
         const index = event.indices[i];
-        permutation[index] = event.values[i];
-        changed = true;
+        if (permutation[index] !== event.values[i]) {
+          permutation[index] = event.values[i];
+          changed = true;
+        }
       }
       return changed;
     }

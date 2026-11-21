@@ -21,7 +21,7 @@ export function* radixSort(ctx: SortContext): SortGenerator {
     const shift = pass * 8;
     const counts = new Uint32Array(257);
 
-    ctx.pass(`Radix pass ${pass + 1}/${passes} · byte ${pass}`);
+    ctx.pass('pass.radix', { pass: pass + 1, passes, byte: pass });
 
     for (let i = 0; i < n; i += 1) {
       const value = ctx.read(i);

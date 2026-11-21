@@ -34,7 +34,7 @@ function* merge(
   mid: number,
   hi: number,
 ): SortGenerator {
-  ctx.pass(`Merge ${lo}–${hi - 1}`);
+  ctx.pass('pass.merge', { start: lo, end: hi - 1 });
   ctx.mark([lo], 'active', [lo, hi]);
 
   let i = lo;

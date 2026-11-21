@@ -14,7 +14,7 @@ export type AlgorithmCategory = 'beginner' | 'intermediate' | 'advanced';
 
 export type SortMode = 'step' | 'sample';
 
-export type MarkRole = 'pivot' | 'sorted' | 'active' | 'range' | 'aux';
+export type MarkRole = 'pivot' | 'sorted' | 'active' | 'range';
 
 export type AuxKind = 'buffer' | 'counts';
 
@@ -90,7 +90,13 @@ export type SortVisualEvent =
       range?: [number, number];
       ops: OpDelta;
     }
-  | { type: 'pass'; label: string; ops: OpDelta };
+  | {
+      type: 'pass';
+      /** Translation key (e.g. 'pass.bubble'); localized by the i18n layer. */
+      key: string;
+      params?: Record<string, number>;
+      ops: OpDelta;
+    };
 
 export type SortEvent =
   | SortVisualEvent
@@ -123,6 +129,8 @@ export interface AlgorithmMetadata {
   notes?: string[];
   /** Used by the workload guard. */
   quadratic: boolean;
+  /** Superlinear but not quadratic (e.g. Shell sort); warns at large sizes. */
+  superlinear: boolean;
 }
 
 export type SortGenerator = Generator<void, void, void>;

@@ -13,10 +13,10 @@ export function* shellSort(ctx: SortContext): SortGenerator {
   }
 
   let gap = 1;
-  while (gap < Math.floor(n / 3)) gap = gap * 3 + 1;
+  while (gap < n / 3) gap = gap * 3 + 1;
 
   for (; gap >= 1; gap = Math.floor(gap / 3)) {
-    ctx.pass(`Gap ${gap}`);
+    ctx.pass('pass.gap', { gap });
 
     for (let i = gap; i < n; i += 1) {
       const key = ctx.read(i);
@@ -24,7 +24,7 @@ export function* shellSort(ctx: SortContext): SortGenerator {
 
       while (j >= gap) {
         const value = ctx.read(j - gap);
-        if (ctx.compareValues(value, key, j - gap, i) <= 0) break;
+        if (ctx.compareValues(value, key, j - gap, j) <= 0) break;
         ctx.write(j, value);
         j -= gap;
         if (ctx.tick()) yield;

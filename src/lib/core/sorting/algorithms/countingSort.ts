@@ -16,7 +16,7 @@ export function* countingSort(ctx: SortContext): SortGenerator {
   const counts = new Uint32Array(n + 1);
   const output = new Uint32Array(n);
 
-  ctx.pass('Count target indices');
+  ctx.pass('pass.countTargets');
   for (let i = 0; i < n; i += 1) {
     const key = ctx.read(i);
     const count = ctx.countRead(counts, key);
@@ -24,7 +24,7 @@ export function* countingSort(ctx: SortContext): SortGenerator {
     if (ctx.tick()) yield;
   }
 
-  ctx.pass('Build starting positions');
+  ctx.pass('pass.buildPositions');
   let total = 0;
   for (let key = 0; key < n; key += 1) {
     const count = ctx.countRead(counts, key);
@@ -33,7 +33,7 @@ export function* countingSort(ctx: SortContext): SortGenerator {
     if (ctx.tick()) yield;
   }
 
-  ctx.pass('Place elements');
+  ctx.pass('pass.placeElements');
   for (let i = 0; i < n; i += 1) {
     const key = ctx.read(i);
     const position = ctx.countRead(counts, key);
@@ -42,7 +42,7 @@ export function* countingSort(ctx: SortContext): SortGenerator {
     if (ctx.tick()) yield;
   }
 
-  ctx.pass('Write back to the image');
+  ctx.pass('pass.writeBackImage');
   for (let i = 0; i < n; i += 1) {
     ctx.write(i, ctx.readAux(output, i));
     if (ctx.tick()) yield;

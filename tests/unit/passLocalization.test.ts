@@ -8,7 +8,7 @@ import { EN, ID } from '../../src/lib/i18n/messages';
 
 type PassEvent = Extract<SortEvent, { type: 'pass' }>;
 
-function passLabelsFor(id: AlgorithmId): string[] {
+function passEventsFor(id: AlgorithmId): PassEvent[] {
   const ctx = new SortContext(fisherYates(64, 1234), {
     mode: 'step',
     batchSize: 1_000_000,
@@ -18,18 +18,18 @@ function passLabelsFor(id: AlgorithmId): string[] {
   const generator = ALGORITHMS[id].run(ctx);
   let result = generator.next();
   while (!result.done) result = generator.next();
-  return ctx.events
-    .filter((event): event is PassEvent => event.type === 'pass')
-    .map((event) => event.label);
+  return ctx.events.filter((event): event is PassEvent => event.type === 'pass');
 }
 
-describe('pass label localization', () => {
+describe('pass event localization', () => {
   for (const id of Object.keys(ALGORITHMS) as AlgorithmId[]) {
-    it(`${id}: every emitted pass label maps to a real translation key`, () => {
-      for (const label of passLabelsFor(id)) {
-        const localized = i18n.passMessage(label);
-        // A raw string means the label fell through to English untranslated.
-        expect(typeof localized, `untranslated pass label: "${label}"`).toBe('object');
+    it(`${id}: every emitted pass key maps to a real translation key`, () => {
+      const events = passEventsFor(id);
+      expect(events.length, `${id} emitted no pass events`).toBeGreaterThan(0);
+      for (const event of events) {
+        const localized = i18n.passMessage(event.key, event.params);
+        // A raw string means the key fell through untranslated.
+        expect(typeof localized, `untranslated pass key: "${event.key}"`).toBe('object');
         if (typeof localized === 'object') {
           const { key, params } = localized;
           expect(Object.prototype.hasOwnProperty.call(EN, key), `missing EN key "${key}"`).toBe(
@@ -49,8 +49,12 @@ describe('pass label localization', () => {
   }
 
   it('localizes the counting and bucket write-back phases (regression)', () => {
-    // These two static labels previously had no mapping and leaked English in ID.
-    expect(typeof i18n.passMessage('Count target indices')).toBe('object');
-    expect(typeof i18n.passMessage('Write buckets back to the image')).toBe('object');
+    // These two phases previously had no mapping and leaked English in ID.
+    expect(typeof i18n.passMessage('pass.countTargets')).toBe('object');
+    expect(typeof i18n.passMessage('pass.writeBucketsBack')).toBe('object');
+  });
+
+  it('falls back to the raw key for unknown pass keys', () => {
+    expect(i18n.passMessage('pass.notARealKey')).toBe('pass.notARealKey');
   });
 });

@@ -157,12 +157,20 @@ scope.addEventListener('message', (event) => {
       return;
     }
 
+    const algorithm = getAlgorithm(message.algorithmId);
+    if (!algorithm) {
+      scope.postMessage({
+        type: 'error',
+        runId: message.runId,
+        message: `Unknown algorithm: ${String(message.algorithmId)}`,
+      });
+      return;
+    }
     const context = new SortContext(message.permutation, {
       mode: message.mode,
       batchSize: message.batchSize,
       sampleIntervalMs: message.sampleIntervalMs,
     });
-    const algorithm = getAlgorithm(message.algorithmId);
     const state: RunState = {
       runId: message.runId,
       context,
@@ -176,7 +184,7 @@ scope.addEventListener('message', (event) => {
     return;
   }
 
-  if (!run) return;
+  if (!run || message.runId !== run.runId) return;
 
   if (message.type === 'continue') {
     release(run);

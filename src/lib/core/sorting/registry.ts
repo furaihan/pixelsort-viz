@@ -25,6 +25,7 @@ export const ALGORITHMS: Record<AlgorithmId, AlgorithmDefinition> = {
       stable: true,
       inPlace: true,
       quadratic: true,
+      superlinear: false,
       notes: [
         'Stops early when a pass makes no swaps.',
         'Each pass moves the largest remaining element to the end.',
@@ -46,6 +47,7 @@ export const ALGORITHMS: Record<AlgorithmId, AlgorithmDefinition> = {
       stable: false,
       inPlace: true,
       quadratic: true,
+      superlinear: false,
       notes: [
         'Performs at most n−1 swaps; the swap is skipped when the minimum is already in place.',
         'The scan is quadratic even though the number of swaps is linear.',
@@ -67,6 +69,7 @@ export const ALGORITHMS: Record<AlgorithmId, AlgorithmDefinition> = {
       stable: true,
       inPlace: true,
       quadratic: true,
+      superlinear: false,
       notes: [
         'Fast on nearly sorted input.',
         'Shifts larger elements right instead of swapping neighbors.',
@@ -88,6 +91,7 @@ export const ALGORITHMS: Record<AlgorithmId, AlgorithmDefinition> = {
       stable: true,
       inPlace: false,
       quadratic: false,
+      superlinear: false,
       notes: [
         'Uses one auxiliary buffer.',
         'Auxiliary writes are counted separately in the statistics panel.',
@@ -101,17 +105,18 @@ export const ALGORITHMS: Record<AlgorithmId, AlgorithmDefinition> = {
       name: 'Quick Sort',
       category: 'intermediate',
       description:
-        'Chooses a pivot, partitions the other elements around it, then sorts each side. This implementation uses Lomuto partitioning with the last element as pivot.',
+        'Chooses a pivot, partitions the other elements around it, then sorts each side. This implementation uses Lomuto partitioning with a median-of-three pivot.',
       bestTime: 'O(n log n)',
       averageTime: 'O(n log n)',
       worstTime: 'O(n²)',
-      spaceComplexity: 'O(log n) average',
+      spaceComplexity: 'O(log n)',
       stable: false,
       inPlace: true,
       quadratic: false,
+      superlinear: false,
       notes: [
-        'Lomuto partition with the last element as pivot.',
-        'Worst case on already-sorted input; the initial shuffle avoids it in normal use.',
+        'Median-of-three pivot; Lomuto partition.',
+        'Recurses into the smaller side, so stack depth stays O(log n) even on sorted input.',
       ],
     },
     run: quickSort,
@@ -130,6 +135,7 @@ export const ALGORITHMS: Record<AlgorithmId, AlgorithmDefinition> = {
       stable: false,
       inPlace: true,
       quadratic: false,
+      superlinear: true,
       notes: [
         'Uses the Knuth sequence: 1, 4, 13, 40, ...',
         'No single universal complexity claim applies; typical behavior for this sequence is about O(n^1.5).',
@@ -151,6 +157,7 @@ export const ALGORITHMS: Record<AlgorithmId, AlgorithmDefinition> = {
       stable: false,
       inPlace: true,
       quadratic: false,
+      superlinear: false,
       notes: [
         'Builds a max-heap, then repeatedly moves the root to the end.',
         'The heap is implicit in the array; no extra buffer.',
@@ -172,6 +179,7 @@ export const ALGORITHMS: Record<AlgorithmId, AlgorithmDefinition> = {
       stable: true,
       inPlace: false,
       quadratic: false,
+      superlinear: false,
       notes: [
         'Non-comparison sort. Here k = n because the keys are exactly 0..n−1.',
         'Count-array operations are counted as auxiliary reads and writes.',
@@ -193,6 +201,7 @@ export const ALGORITHMS: Record<AlgorithmId, AlgorithmDefinition> = {
       stable: true,
       inPlace: false,
       quadratic: false,
+      superlinear: false,
       notes: [
         'LSD radix sort, base 256. d is the number of byte passes; b = 256.',
         'Each pass is copied back into the working array so the image updates after every digit.',
@@ -214,6 +223,7 @@ export const ALGORITHMS: Record<AlgorithmId, AlgorithmDefinition> = {
       stable: true,
       inPlace: false,
       quadratic: false,
+      superlinear: false,
       notes: [
         'Uses sqrt(n) buckets and insertion sort inside each bucket.',
         'Performance depends on how evenly the target indices are distributed; the initial shuffle makes the distribution uniform.',

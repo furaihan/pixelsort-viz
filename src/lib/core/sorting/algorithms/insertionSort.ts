@@ -15,12 +15,14 @@ export function* insertionSort(ctx: SortContext): SortGenerator {
   ctx.mark([0], 'sorted');
 
   for (let i = 1; i < n; i += 1) {
+    ctx.pass('pass.insert', { index: i });
     const key = ctx.read(i);
     let j = i - 1;
 
     while (j >= 0) {
-      if (ctx.compareValue(j, key) <= 0) break;
-      ctx.write(j + 1, ctx.read(j));
+      const value = ctx.read(j);
+      if (ctx.compareValues(value, key, j, j + 1) <= 0) break;
+      ctx.write(j + 1, value);
       j -= 1;
       if (ctx.tick()) yield;
     }

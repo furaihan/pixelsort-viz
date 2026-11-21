@@ -86,16 +86,17 @@ describe('OverlayTracker', () => {
     expect(tracker.snapshot().activeRange).toEqual([0, 8]);
   });
 
-  it('ignores count-table auxiliary events for canvas highlights', () => {
+  it('routes count-table events to the corner readout, not grid highlights', () => {
     const tracker = new OverlayTracker();
     const events: SortEvent[] = [
       { type: 'read', index: 250, value: 3, aux: true, auxKind: 'counts', ops },
       { type: 'write', index: 250, value: 4, aux: true, auxKind: 'counts', ops },
     ];
     for (const event of events) {
-      expect(tracker.applyEvent(event, 10, 140, true)).toBe(false);
+      expect(tracker.applyEvent(event, 10, 140, true)).toBe(true);
     }
     expect(tracker.snapshot().transients).toHaveLength(0);
+    expect(tracker.snapshot().countActivity).toEqual({ index: 250, value: 4, kind: 'write' });
 
     // Buffer-backed aux writes DO create an AUX highlight
     expect(
@@ -112,6 +113,13 @@ describe('OverlayTracker', () => {
       label: 'AUX',
       indices: [3],
     });
+
+    // Completion and reset clear the readout.
+    tracker.setComplete(10);
+    expect(tracker.snapshot().countActivity).toBeNull();
+    tracker.applyEvent(events[0], 30, 140, false);
+    tracker.reset();
+    expect(tracker.snapshot().countActivity).toBeNull();
   });
 });
 

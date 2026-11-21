@@ -6,6 +6,7 @@ import {
   assessWorkload,
   O_N2_WARN,
   O_N2_MAX,
+  SUPERLINEAR_WARN,
   EDUCATIONAL_HARD_MAX,
   MAX_ELEMENTS,
 } from '../../src/lib/utils/workload';
@@ -20,6 +21,13 @@ describe('registry quadratic flags', () => {
       (id) => ALGORITHMS[id].metadata.quadratic,
     );
     expect(flagged.sort()).toEqual([...QUADRATIC].sort());
+  });
+
+  it('marks exactly shell as superlinear', () => {
+    const flagged = (Object.keys(ALGORITHMS) as AlgorithmId[]).filter(
+      (id) => ALGORITHMS[id].metadata.superlinear,
+    );
+    expect(flagged).toEqual(['shell']);
   });
 });
 
@@ -59,5 +67,18 @@ describe('assessWorkload', () => {
   it('blocks any algorithm above the absolute element limit', () => {
     const assessment = assessWorkload(gridWith(MAX_ELEMENTS + 1), 'merge', 'performance');
     expect(assessment.canStart).toBe(false);
+  });
+
+  it('warns for superlinear algorithms above the superlinear threshold', () => {
+    const assessment = assessWorkload(gridWith(SUPERLINEAR_WARN + 1), 'shell', 'performance');
+    expect(assessment.canStart).toBe(true);
+    expect(assessment.warnings).toHaveLength(1);
+    expect(assessment.warnings[0]).toMatchObject({ key: 'workload.superlinearWarning' });
+  });
+
+  it('does not warn for linearithmic algorithms below the large-run threshold', () => {
+    const assessment = assessWorkload(gridWith(SUPERLINEAR_WARN + 1), 'merge', 'performance');
+    expect(assessment.canStart).toBe(true);
+    expect(assessment.warnings).toHaveLength(0);
   });
 });

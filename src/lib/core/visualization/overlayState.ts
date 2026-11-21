@@ -10,12 +10,20 @@ export interface Highlight {
   values?: number[];
 }
 
+export interface CountActivity {
+  index: number;
+  value: number;
+  kind: 'read' | 'write';
+}
+
 export interface OverlaySnapshot {
   transients: readonly Highlight[];
   sortedRanges: ReadonlyArray<readonly [number, number]>;
   activeRange: readonly [number, number] | null;
   activeIndex: number | null;
   pivotIndex: number | null;
+  /** Latest count-table operation, drawn as a corner readout (not on the grid). */
+  countActivity: CountActivity | null;
 }
 
 const MAX_TRANSIENTS = 8;
@@ -31,6 +39,7 @@ export class OverlayTracker {
   private activeRange: [number, number] | null = null;
   private activeIndex: number | null = null;
   private pivotIndex: number | null = null;
+  private countActivity: CountActivity | null = null;
 
   snapshot(): OverlaySnapshot {
     return {
@@ -39,6 +48,7 @@ export class OverlayTracker {
       activeRange: this.activeRange,
       activeIndex: this.activeIndex,
       pivotIndex: this.pivotIndex,
+      countActivity: this.countActivity,
     };
   }
 
@@ -48,6 +58,7 @@ export class OverlayTracker {
     this.activeRange = null;
     this.activeIndex = null;
     this.pivotIndex = null;
+    this.countActivity = null;
   }
 
   prepareForStep(): boolean {
@@ -78,6 +89,7 @@ export class OverlayTracker {
     this.activeRange = null;
     this.activeIndex = null;
     this.pivotIndex = null;
+    this.countActivity = null;
     this.sortedRanges = elementCount > 0 ? [[0, elementCount]] : [];
   }
 
@@ -124,7 +136,10 @@ export class OverlayTracker {
         return true;
 
       case 'read':
-        if (event.auxKind === 'counts') return false;
+        if (event.auxKind === 'counts') {
+          this.countActivity = { index: event.index, value: event.value, kind: 'read' };
+          return true;
+        }
         this.pushTransient({
           kind: 'read',
           indices: [event.index],
@@ -154,7 +169,10 @@ export class OverlayTracker {
         return true;
 
       case 'write':
-        if (event.auxKind === 'counts') return false;
+        if (event.auxKind === 'counts') {
+          this.countActivity = { index: event.index, value: event.value, kind: 'write' };
+          return true;
+        }
         this.pushTransient({
           kind: 'write',
           indices: [event.index],

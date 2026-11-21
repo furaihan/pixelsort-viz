@@ -12,11 +12,13 @@ export function* heapSort(ctx: SortContext): SortGenerator {
     return;
   }
 
+  ctx.pass('pass.buildHeap');
   for (let start = (n - 2) >> 1; start >= 0; start -= 1) {
     yield* siftDown(ctx, start, n);
   }
 
   for (let end = n - 1; end > 0; end -= 1) {
+    ctx.pass('pass.extract', { index: end });
     ctx.swap(0, end);
     ctx.mark([end], 'sorted');
     yield* siftDown(ctx, 0, end);
