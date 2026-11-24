@@ -201,6 +201,44 @@
       </svg>
     </div>
 
+    {#if verified}
+      <div
+        class="grid gap-3 rounded-[12px] border border-accent/40 bg-accent/8 px-4 py-3 animate-completion-reveal"
+        data-completion-proof
+      >
+        <div class="flex items-start gap-2.5">
+          <span
+            class="mt-0.5 inline-flex size-5 flex-none items-center justify-center rounded-full border border-accent/60 text-accent"
+            aria-hidden="true"
+          >
+            <Icon name="check" size={13} strokeWidth={2.2} />
+          </span>
+          <div class="grid min-w-0 gap-0.5">
+            <strong class="text-[13px] font-bold text-text">
+              {i18n.t('workspace.verifiedProof')}
+            </strong>
+            <span class="text-[12px] text-muted">{i18n.t('workspace.verifiedProofDetail')}</span>
+          </div>
+        </div>
+        <dl class="grid grid-cols-3 gap-3 border-t border-accent/20 pt-2.5 compact:gap-2">
+          <div class="grid gap-0.5">
+            <dt class="label">{i18n.t('workspace.proofElements')}</dt>
+            <dd class="mono text-[15px] font-bold text-accent">
+              {formatNumber(app.gridInfo?.elementCount ?? 0)}
+            </dd>
+          </div>
+          <div class="grid gap-0.5">
+            <dt class="label">{i18n.t('stats.totalOps')}</dt>
+            <dd class="mono text-[15px] font-bold text-text">{formatNumber(app.totalOps)}</dd>
+          </div>
+          <div class="grid gap-0.5">
+            <dt class="label">{i18n.t('stats.activeCompute')}</dt>
+            <dd class="mono text-[15px] font-bold text-text">{formatTime(app.activeMs)}</dd>
+          </div>
+        </dl>
+      </div>
+    {/if}
+
     <div class="hidden compact:grid">
       <PlaybackControls inline zone="actions" />
     </div>

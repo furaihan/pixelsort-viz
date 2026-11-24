@@ -124,6 +124,20 @@
     }
   }
 
+  /* The completed run settles like a signed notebook entry, not a page banner. */
+  --animate-completion-reveal: completion-reveal 300ms cubic-bezier(0.16, 1, 0.3, 1) both;
+
+  @keyframes completion-reveal {
+    from {
+      transform: translateY(-4px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
   --animate-pulse-soft: pulse 1.4s ease-in-out infinite;
 
   @keyframes pulse {
