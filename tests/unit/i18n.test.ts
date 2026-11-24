@@ -13,6 +13,8 @@ describe('localization dictionaries', () => {
         'guide.intro',
         'workload.quadraticWarning',
         'error.fileType',
+        'error.presetLoad',
+        'presets.title',
         'event.swapDetail',
         'algorithm.radix.description',
       ]),

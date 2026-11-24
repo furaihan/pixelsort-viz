@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import Icon from './Icon.svelte';
   import ImageUploader from './ImageUploader.svelte';
+  import PresetGallery from './PresetGallery.svelte';
   import PlaybackControls from './PlaybackControls.svelte';
   import { app } from '../stores/appState.svelte';
   import { CanvasRenderer } from '../core/visualization/CanvasRenderer';
@@ -203,7 +204,7 @@
 
     {#if verified}
       <div
-        class="grid gap-3 rounded-[12px] border border-accent/40 bg-accent/8 px-4 py-3 animate-completion-reveal"
+        class="grid animate-completion-reveal gap-3 rounded-[12px] border border-accent/40 bg-accent/8 px-4 py-3"
         data-completion-proof
       >
         <div class="flex items-start gap-2.5">
@@ -247,6 +248,7 @@
       <div class="min-w-[210px] flex-1">
         <ImageUploader compact />
       </div>
+      <PresetGallery compact />
       <details class="group relative">
         <summary
           class="btn flex btn-small min-h-10 cursor-pointer list-none btn-ghost compact:min-h-11 [&::-webkit-details-marker]:hidden"
@@ -359,6 +361,7 @@
         </div>
       </div>
       <ImageUploader />
+      <PresetGallery />
     </div>
   {/if}
 

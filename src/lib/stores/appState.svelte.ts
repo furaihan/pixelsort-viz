@@ -2,6 +2,7 @@ import { computeGrid } from '../core/image/grid';
 import type { BlockSize, GridSpec, ImageSource } from '../core/image/imageTypes';
 import { ImageLoadError, WARN_IMAGE_PIXELS, decodeImageFile } from '../core/image/decodeImage';
 import { createSampleImage } from '../core/image/sampleImage';
+import { getPreset } from '../core/image/presets';
 import {
   fisherYates,
   identityPermutation,
@@ -332,6 +333,30 @@ export class AppState {
           error instanceof Error ? error.message : 'The sample image could not be created.',
         );
       }
+    } finally {
+      if (token === this.loadToken) this.isLoadingImage = false;
+    }
+  }
+
+  async loadPreset(id: string): Promise<void> {
+    const preset = getPreset(id);
+    if (!preset) return;
+    const token = ++this.loadToken;
+    this.isLoadingImage = true;
+    this.uploadError = null;
+    try {
+      const response = await fetch(preset.url);
+      if (!response.ok) throw new Error(`Preset fetch failed: ${response.status}`);
+      const blob = await response.blob();
+      if (token !== this.loadToken) return;
+      // A preset is decoded exactly like an upload: same validation, same
+      // fresh shuffle, same rebuilt worker, and the filename stays recognizable.
+      await this.decodeAndApplyImage(
+        new File([blob], preset.file, { type: preset.mimeType }),
+        token,
+      );
+    } catch {
+      if (token === this.loadToken) this.uploadError = msg('error.presetLoad');
     } finally {
       if (token === this.loadToken) this.isLoadingImage = false;
     }
