@@ -8,6 +8,7 @@
         "@fontsource-variable/schibsted-grotesk": "^5.3.0",
         "@fontsource/courier-prime": "^5.3.0",
         "@lucide/svelte": "^1.79.0",
+        "@tanstack/svelte-hotkeys": "0.25.3",
       },
       "devDependencies": {
         "@sveltejs/vite-plugin-svelte": "^7.3.2",
@@ -123,6 +124,10 @@
     "@tailwindcss/oxide-win32-x64-msvc": ["@tailwindcss/oxide-win32-x64-msvc@4.3.5", "", { "os": "win32", "cpu": "x64" }, "sha512-XiKFfIy1RWe7qK4WqByxNW7Oz1/nkOy8o/BWhHminyV1PmpUd8Eedj5v2A8h2kpqeVlz6xRnwk9Fr/ZXNLcZfg=="],
 
     "@tailwindcss/vite": ["@tailwindcss/vite@4.3.5", "", { "dependencies": { "@tailwindcss/node": "4.3.5", "@tailwindcss/oxide": "4.3.5", "tailwindcss": "4.3.5" }, "peerDependencies": { "vite": "^5.2.0 || ^6 || ^7 || ^8" } }, "sha512-BCNiY0a1ZjdOHVqw7kyb7U72BwfMF3dfUuN+tQsLWky/J5JOI/r7abibglXfygrZhVO/3u3V+E25kkKTeMkXaQ=="],
+
+    "@tanstack/hotkeys": ["@tanstack/hotkeys@0.33.1", "", {}, "sha512-8lTyzrwAKIQm/8Ml938RXMSDBy/6wsIlavczmjDec4hsXkSPys0SbQ59kYboC6cBOfR2T1jFBQ1P0J3A06szsA=="],
+
+    "@tanstack/svelte-hotkeys": ["@tanstack/svelte-hotkeys@0.25.3", "", { "dependencies": { "@tanstack/hotkeys": "0.33.1" }, "peerDependencies": { "svelte": "^5.40.0" } }, "sha512-VeKlR01jSLFwDONUMd4nC18eQ5Y3+mXDaJaqG7O40H50199+pE9zXfb7rl1SJhVPQ2bTtm+nT4HYnn4dvFb8GA=="],
 
     "@tsconfig/svelte": ["@tsconfig/svelte@5.0.9", "", {}, "sha512-gbtbqsEFq9gFzGmgJMIB3+leXVmkUttoFjzeHsbqN6qFKst40fvxnN9+3Ajdl8VlIGwPevs9LNJ8YUhQgchqaw=="],
 

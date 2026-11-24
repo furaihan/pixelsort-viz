@@ -1,7 +1,14 @@
 <script lang="ts">
   import Icon, { type IconName } from './Icon.svelte';
+  import { getAppHotkeys, getHotkeyHint, getFormatForDisplay } from '@tanstack/svelte-hotkeys';
+  import HotkeySummary from './HotkeySummary.svelte';
   import { app, SPEED_PRESETS, speedToSampleFps } from '../stores/appState.svelte';
   import { i18n } from '../i18n/index.svelte';
+
+  const appHotkeys = getAppHotkeys();
+  const formatForDisplay = getFormatForDisplay();
+  const toggleHint = getHotkeyHint(() => appHotkeys.current['playback.toggle']);
+  const stepHint = getHotkeyHint(() => appHotkeys.current['playback.step']);
 
   let {
     inline = false,
@@ -123,6 +130,11 @@
       >
         <Icon name={primaryIcon} size={17} />
         {primaryLabel}
+        {#if toggleHint.visible && appHotkeys.current['playback.toggle'].hotkey}
+          <kbd class="ml-1 text-[10px] opacity-80">
+            {formatForDisplay(appHotkeys.current['playback.toggle'].hotkey)}
+          </kbd>
+        {/if}
       </button>
 
       <button
@@ -136,6 +148,11 @@
       >
         <Icon name="step" size={16} />
         {i18n.t('playback.step')}
+        {#if stepHint.visible && appHotkeys.current['playback.step'].hotkey}
+          <kbd class="ml-1 text-[10px] opacity-80">
+            {formatForDisplay(appHotkeys.current['playback.step'].hotkey)}
+          </kbd>
+        {/if}
       </button>
 
       <div class="flex flex-wrap items-center gap-2 compact:hidden">
@@ -288,9 +305,9 @@
 
     <div class="flex items-center justify-between gap-2.5 border-t border-rule pt-2.5">
       {#if !inline}
-        <span class="mono text-[11px] font-semibold tracking-[0.04em] text-muted-2">
-          {i18n.t('playback.shortcuts')}
-        </span>
+        <div class="mono text-[11px] font-semibold tracking-[0.04em] text-muted-2">
+          <HotkeySummary />
+        </div>
       {/if}
       <span class="mono text-[11px] font-bold tracking-[0.1em] text-muted">
         {app.modeLabel}

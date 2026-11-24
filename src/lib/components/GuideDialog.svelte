@@ -1,6 +1,9 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import Icon from './Icon.svelte';
+  import GuideDialogHotkeys from './GuideDialogHotkeys.svelte';
+  import HotkeySetting from './HotkeySetting.svelte';
+  import { HotkeysProvider } from '@tanstack/svelte-hotkeys';
   import { ALGORITHM_GROUPS } from '../core/sorting/registry';
   import { i18n } from '../i18n/index.svelte';
   import type { TranslationKey } from '../i18n/messages';
@@ -84,171 +87,194 @@
   }
 </script>
 
-<dialog
-  bind:this={dialog}
-  class="m-auto max-h-[88vh] w-[min(980px,calc(100vw-28px))] rounded-[12px] border border-rule-strong bg-panel p-0 text-text shadow-[0_24px_70px_rgba(0,0,0,0.55)] backdrop:bg-black/70 backdrop:backdrop-blur-[4px]"
-  aria-labelledby="guide-title"
-  aria-describedby="guide-intro"
-  onclose={handleClose}
-  onclick={handleDialogClick}
-  onkeydown={handleDialogKeydown}
->
-  <div class="grid max-h-[88vh] grid-rows-[auto_minmax(0,1fr)]">
-    <header
-      class="flex items-start justify-between gap-4 border-b border-rule px-[22px] pt-5 pb-4 compact:px-4 compact:pt-4 compact:pb-[13px]"
-    >
-      <div>
-        <h2 class="text-display" id="guide-title">
-          {i18n.t('guide.title')}
-        </h2>
-        <p class="mt-1.5 mono text-[10px] font-bold tracking-[0.14em] text-muted">
-          {i18n.t('guide.subtitle')}
+<HotkeysProvider scope="guide-dialog" exclusive enabled={open}>
+  <GuideDialogHotkeys onclose={close} />
+  <dialog
+    bind:this={dialog}
+    class="m-auto max-h-[88vh] w-[min(980px,calc(100vw-28px))] rounded-[12px] border border-rule-strong bg-panel p-0 text-text shadow-[0_24px_70px_rgba(0,0,0,0.55)] backdrop:bg-black/70 backdrop:backdrop-blur-[4px]"
+    aria-labelledby="guide-title"
+    aria-describedby="guide-intro"
+    onclose={handleClose}
+    onclick={handleDialogClick}
+    onkeydown={handleDialogKeydown}
+  >
+    <div class="grid max-h-[88vh] grid-rows-[auto_minmax(0,1fr)]">
+      <header
+        class="flex items-start justify-between gap-4 border-b border-rule px-[22px] pt-5 pb-4 compact:px-4 compact:pt-4 compact:pb-[13px]"
+      >
+        <div>
+          <h2 class="text-display" id="guide-title">
+            {i18n.t('guide.title')}
+          </h2>
+          <p class="mt-1.5 mono text-[10px] font-bold tracking-[0.14em] text-muted">
+            {i18n.t('guide.subtitle')}
+          </p>
+        </div>
+        <button
+          class="inline-flex size-[34px] flex-none cursor-pointer items-center justify-center rounded-[6px] border border-rule bg-inset text-muted hover:border-rule-strong hover:text-text"
+          type="button"
+          aria-label={i18n.t('guide.close')}
+          onclick={close}
+        >
+          <Icon name="x" size={18} />
+        </button>
+      </header>
+
+      <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+      <div
+        class="overflow-auto px-[22px] pt-5 pb-[26px] compact:p-4"
+        tabindex="0"
+        role="region"
+        aria-labelledby="guide-title"
+      >
+        <p
+          class="max-w-[72ch] text-[14px] leading-[1.6] text-muted [&_strong]:text-text"
+          id="guide-intro"
+        >
+          {@html i18n.t('guide.intro')}
         </p>
-      </div>
-      <button
-        class="inline-flex size-[34px] flex-none cursor-pointer items-center justify-center rounded-[6px] border border-rule bg-inset text-muted hover:border-rule-strong hover:text-text"
-        type="button"
-        aria-label={i18n.t('guide.close')}
-        onclick={close}
-      >
-        <Icon name="x" size={18} />
-      </button>
-    </header>
 
-    <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
-    <div
-      class="overflow-auto px-[22px] pt-5 pb-[26px] compact:p-4"
-      tabindex="0"
-      role="region"
-      aria-labelledby="guide-title"
-    >
-      <p
-        class="max-w-[72ch] text-[14px] leading-[1.6] text-muted [&_strong]:text-text"
-        id="guide-intro"
-      >
-        {@html i18n.t('guide.intro')}
-      </p>
+        <ol class="mt-5 mb-0 grid list-none gap-3.5 p-0">
+          {#each [1, 2, 3] as step}
+            <li class="flex items-start gap-3">
+              <span
+                class="inline-flex size-7 flex-none items-center justify-center rounded-[5px] border border-rule-strong mono text-[10px] font-bold text-muted"
+              >
+                {String(step).padStart(2, '0')}
+              </span>
+              <div>
+                <strong class="text-[13px] font-bold">
+                  {i18n.t(`guide.step${step}Title` as TranslationKey)}
+                </strong>
+                <p class="mt-[3px] max-w-[70ch] text-[12px] leading-[1.5] text-muted">
+                  {i18n.t(`guide.step${step}Body` as TranslationKey)}
+                </p>
+              </div>
+            </li>
+          {/each}
+        </ol>
 
-      <ol class="mt-5 mb-0 grid list-none gap-3.5 p-0">
-        {#each [1, 2, 3] as step}
-          <li class="flex items-start gap-3">
-            <span
-              class="inline-flex size-7 flex-none items-center justify-center rounded-[5px] border border-rule-strong mono text-[10px] font-bold text-muted"
-            >
-              {String(step).padStart(2, '0')}
-            </span>
+        <div class="mt-5 grid grid-cols-2 gap-2.5 compact:grid-cols-1">
+          <div
+            class="flex items-start gap-2 rounded-[8px] border border-rule bg-inset px-3 py-[11px] [&_svg]:mt-px [&_svg]:flex-none [&_svg]:text-structure"
+          >
+            <Icon name="info" size={15} />
+            <p class="text-[11px] leading-[1.5] text-muted">
+              {i18n.t('guide.counterNote')}
+            </p>
+          </div>
+          <div
+            class="flex items-start gap-2 rounded-[8px] border border-rule bg-inset px-3 py-[11px] [&_svg]:mt-px [&_svg]:flex-none [&_svg]:text-structure"
+          >
+            <Icon name="lock" size={15} />
+            <p class="text-[11px] leading-[1.5] text-muted">
+              {i18n.t('guide.localNote')}
+            </p>
+          </div>
+        </div>
+
+        <section class="mt-6 border-t border-rule pt-3" aria-labelledby="hotkeys-title">
+          <div class="flex items-start justify-between gap-3">
             <div>
-              <strong class="text-[13px] font-bold">
-                {i18n.t(`guide.step${step}Title` as TranslationKey)}
-              </strong>
-              <p class="mt-[3px] max-w-[70ch] text-[12px] leading-[1.5] text-muted">
-                {i18n.t(`guide.step${step}Body` as TranslationKey)}
+              <h3 class="text-[14px] font-bold text-text" id="hotkeys-title">
+                {i18n.t('hotkeys.title')}
+              </h3>
+              <p class="mt-1 text-[11px] leading-[1.5] text-muted">
+                {i18n.t('hotkeys.description')}
               </p>
             </div>
-          </li>
-        {/each}
-      </ol>
-
-      <div class="mt-5 grid grid-cols-2 gap-2.5 compact:grid-cols-1">
-        <div
-          class="flex items-start gap-2 rounded-[8px] border border-rule bg-inset px-3 py-[11px] [&_svg]:mt-px [&_svg]:flex-none [&_svg]:text-structure"
-        >
-          <Icon name="info" size={15} />
-          <p class="text-[11px] leading-[1.5] text-muted">
-            {i18n.t('guide.counterNote')}
-          </p>
-        </div>
-        <div
-          class="flex items-start gap-2 rounded-[8px] border border-rule bg-inset px-3 py-[11px] [&_svg]:mt-px [&_svg]:flex-none [&_svg]:text-structure"
-        >
-          <Icon name="lock" size={15} />
-          <p class="text-[11px] leading-[1.5] text-muted">
-            {i18n.t('guide.localNote')}
-          </p>
-        </div>
-      </div>
-
-      <details class="group mt-6 border-t border-rule pt-3" open={!compactLayout}>
-        <summary
-          class="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 text-[14px] font-bold text-text [&::-webkit-details-marker]:hidden"
-        >
-          <span>{i18n.t('guide.reference')}</span>
-          <span class="flex items-center gap-2">
-            <span class="chip">{i18n.t('guide.algorithmCount')}</span>
-            <Icon
-              name="chevron-down"
-              size={15}
-              className="text-structure transition-transform group-open:rotate-180"
-            />
-          </span>
-        </summary>
-
-        <section class="mt-3" aria-labelledby="reference-title">
-          <h3 class="sr-only" id="reference-title">{i18n.t('guide.reference')}</h3>
-          <div class="overflow-x-auto rounded-[8px] border border-rule">
-            <table class={tableClass}>
-              <thead>
-                <tr>
-                  <th class="{headTh} w-[26%]" scope="col">{i18n.t('guide.algorithm')}</th>
-                  <th class="{headTh} w-[14%]" scope="col">{i18n.t('common.best')}</th>
-                  <th class="{headTh} w-[17%]" scope="col">{i18n.t('common.average')}</th>
-                  <th class="{headTh} w-[14%]" scope="col">{i18n.t('common.worst')}</th>
-                  <th class="{headTh} w-[12%]" scope="col">{i18n.t('common.space')}</th>
-                  <th class="{headTh} w-[8.5%]" scope="col">{i18n.t('guide.stable')}</th>
-                  <th class="{headTh} w-[8.5%]" scope="col">{i18n.t('guide.inPlace')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {#each ALGORITHM_GROUPS as group}
-                  <tr>
-                    <th class={groupTh} colspan="7" scope="colgroup">
-                      {i18n.categoryLabel(group.category)}
-                    </th>
-                  </tr>
-                  {#each group.algorithms as algorithm}
-                    <tr>
-                      <th class={bodyTh} scope="row">
-                        <span class="text-[11.5px] font-bold text-text">
-                          {i18n.algorithmName(algorithm.metadata.id)}
-                        </span>
-                        {#if algorithm.metadata.notes?.length}
-                          <ul class="mt-1 mb-0 grid list-none gap-0.5 p-0">
-                            {#each i18n.algorithmNotes(algorithm.metadata.id) as note}
-                              <li
-                                class="max-w-[30ch] text-[10px] leading-[1.4] font-normal whitespace-normal text-muted-2"
-                              >
-                                {note}
-                              </li>
-                            {/each}
-                          </ul>
-                        {/if}
-                      </th>
-                      <td class="{bodyTd} mono text-muted">
-                        {i18n.complexity(algorithm.metadata.bestTime)}
-                      </td>
-                      <td class="{bodyTd} mono text-muted">
-                        {i18n.complexity(algorithm.metadata.averageTime)}
-                      </td>
-                      <td class="{bodyTd} mono text-muted">
-                        {i18n.complexity(algorithm.metadata.worstTime)}
-                      </td>
-                      <td class="{bodyTd} mono text-muted">
-                        {i18n.complexity(algorithm.metadata.spaceComplexity)}
-                      </td>
-                      <td class="{bodyTd} {propertyTone(algorithm.metadata.stable)}">
-                        {propertyLabel(algorithm.metadata.stable)}
-                      </td>
-                      <td class="{bodyTd} {propertyTone(algorithm.metadata.inPlace)}">
-                        {propertyLabel(algorithm.metadata.inPlace)}
-                      </td>
-                    </tr>
-                  {/each}
-                {/each}
-              </tbody>
-            </table>
+          </div>
+          <div class="mt-2 grid">
+            <HotkeySetting id="playback.toggle" label={i18n.t('hotkeys.playPause')} />
+            <HotkeySetting id="playback.step" label={i18n.t('hotkeys.nextOperation')} />
+            <HotkeySetting id="playback.reset" label={i18n.t('hotkeys.resetShuffle')} />
+            <HotkeySetting id="guide.open" label={i18n.t('hotkeys.openGuide')} />
+            <HotkeySetting id="guide.openSequence" label={i18n.t('hotkeys.openGuideSequence')} />
           </div>
         </section>
-      </details>
+
+        <details class="group mt-6 border-t border-rule pt-3" open={!compactLayout}>
+          <summary
+            class="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 text-[14px] font-bold text-text [&::-webkit-details-marker]:hidden"
+          >
+            <span>{i18n.t('guide.reference')}</span>
+            <span class="flex items-center gap-2">
+              <span class="chip">{i18n.t('guide.algorithmCount')}</span>
+              <Icon
+                name="chevron-down"
+                size={15}
+                className="text-structure transition-transform group-open:rotate-180"
+              />
+            </span>
+          </summary>
+
+          <section class="mt-3" aria-labelledby="reference-title">
+            <h3 class="sr-only" id="reference-title">{i18n.t('guide.reference')}</h3>
+            <div class="overflow-x-auto rounded-[8px] border border-rule">
+              <table class={tableClass}>
+                <thead>
+                  <tr>
+                    <th class="{headTh} w-[26%]" scope="col">{i18n.t('guide.algorithm')}</th>
+                    <th class="{headTh} w-[14%]" scope="col">{i18n.t('common.best')}</th>
+                    <th class="{headTh} w-[17%]" scope="col">{i18n.t('common.average')}</th>
+                    <th class="{headTh} w-[14%]" scope="col">{i18n.t('common.worst')}</th>
+                    <th class="{headTh} w-[12%]" scope="col">{i18n.t('common.space')}</th>
+                    <th class="{headTh} w-[8.5%]" scope="col">{i18n.t('guide.stable')}</th>
+                    <th class="{headTh} w-[8.5%]" scope="col">{i18n.t('guide.inPlace')}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {#each ALGORITHM_GROUPS as group}
+                    <tr>
+                      <th class={groupTh} colspan="7" scope="colgroup">
+                        {i18n.categoryLabel(group.category)}
+                      </th>
+                    </tr>
+                    {#each group.algorithms as algorithm}
+                      <tr>
+                        <th class={bodyTh} scope="row">
+                          <span class="text-[11.5px] font-bold text-text">
+                            {i18n.algorithmName(algorithm.metadata.id)}
+                          </span>
+                          {#if algorithm.metadata.notes?.length}
+                            <ul class="mt-1 mb-0 grid list-none gap-0.5 p-0">
+                              {#each i18n.algorithmNotes(algorithm.metadata.id) as note}
+                                <li
+                                  class="max-w-[30ch] text-[10px] leading-[1.4] font-normal whitespace-normal text-muted-2"
+                                >
+                                  {note}
+                                </li>
+                              {/each}
+                            </ul>
+                          {/if}
+                        </th>
+                        <td class="{bodyTd} mono text-muted">
+                          {i18n.complexity(algorithm.metadata.bestTime)}
+                        </td>
+                        <td class="{bodyTd} mono text-muted">
+                          {i18n.complexity(algorithm.metadata.averageTime)}
+                        </td>
+                        <td class="{bodyTd} mono text-muted">
+                          {i18n.complexity(algorithm.metadata.worstTime)}
+                        </td>
+                        <td class="{bodyTd} mono text-muted">
+                          {i18n.complexity(algorithm.metadata.spaceComplexity)}
+                        </td>
+                        <td class="{bodyTd} {propertyTone(algorithm.metadata.stable)}">
+                          {propertyLabel(algorithm.metadata.stable)}
+                        </td>
+                        <td class="{bodyTd} {propertyTone(algorithm.metadata.inPlace)}">
+                          {propertyLabel(algorithm.metadata.inPlace)}
+                        </td>
+                      </tr>
+                    {/each}
+                  {/each}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </details>
+      </div>
     </div>
-  </div>
-</dialog>
+  </dialog>
+</HotkeysProvider>
