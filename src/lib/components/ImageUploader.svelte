@@ -15,7 +15,7 @@
   const dropzoneFullDragging =
     'min-h-[126px] border border-dashed border-accent p-4 bg-accent/[0.1]';
   const dropzoneCompact =
-    'min-h-0 border border-solid border-rule bg-inset px-3 py-2.5 hover:border-rule-strong';
+    'min-h-11 border border-solid border-rule bg-inset px-3 py-2.5 hover:border-rule-strong';
 
   let dropzoneClass = $derived(
     [
@@ -43,6 +43,13 @@
   function handleFiles(files: FileList | null): void {
     const file = files?.[0];
     if (file) void app.loadImage(file);
+  }
+
+  function loadStarterRun(): void {
+    app.setBlockSize(64);
+    app.setAlgorithm('insertion');
+    app.setMode('educational');
+    void app.loadSample();
   }
 
   function handleChange(event: Event): void {
@@ -139,16 +146,18 @@
   {#if !compact}
     <div class="flex flex-wrap items-center gap-2.5">
       <button
-        class="btn btn-small btn-ghost"
+        class="btn btn-small btn-ghost compact:min-h-11"
         id="load-sample"
         type="button"
-        onclick={() => void app.loadSample()}
+        onclick={loadStarterRun}
         disabled={app.isLoadingImage}
       >
         <Icon name="sparkles" size={15} />
         {i18n.t('upload.trySample')}
       </button>
-      <span class="text-[11px] text-muted">{i18n.t('upload.sampleDescription')}</span>
+      <span class="max-w-[42ch] text-[11px] leading-[1.4] text-muted">
+        {i18n.t('upload.sampleDescription')}
+      </span>
     </div>
   {/if}
 

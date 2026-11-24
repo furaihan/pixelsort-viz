@@ -13,10 +13,12 @@
   import { i18n } from './lib/i18n/index.svelte';
 
   let guideOpen = $state(false);
+  let compactLayout = $state(false);
 
   function handleKeydown(event: KeyboardEvent): void {
     const target = event.target as HTMLElement | null;
-    if (target?.closest('input, select, textarea, button, a, [contenteditable="true"]')) return;
+    if (target?.closest('input, select, textarea, button, a, summary, [contenteditable="true"]'))
+      return;
     // Never hijack browser/OS chords such as Ctrl/Cmd+R (reload) or Alt+Arrow (history).
     if (event.ctrlKey || event.metaKey || event.altKey) return;
 
@@ -42,8 +44,13 @@
 
   onMount(() => {
     app.start();
+    const compactQuery = window.matchMedia('(max-width: 700px)');
+    const updateCompactLayout = () => (compactLayout = compactQuery.matches);
+    updateCompactLayout();
+    compactQuery.addEventListener('change', updateCompactLayout);
     window.addEventListener('keydown', handleKeydown);
     return () => {
+      compactQuery.removeEventListener('change', updateCompactLayout);
       window.removeEventListener('keydown', handleKeydown);
       app.dispose();
     };
@@ -77,7 +84,7 @@
   <Header onopenGuide={() => (guideOpen = true)} />
 
   <main
-    class="mx-auto grid w-[min(1600px,100%)] min-w-0 flex-1 grid-cols-[minmax(0,1.78fr)_minmax(340px,1fr)] items-start gap-6 px-6 pt-5 pb-7 shell:grid-cols-1 compact:gap-3.5 compact:p-3.5"
+    class="mx-auto grid w-[min(1600px,100%)] min-w-0 flex-1 grid-cols-[minmax(0,1.78fr)_minmax(340px,1fr)] items-start gap-6 px-6 pt-5 pb-7 shell:grid-cols-1 compact:gap-3.5 compact:px-3.5 compact:pt-2.5 compact:pb-3.5"
     id="workspace"
     tabindex="-1"
   >
@@ -88,6 +95,9 @@
       >
         <ImageWorkspace />
       </section>
+      <div class="hidden shell:order-2 shell:grid compact:grid compact:hidden">
+        <PlaybackControls inline zone="actions" />
+      </div>
       <div class="shell:order-5">
         <AlgorithmInspector />
       </div>
@@ -97,27 +107,44 @@
       class="sticky top-5 grid min-w-0 gap-4 shell:static shell:contents short:static"
       aria-label={i18n.t('app.configurationStatistics')}
     >
-      <div class="grid min-w-0 gap-4 shell:order-3">
+      <div class="grid min-w-0 gap-4 shell:order-4">
         <StatisticsPanel />
       </div>
 
-      <div class="shell:order-2">
+      <div class="shell:hidden">
         <PlaybackControls inline zone="actions" />
       </div>
 
-      <section class="panel shell:order-4" aria-labelledby="conditions-title">
+      <section class="panel shell:order-3" aria-labelledby="conditions-title">
         <div class="panel-head">
           <h2 class="panel-title" id="conditions-title">
             <Icon name="layers" size={16} />
             {i18n.t('conditions.title')}
           </h2>
-          <span class="chip">{i18n.statusLabel(app.status)}</span>
         </div>
-        <div class="grid gap-3 panel-body">
-          <GranularitySelector inline />
-          <AlgorithmSelector inline onopenGuide={() => (guideOpen = true)} />
-          <PlaybackControls inline zone="settings" />
-        </div>
+        <details class="group" open={!compactLayout}>
+          <summary
+            class="hidden cursor-pointer list-none items-center justify-between gap-3 border-b border-rule px-4 py-3 compact:flex compact:min-h-11 [&::-webkit-details-marker]:hidden"
+          >
+            <span class="text-[13px] font-semibold text-text">
+              {i18n.t('conditions.configure')}
+            </span>
+            <span class="truncate mono text-[11px] font-bold text-muted">
+              {i18n.algorithmName(app.algorithmId)} · {app.blockSize}
+              {i18n.t('workspace.px')} · {app.modeLabel}
+            </span>
+            <Icon
+              name="chevron-down"
+              size={15}
+              className="flex-none text-structure transition-transform group-open:rotate-180"
+            />
+          </summary>
+          <div class="grid gap-3 p-4 compact:pt-3.5">
+            <GranularitySelector inline />
+            <AlgorithmSelector inline onopenGuide={() => (guideOpen = true)} />
+            <PlaybackControls inline zone="settings" />
+          </div>
+        </details>
       </section>
     </aside>
   </main>

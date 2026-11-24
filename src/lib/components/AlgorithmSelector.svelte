@@ -82,7 +82,9 @@
             <optgroup label={i18n.categoryLabel(group.category)}>
               {#each group.algorithms as algorithm}
                 <option value={algorithm.metadata.id}>
-                  {i18n.algorithmName(algorithm.metadata.id)}
+                  {i18n.algorithmName(algorithm.metadata.id)}{algorithm.metadata.id === 'insertion'
+                    ? ` — ${i18n.t('algorithm.recommended')}`
+                    : ''}
                 </option>
               {/each}
             </optgroup>
@@ -96,7 +98,7 @@
       </div>
 
       <button
-        class="inline-flex size-[40px] flex-none cursor-pointer items-center justify-center rounded-[6px] border border-rule-strong bg-inset text-structure transition-colors hover:border-accent hover:text-text"
+        class="inline-flex size-11 flex-none cursor-pointer items-center justify-center rounded-[6px] border border-rule-strong bg-inset text-structure transition-colors hover:border-accent hover:text-text"
         type="button"
         aria-label={i18n.t('algorithm.about')}
         aria-expanded={infoOpen}

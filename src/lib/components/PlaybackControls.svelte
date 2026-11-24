@@ -54,6 +54,27 @@
   let showActions = $derived(zone === 'full' || zone === 'actions');
   let showSettings = $derived(zone === 'full' || zone === 'settings');
 
+  function resetFromOptions(): void {
+    app.reset();
+    closeRunOptions();
+  }
+
+  function restoreFromOptions(): void {
+    app.restoreOriginal();
+    closeRunOptions();
+  }
+
+  function closeRunOptions(): void {
+    document
+      .querySelectorAll<HTMLDetailsElement>('[data-mobile-run-options]')
+      .forEach((details) => (details.open = false));
+  }
+
+  function shuffleFromOptions(): void {
+    app.shuffle();
+    closeRunOptions();
+  }
+
   function primaryAction(): void {
     if (app.status === 'running') {
       app.pause();
@@ -93,9 +114,9 @@
       </div>
     {/if}
 
-    <div class="flex flex-wrap items-center gap-2">
+    <div class="flex flex-wrap items-center gap-2 compact:gap-1.5">
       <button
-        class="btn min-w-[142px] btn-primary compact:flex-1"
+        class="btn min-w-[142px] btn-primary compact:min-h-11 compact:flex-1"
         type="button"
         onclick={primaryAction}
         disabled={primaryDisabled}
@@ -105,7 +126,7 @@
       </button>
 
       <button
-        class="btn btn-ghost"
+        class="btn btn-ghost compact:min-h-11"
         type="button"
         onclick={() => app.step()}
         disabled={stepDisabled}
@@ -117,38 +138,86 @@
         {i18n.t('playback.step')}
       </button>
 
-      <button
-        class="btn btn-ghost"
-        type="button"
-        onclick={() => app.shuffle()}
-        disabled={!app.hasImage}
-        title={i18n.t('playback.shuffleTitle')}
-      >
-        <Icon name="shuffle" size={16} />
-        {i18n.t('playback.shuffle')}
-      </button>
+      <div class="flex flex-wrap items-center gap-2 compact:hidden">
+        <button
+          class="btn btn-ghost"
+          type="button"
+          onclick={() => app.shuffle()}
+          disabled={!app.hasImage}
+          title={i18n.t('playback.shuffleTitle')}
+        >
+          <Icon name="shuffle" size={16} />
+          {i18n.t('playback.shuffle')}
+        </button>
 
-      <button
-        class="btn btn-ghost"
-        type="button"
-        onclick={() => app.reset()}
-        disabled={!app.hasImage}
-        title={i18n.t('playback.resetTitle')}
-      >
-        <Icon name="reset" size={16} />
-        {i18n.t('playback.reset')}
-      </button>
+        <button
+          class="btn btn-ghost"
+          type="button"
+          onclick={() => app.reset()}
+          disabled={!app.hasImage}
+          title={i18n.t('playback.resetTitle')}
+        >
+          <Icon name="reset" size={16} />
+          {i18n.t('playback.reset')}
+        </button>
 
-      <button
-        class="btn btn-ghost"
-        type="button"
-        onclick={() => app.restoreOriginal()}
-        disabled={!app.hasImage}
-        title={i18n.t('playback.restoreTitle')}
-      >
-        <Icon name="image" size={16} />
-        {i18n.t('playback.restore')}
-      </button>
+        <button
+          class="btn btn-ghost"
+          type="button"
+          onclick={() => app.restoreOriginal()}
+          disabled={!app.hasImage}
+          title={i18n.t('playback.restoreTitle')}
+        >
+          <Icon name="image" size={16} />
+          {i18n.t('playback.restore')}
+        </button>
+      </div>
+
+      <details class="hidden w-full compact:block" data-mobile-run-options>
+        <summary
+          class="flex min-h-11 cursor-pointer list-none items-center gap-2 rounded-[6px] border border-rule px-3 text-[12px] font-semibold text-muted [&::-webkit-details-marker]:hidden"
+        >
+          <Icon name="layers" size={15} />
+          {i18n.t('playback.moreRunOptions')}
+          <Icon
+            name="chevron-down"
+            size={14}
+            className="ml-auto text-structure transition-transform group-open:rotate-180"
+          />
+        </summary>
+        <div class="mt-2 grid gap-2">
+          <button
+            class="btn justify-start btn-ghost compact:min-h-11"
+            type="button"
+            onclick={shuffleFromOptions}
+            disabled={!app.hasImage}
+            title={i18n.t('playback.shuffleTitle')}
+          >
+            <Icon name="shuffle" size={16} />
+            {i18n.t('playback.shuffle')}
+          </button>
+          <button
+            class="btn justify-start btn-ghost compact:min-h-11"
+            type="button"
+            onclick={resetFromOptions}
+            disabled={!app.hasImage}
+            title={i18n.t('playback.resetTitle')}
+          >
+            <Icon name="reset" size={16} />
+            {i18n.t('playback.reset')}
+          </button>
+          <button
+            class="btn justify-start btn-ghost compact:min-h-11"
+            type="button"
+            onclick={restoreFromOptions}
+            disabled={!app.hasImage}
+            title={i18n.t('playback.restoreTitle')}
+          >
+            <Icon name="image" size={16} />
+            {i18n.t('playback.restore')}
+          </button>
+        </div>
+      </details>
     </div>
   {/if}
 
@@ -218,21 +287,13 @@
     </div>
 
     <div class="flex items-center justify-between gap-2.5 border-t border-rule pt-2.5">
-      <span
-        class="mono text-[11px] font-semibold tracking-[0.04em] text-muted-2 compact:hidden {inline
-          ? 'hidden'
-          : ''}"
-      >
-        {i18n.t('playback.shortcuts')}
-      </span>
+      {#if !inline}
+        <span class="mono text-[11px] font-semibold tracking-[0.04em] text-muted-2">
+          {i18n.t('playback.shortcuts')}
+        </span>
+      {/if}
       <span class="mono text-[11px] font-bold tracking-[0.1em] text-muted">
-        {app.modeLabel} · {app.isRunning
-          ? i18n.t('playback.live')
-          : app.isPaused
-            ? i18n.t('playback.paused')
-            : app.isComplete
-              ? i18n.t('playback.done')
-              : i18n.t('playback.ready')}
+        {app.modeLabel}
       </span>
     </div>
   {/if}

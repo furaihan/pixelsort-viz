@@ -13,14 +13,14 @@
 </script>
 
 <header
-  class="flex min-h-[58px] w-full flex-wrap items-center justify-between gap-4 gap-y-1.5 border-b border-rule bg-panel/90 px-6 py-2 backdrop-blur-[8px] narrow:px-3.5 tiny:gap-2"
+  class="flex min-h-[58px] w-full flex-wrap items-center justify-between gap-4 gap-y-1.5 border-b border-rule bg-panel/90 px-6 py-2 backdrop-blur-[8px] narrow:gap-2 narrow:px-3.5 tiny:gap-1.5"
 >
   <a
-    class="inline-flex items-baseline gap-3 text-text no-underline hover:text-text"
+    class="inline-flex min-w-0 items-baseline gap-3 text-text no-underline hover:text-text"
     href="/"
     aria-label={i18n.t('app.homeLabel')}
   >
-    <span class="text-[23px] font-bold tracking-[-0.02em] whitespace-nowrap tight:text-[20px]">
+    <span class="text-[23px] font-bold tracking-[-0.02em] whitespace-nowrap tight:text-[18px]">
       PIXEL SORT
     </span>
     <span class="mono text-[11px] font-bold tracking-[0.14em] text-structure tight:hidden">
@@ -28,14 +28,21 @@
     </span>
   </a>
 
-  <div class="flex min-w-0 flex-wrap items-center justify-end gap-2.5 gap-y-1.5 tight:gap-1.5">
+  <div
+    class="flex min-w-0 flex-wrap items-center justify-end gap-2.5 gap-y-1.5 narrow:gap-1.5 tight:basis-full tight:justify-between tight:gap-1"
+  >
     <span
       class="inline-flex items-center gap-1.5 mono text-[11px] font-bold tracking-[0.1em] text-muted-2 narrow:hidden [&_svg]:text-structure"
     >
       <Icon name="lock" size={12} />
       {i18n.t('common.local100')}
     </span>
-    <span class="chip {statusTone}" data-tone={app.statusTone} role="status" aria-live="polite">
+    <span
+      class="chip {statusTone} tiny:hidden"
+      data-tone={app.statusTone}
+      role="status"
+      aria-live="polite"
+    >
       <span
         class="size-1.5 rounded-full bg-current {app.isRunning ? 'animate-pulse-soft' : ''}"
         aria-hidden="true"
@@ -43,7 +50,7 @@
       {i18n.statusLabel(app.status)}
     </span>
     <button
-      class="btn btn-small btn-ghost narrow:size-[34px] narrow:gap-0 narrow:p-0 narrow:text-[0px] narrow:[&_svg]:size-4"
+      class="btn btn-small btn-ghost narrow:size-11 narrow:gap-0 narrow:p-0 narrow:text-[0px] tight:size-10 narrow:[&_svg]:size-4"
       type="button"
       onclick={onopenGuide}
     >
@@ -53,7 +60,7 @@
     <label class="sr-only" for="theme-select">{i18n.t('theme.label')}</label>
     <select
       id="theme-select"
-      class="btn btn-small max-w-[150px] min-w-0 mono text-[11px] tight:max-w-[120px]"
+      class="btn btn-small max-w-[150px] min-w-0 mono text-[11px] narrow:min-h-11 tight:max-w-[112px]"
       value={theme.current}
       onchange={(event) =>
         theme.setTheme((event.currentTarget as HTMLSelectElement).value as ThemeId)}
@@ -66,7 +73,7 @@
     <label class="sr-only" for="language-select">{i18n.t('language.label')}</label>
     <select
       id="language-select"
-      class="btn btn-small max-w-[150px] min-w-0 mono text-[11px] tight:max-w-[120px]"
+      class="btn btn-small max-w-[150px] min-w-0 mono text-[11px] narrow:min-h-11 tight:max-w-[112px]"
       value={i18n.locale}
       onchange={(event) =>
         i18n.setLocale((event.currentTarget as HTMLSelectElement).value as 'en' | 'id')}

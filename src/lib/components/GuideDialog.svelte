@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
   import Icon from './Icon.svelte';
   import { ALGORITHM_GROUPS } from '../core/sorting/registry';
   import { i18n } from '../i18n/index.svelte';
@@ -7,16 +8,25 @@
   let { open = $bindable(false) }: { open?: boolean } = $props();
 
   let dialog = $state<HTMLDialogElement | null>(null);
+  let compactLayout = $state(false);
+
+  onMount(() => {
+    const compactQuery = window.matchMedia('(max-width: 700px)');
+    const updateCompactLayout = () => (compactLayout = compactQuery.matches);
+    updateCompactLayout();
+    compactQuery.addEventListener('change', updateCompactLayout);
+    return () => compactQuery.removeEventListener('change', updateCompactLayout);
+  });
 
   const tableClass =
     'w-full min-w-0 table-fixed border-collapse text-[11px] compact:min-w-[680px] [&>tbody>tr:last-child>*]:border-b-0';
   const headTh =
-    'border-b border-rule-strong bg-inset px-2.5 py-[9px] text-left mono text-[9px] font-bold tracking-[0.08em] text-muted uppercase';
+    'border-b border-rule-strong bg-inset px-2.5 py-[9px] text-left mono text-[11px] font-bold tracking-[0.08em] text-muted uppercase';
   const bodyTh = 'border-b border-rule px-2.5 py-[9px] text-left align-top';
   const bodyTd =
     'border-b border-rule px-2.5 py-[9px] text-left align-top whitespace-normal [overflow-wrap:anywhere]';
   const groupTh =
-    'border-b border-rule bg-accent/10 px-2.5 py-[7px] text-left mono text-[9px] font-bold tracking-[0.12em] text-muted uppercase';
+    'border-b border-rule bg-accent/10 px-2.5 py-[7px] text-left mono text-[11px] font-bold tracking-[0.12em] text-muted uppercase';
 
   $effect(() => {
     if (!dialog) return;
@@ -158,77 +168,87 @@
         </div>
       </div>
 
-      <section class="mt-6" aria-labelledby="reference-title">
-        <div class="mb-2.5 flex items-center justify-between gap-3">
-          <h3 class="text-[18px] font-bold tracking-[-0.02em]" id="reference-title">
-            {i18n.t('guide.reference')}
-          </h3>
-          <span class="chip">{i18n.t('guide.algorithmCount')}</span>
-        </div>
+      <details class="group mt-6 border-t border-rule pt-3" open={!compactLayout}>
+        <summary
+          class="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 text-[14px] font-bold text-text [&::-webkit-details-marker]:hidden"
+        >
+          <span>{i18n.t('guide.reference')}</span>
+          <span class="flex items-center gap-2">
+            <span class="chip">{i18n.t('guide.algorithmCount')}</span>
+            <Icon
+              name="chevron-down"
+              size={15}
+              className="text-structure transition-transform group-open:rotate-180"
+            />
+          </span>
+        </summary>
 
-        <div class="overflow-x-auto rounded-[8px] border border-rule">
-          <table class={tableClass}>
-            <thead>
-              <tr>
-                <th class="{headTh} w-[26%]" scope="col">{i18n.t('guide.algorithm')}</th>
-                <th class="{headTh} w-[14%]" scope="col">{i18n.t('common.best')}</th>
-                <th class="{headTh} w-[17%]" scope="col">{i18n.t('common.average')}</th>
-                <th class="{headTh} w-[14%]" scope="col">{i18n.t('common.worst')}</th>
-                <th class="{headTh} w-[12%]" scope="col">{i18n.t('common.space')}</th>
-                <th class="{headTh} w-[8.5%]" scope="col">{i18n.t('guide.stable')}</th>
-                <th class="{headTh} w-[8.5%]" scope="col">{i18n.t('guide.inPlace')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {#each ALGORITHM_GROUPS as group}
+        <section class="mt-3" aria-labelledby="reference-title">
+          <h3 class="sr-only" id="reference-title">{i18n.t('guide.reference')}</h3>
+          <div class="overflow-x-auto rounded-[8px] border border-rule">
+            <table class={tableClass}>
+              <thead>
                 <tr>
-                  <th class={groupTh} colspan="7" scope="colgroup">
-                    {i18n.categoryLabel(group.category)}
-                  </th>
+                  <th class="{headTh} w-[26%]" scope="col">{i18n.t('guide.algorithm')}</th>
+                  <th class="{headTh} w-[14%]" scope="col">{i18n.t('common.best')}</th>
+                  <th class="{headTh} w-[17%]" scope="col">{i18n.t('common.average')}</th>
+                  <th class="{headTh} w-[14%]" scope="col">{i18n.t('common.worst')}</th>
+                  <th class="{headTh} w-[12%]" scope="col">{i18n.t('common.space')}</th>
+                  <th class="{headTh} w-[8.5%]" scope="col">{i18n.t('guide.stable')}</th>
+                  <th class="{headTh} w-[8.5%]" scope="col">{i18n.t('guide.inPlace')}</th>
                 </tr>
-                {#each group.algorithms as algorithm}
+              </thead>
+              <tbody>
+                {#each ALGORITHM_GROUPS as group}
                   <tr>
-                    <th class={bodyTh} scope="row">
-                      <span class="text-[11.5px] font-bold text-text">
-                        {i18n.algorithmName(algorithm.metadata.id)}
-                      </span>
-                      {#if algorithm.metadata.notes?.length}
-                        <ul class="mt-1 mb-0 grid list-none gap-0.5 p-0">
-                          {#each i18n.algorithmNotes(algorithm.metadata.id) as note}
-                            <li
-                              class="max-w-[30ch] text-[10px] leading-[1.4] font-normal whitespace-normal text-muted-2"
-                            >
-                              {note}
-                            </li>
-                          {/each}
-                        </ul>
-                      {/if}
+                    <th class={groupTh} colspan="7" scope="colgroup">
+                      {i18n.categoryLabel(group.category)}
                     </th>
-                    <td class="{bodyTd} mono text-muted">
-                      {i18n.complexity(algorithm.metadata.bestTime)}
-                    </td>
-                    <td class="{bodyTd} mono text-muted">
-                      {i18n.complexity(algorithm.metadata.averageTime)}
-                    </td>
-                    <td class="{bodyTd} mono text-muted">
-                      {i18n.complexity(algorithm.metadata.worstTime)}
-                    </td>
-                    <td class="{bodyTd} mono text-muted">
-                      {i18n.complexity(algorithm.metadata.spaceComplexity)}
-                    </td>
-                    <td class="{bodyTd} {propertyTone(algorithm.metadata.stable)}">
-                      {propertyLabel(algorithm.metadata.stable)}
-                    </td>
-                    <td class="{bodyTd} {propertyTone(algorithm.metadata.inPlace)}">
-                      {propertyLabel(algorithm.metadata.inPlace)}
-                    </td>
                   </tr>
+                  {#each group.algorithms as algorithm}
+                    <tr>
+                      <th class={bodyTh} scope="row">
+                        <span class="text-[11.5px] font-bold text-text">
+                          {i18n.algorithmName(algorithm.metadata.id)}
+                        </span>
+                        {#if algorithm.metadata.notes?.length}
+                          <ul class="mt-1 mb-0 grid list-none gap-0.5 p-0">
+                            {#each i18n.algorithmNotes(algorithm.metadata.id) as note}
+                              <li
+                                class="max-w-[30ch] text-[10px] leading-[1.4] font-normal whitespace-normal text-muted-2"
+                              >
+                                {note}
+                              </li>
+                            {/each}
+                          </ul>
+                        {/if}
+                      </th>
+                      <td class="{bodyTd} mono text-muted">
+                        {i18n.complexity(algorithm.metadata.bestTime)}
+                      </td>
+                      <td class="{bodyTd} mono text-muted">
+                        {i18n.complexity(algorithm.metadata.averageTime)}
+                      </td>
+                      <td class="{bodyTd} mono text-muted">
+                        {i18n.complexity(algorithm.metadata.worstTime)}
+                      </td>
+                      <td class="{bodyTd} mono text-muted">
+                        {i18n.complexity(algorithm.metadata.spaceComplexity)}
+                      </td>
+                      <td class="{bodyTd} {propertyTone(algorithm.metadata.stable)}">
+                        {propertyLabel(algorithm.metadata.stable)}
+                      </td>
+                      <td class="{bodyTd} {propertyTone(algorithm.metadata.inPlace)}">
+                        {propertyLabel(algorithm.metadata.inPlace)}
+                      </td>
+                    </tr>
+                  {/each}
                 {/each}
-              {/each}
-            </tbody>
-          </table>
-        </div>
-      </section>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </details>
     </div>
   </div>
 </dialog>

@@ -16,7 +16,6 @@
       <Icon name="compare" size={16} />
       {i18n.t('inspector.marginTitle')}
     </h2>
-    <span class="chip">{i18n.statusLabel(app.status)}</span>
   </div>
 
   <div class="panel-body">

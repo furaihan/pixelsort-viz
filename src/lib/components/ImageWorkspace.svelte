@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import Icon from './Icon.svelte';
   import ImageUploader from './ImageUploader.svelte';
+  import PlaybackControls from './PlaybackControls.svelte';
   import { app } from '../stores/appState.svelte';
   import { CanvasRenderer } from '../core/visualization/CanvasRenderer';
   import { formatBytes, formatNumber, formatSeed, formatTime } from '../utils/format';
@@ -139,7 +140,7 @@
 
     <!-- The specimen plate, taped to the ruled sheet. -->
     <div
-      class="relative mx-auto w-[min(100%,calc(48vh*var(--aspect)))] compact:w-[min(100%,calc(52vh*var(--aspect)))]"
+      class="relative mx-auto w-[min(100%,calc(48vh*var(--aspect)))] compact:w-[min(100%,calc(35vh*var(--aspect)))]"
       style:--aspect={aspect}
       style:aspect-ratio="{app.imageInfo?.width ?? 16} / {app.imageInfo?.height ?? 10}"
     >
@@ -200,30 +201,54 @@
       </svg>
     </div>
 
+    <div class="hidden compact:grid">
+      <PlaybackControls inline zone="actions" />
+    </div>
+
     <div class="flex flex-wrap items-center gap-2 px-0.5">
       <div class="min-w-[210px] flex-1">
         <ImageUploader compact />
       </div>
-      <button
-        class="btn btn-small btn-ghost"
-        type="button"
-        onclick={() => app.toggleGhost()}
-        aria-pressed={app.ghostOriginal}
-      >
-        <Icon name={app.ghostOriginal ? 'eye-off' : 'eye'} size={15} />
-        {app.ghostOriginal
-          ? i18n.t('workspace.hideOriginalGhost')
-          : i18n.t('workspace.showOriginalGhost')}
-      </button>
-      <button
-        class="btn btn-small btn-ghost hover:border-danger/50 hover:text-danger"
-        type="button"
-        onclick={() => app.clearImage()}
-        title={i18n.t('image.removeTitle')}
-      >
-        <Icon name="trash" size={14} />
-        {i18n.t('common.remove')}
-      </button>
+      <details class="group relative">
+        <summary
+          class="btn flex btn-small min-h-10 cursor-pointer list-none btn-ghost compact:min-h-11 [&::-webkit-details-marker]:hidden"
+        >
+          <Icon name="layers" size={15} />
+          {i18n.t('image.options')}
+          <Icon
+            name="chevron-down"
+            size={13}
+            className="text-muted transition-transform group-open:rotate-180"
+          />
+        </summary>
+        <div
+          class="absolute top-full right-0 z-20 mt-1.5 grid w-[min(300px,calc(100vw-32px))] gap-2 rounded-[12px] border border-rule-strong bg-panel p-3 compact:right-auto compact:left-0"
+        >
+          <button
+            class="btn btn-small justify-start btn-ghost compact:min-h-11"
+            type="button"
+            onclick={() => app.toggleGhost()}
+            aria-pressed={app.ghostOriginal}
+          >
+            <Icon name={app.ghostOriginal ? 'eye-off' : 'eye'} size={15} />
+            {app.ghostOriginal
+              ? i18n.t('workspace.hideOriginalGhost')
+              : i18n.t('workspace.showOriginalGhost')}
+          </button>
+          <p class="px-1 text-[12px] leading-[1.45] text-muted">
+            {i18n.t('image.removeConsequence')}
+          </p>
+          <button
+            class="btn btn-small justify-start btn-ghost text-danger hover:border-danger/50 hover:text-danger compact:min-h-11"
+            type="button"
+            onclick={() => app.clearImage()}
+            title={i18n.t('image.removeTitle')}
+          >
+            <Icon name="trash" size={14} />
+            {i18n.t('image.removeImage')}
+          </button>
+        </div>
+      </details>
       <span
         class="ml-auto text-right mono text-[11px] font-bold tracking-[0.1em] text-muted-2 compact:hidden"
       >
@@ -254,7 +279,7 @@
         <Icon name="info" size={15} />
         <span>{i18n.text(app.notice)}</span>
         <button
-          class="inline-flex size-[22px] flex-none cursor-pointer items-center justify-center rounded border-0 bg-transparent p-0 text-inherit hover:bg-text/10"
+          class="inline-flex size-8 flex-none cursor-pointer items-center justify-center rounded border-0 bg-transparent p-0 text-inherit hover:bg-text/10 compact:size-11"
           type="button"
           aria-label={i18n.t('image.dismissNotice')}
           onclick={() => app.dismissNotice()}
@@ -267,7 +292,7 @@
   {#if !app.hasImage}
     <!-- Unmounted specimen: the blank plate waits for an image. -->
     <div
-      class="grid min-h-[440px] content-center gap-4 rounded-[12px] border border-dashed border-rule-strong bg-panel/60 p-5 compact:p-4"
+      class="grid min-h-[440px] content-center gap-4 rounded-[12px] border border-dashed border-rule-strong bg-panel/60 p-5 compact:min-h-[300px] compact:gap-3 compact:p-4"
     >
       <div class="flex flex-wrap items-start gap-4">
         <div

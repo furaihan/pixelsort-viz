@@ -8,7 +8,7 @@
   let { inline = false }: { inline?: boolean } = $props();
 
   const segmentBase =
-    'relative flex cursor-pointer items-baseline justify-center gap-[3px] min-h-10 rounded-[6px] border px-1.5 py-2 transition-colors duration-150';
+    'relative flex cursor-pointer items-baseline justify-center gap-[3px] min-h-11 rounded-[6px] border px-1.5 py-2 transition-colors duration-150';
   const segmentIdle = 'border-rule bg-inset text-muted hover:border-rule-strong hover:text-text';
   const segmentActive = 'border-accent bg-accent text-ground';
   const segmentFocus =
@@ -60,6 +60,10 @@
       </div>
     </fieldset>
 
+    <p class="mt-2 panel-note">
+      {app.runNumber === 0 ? i18n.t('granularity.recommended') : i18n.t('granularity.largeBlocks')}
+    </p>
+
     <div
       class="mt-3 grid grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] gap-2.5 border-t border-rule pt-2.5"
     >
@@ -76,13 +80,5 @@
         </strong>
       </div>
     </div>
-
-    <p class="mt-2.5 panel-note">
-      {#if app.gridInfo}
-        {i18n.t('granularity.largeBlocks')}
-      {:else}
-        {i18n.t('granularity.emptyNote')}
-      {/if}
-    </p>
   </div>
 </svelte:element>
