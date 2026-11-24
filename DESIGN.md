@@ -42,6 +42,12 @@ typography:
     fontWeight: 700
     lineHeight: 1.2
     letterSpacing: "0.12em"
+  stats-label:
+    fontFamily: "'Atkinson Hyperlegible', 'Schibsted Grotesk Variable', ui-sans-serif, system-ui, sans-serif"
+    fontSize: "14px"
+    fontWeight: 700
+    lineHeight: 1.35
+    letterSpacing: "0.02em"
   data:
     fontFamily: "'Courier Prime', ui-monospace, 'Cascadia Code', monospace"
     fontSize: "22px"
@@ -140,7 +146,7 @@ This world replaced the incumbent "Quantum Signal" neon-dashboard look; there wa
 
 **Key Characteristics:**
 - Graph-paper body ruling at `--ruling-pitch` = block size clamped 8–128px; the grid IS the paper.
-- Two type voices: Schibsted Grotesk speaks the UI; Courier Prime types every number, label, stamp, and metadata line.
+- Two primary type voices: Schibsted Grotesk speaks the UI; Courier Prime types every number, stamp, and metadata line. Atkinson Hyperlegible is reserved for the data-table row labels for legibility.
 - Two accents with fixed roles: coral is the verb (active operation, primary action), mist is the noun (selection, focus, sorted/verified).
 - Flat tonal depth (ground → panel → inset → raised) with 1px pencil rules; shadows only on floating layers.
 - Honest, glanceable data: tabular numerals, right-aligned counters, proportional operation ticks, a stamp pressed once at completion.
@@ -189,6 +195,7 @@ The world themes the browser chrome itself: `::selection` is accent on ground; t
 **Display/UI Font:** Schibsted Grotesk Variable (self-hosted via `@fontsource-variable/schibsted-grotesk`; falls back to ui-sans-serif, system-ui, Segoe UI)
 **Body Font:** same grotesque, 400 at 14px/1.5
 **Label/Mono Font:** Courier Prime 400/700 (self-hosted via `@fontsource/courier-prime`; falls back to ui-monospace, Cascadia Code)
+**Data-table row labels:** Atkinson Hyperlegible 700 (self-hosted WOFF2 in `public/fonts`); used only for the operation names in the statistics table.
 
 **Character:** a warm Scandinavian grotesque speaks the interface while a typewriter face types the record. The pairing is the notebook: prose in pen, data on the typewriter. Headings tighten (-0.02em); labels and metadata track wide (0.08–0.14em) and set uppercase.
 
@@ -196,14 +203,14 @@ The world themes the browser chrome itself: `::selection` is accent on ground; t
 - **Display** (700, clamp(24px, 2.2vw, 32px)/1.05, -0.02em): the guide dialog title — the only display voice in the app.
 - **Title** (700, 20px/1.2, mono): panel titles (DATA TABLE, CONDITIONS, margin notes), set in Courier Prime with a structure-colored icon; the run-entry elapsed clock and the data-table counter figures also sit at 20px mono.
 - **Body** (400, 14px/1.5): default copy; descriptions and notes step down to 12–13px in muted, prose capped near 54–72ch.
-- **Label** (700, 11px/1.2, 0.12em, uppercase, mono): field and section labels — the notebook's printed captions.
+- **Label** (700, 11px/1.2, 0.12em, uppercase, mono): field and section labels — the notebook's printed captions. Statistics-table row labels are an exception: Atkinson Hyperlegible 700, 14px/1.35, 0.02em, uppercase.
 - **Data** (700, 22px/1.1, mono, tabular): the sortable-element count in the granularity panel — the big pre-run figure.
 - **Data-sm** (700, 15px/1.2, mono, tabular): secondary figures — aux writes, passes, max depth, grid dimensions, the observation-strip count.
 
-Micro-labels and metadata sit on an 11px floor: status chips, speed-scale ticks, the playback status and shortcut lines, the ruling readout, file meta, the source-resolution label, legend labels, data-table row labels, the total formula, and definition terms all set 11px. A compact 10px tier survives for secondary accents only — the footer, PX unit suffixes, log type tokens, the in-place percent, the guide subtitle and step badges. Two 9px spots (the guide's reference-table headers, the uploader's size-limit tag) are carried drift below the floor, not ramp steps.
+Micro-labels and metadata sit on an 11px floor: status chips, speed-scale ticks, the playback status and shortcut lines, the ruling readout, file meta, the source-resolution label, legend labels, the total formula, and definition terms all set 11px. Statistics-table row labels are 14px for legibility. A compact 10px tier survives for secondary accents only — the footer, PX unit suffixes, log type tokens, the in-place percent, the guide subtitle and step badges. Two 9px spots (the guide's reference-table headers, the uploader's size-limit tag) are carried drift below the floor, not ramp steps.
 
 ### Named Rules
-**The Two-Voice Rule.** The grotesque speaks; the typewriter types. Every figure that is read, compared, or counted — counters, seeds, dates, dimensions, complexity, stamps — is Courier Prime with tabular numerals. Prose paragraphs never set in mono.
+**The Two-Voice Rule.** The grotesque speaks; the typewriter types. Every figure that is read, compared, or counted — counters, seeds, dates, dimensions, complexity, stamps — is Courier Prime with tabular numerals. Atkinson Hyperlegible is a narrow exception for statistics-table row labels only. Prose paragraphs never set in mono.
 **The 11px Floor Rule.** Micro-labels and metadata set at 11px; the 10px tier is reserved for secondary accents (unit suffixes, log type tokens, the footer, the in-place percent). Nothing new ships below 10px — the guide table's 9px headers are drift to retire, not a license.
 
 ## Layout

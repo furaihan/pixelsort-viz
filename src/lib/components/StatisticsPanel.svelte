@@ -7,7 +7,7 @@
   import type { TranslationKey } from '../i18n/messages';
 
   const rowLabel =
-    'mono py-[5px] pr-3 text-left align-middle text-[11px] font-bold uppercase tracking-[0.12em] text-muted';
+    'stats-row-label py-[5px] pr-3 text-left align-middle';
   const rowValue = 'mono py-[5px] text-right align-middle text-[20px]';
   const rowLine = 'border-b border-rule/60';
 
