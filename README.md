@@ -6,18 +6,21 @@ The image is the data structure. The algorithm is the process. Live image recons
 
 ## What it does
 
-- Upload a PNG, JPEG, or WebP image, or try the locally generated sample poster.
+- Upload a PNG, JPEG, or WebP image, or pick from a gallery of nine bundled preset specimens.
 - Divide the image into individual pixels or 8×8, 16×16, 32×32, 64×64, or 128×128 blocks.
 - See the exact grid dimensions and sortable element count before a run.
 - Shuffle with Fisher–Yates and keep the same shuffled permutation across algorithms.
-- Run Bubble, Selection, Insertion, Merge, Quick, Shell, Heap, Counting, Radix, or Bucket Sort.
+- Run Bubble, Selection, Insertion, Merge, Quick, Shell, Heap, Counting, Radix, Bucket, or Pancake Sort.
 - Watch the image rearrange on a Canvas 2D notebook sheet with compare, swap, write, pivot, and sorted highlights.
+- Toggle an original-image ghost overlay to see the target arrangement behind the live one.
 - Read exact comparisons, swaps, writes, reads, total operations, active compute time, auxiliary writes, passes, and recursion depth.
 - Play, pause, resume, step, reset, shuffle, restore the original, and change the playback speed up to 32×.
 - Switch between educational playback (one event at a time) and performance playback (batched updates for large runs).
 - Inspect the current operation, its indices, and a short explanation.
 - Open the full algorithm reference with complexity, stability, in-place, and implementation notes.
+- Customize keyboard shortcuts; your bindings persist locally and ship with sensible defaults.
 - Switch between the Warm Graphite, Misty Blue, and Coral Dusk palettes; the choice persists and recolors both the interface and the canvas highlights.
+- Read the interface in English or Bahasa Indonesia, with a header selector that persists your choice.
 - See worker errors and validation failures as actionable alerts, and large-image notices with a clear suggestion to use a larger block size.
 
 Everything is client-side. Image bytes, thumbnails, and pixel data never leave the browser.
@@ -57,15 +60,17 @@ src/
   lib/
     components/                  Svelte 5 UI components
     core/
-      image/                     decode, grid math, Fisher–Yates, sample image
+      image/                     decode, grid math, Fisher–Yates, presets, sample image
       sorting/                   types, instrumentation, registry, algorithms
-      visualization/             Canvas renderer and event application
+      visualization/             Canvas renderer, event application, overlay state, range geometry
       workers/                   worker protocol and sorting worker
     stores/
       appState.svelte.ts         run lifecycle, playback queue, worker client
     theme/                       palette registry and active-theme store
-    utils/                       formatting and workload guardrails
-tests/unit/                      shuffle, grid, algorithms, instrumentation, events, themes, workload, i18n
+    i18n/                        EN/ID message catalogs and locale store
+    hotkeys/                     app-level shortcut contract (customizable, persisted)
+    utils/                       formatting, workload guardrails, focus trap, breakpoints
+tests/unit/                      shuffle, grid, algorithms, instrumentation, events, themes, workload, i18n, presets
 scripts/                         optional Playwright verification scripts
 ```
 
@@ -99,6 +104,20 @@ Sorting runs in a Web Worker. The worker runs the selected algorithm as a genera
 
 The worker waits for an acknowledgement after each batch, so the main-thread queue stays bounded. Pausing simply stops consuming and acknowledging. Reset, shuffle, restore, algorithm changes, and granularity changes terminate the worker and rebuild the run state.
 
+### Keyboard shortcuts
+
+Shortcuts are defined once in `src/lib/hotkeys/appHotkeys.ts` through `@tanstack/svelte-hotkeys`. Defaults:
+
+| Shortcut | Action |
+| --- | --- |
+| `Mod+Space` | Play or pause |
+| `→` (Right Arrow) | Next operation (single step) |
+| `Mod+R` | Reset shuffle |
+| `Mod+/` | Open the guide |
+| `G` then `G` | Open the guide (sequence) |
+
+`Mod` is Cmd on macOS and Ctrl elsewhere. Users can rebind any shortcut from the hotkey settings; custom bindings are stored by stable id in `localStorage`, so changing a default never erases a user's rebinding.
+
 ### Rendering
 
 `CanvasRenderer` owns the source RGBA buffer, a reusable output `ImageData`, and a separate overlay canvas. The main canvas is rendered at the image's natural resolution; the overlay is rendered at display resolution with device-pixel-ratio awareness. Compare and swap highlights are drawn as misregistered Misty Blue/Soft Coral outlines with labels, so state is not communicated by color alone.
@@ -128,7 +147,7 @@ The unit suite covers:
 
 - Fisher–Yates permutation validity, determinism, and edge cases.
 - Ceiling-division grid math and partial edge tiles.
-- All ten algorithms on empty, single, two-element, random, sorted, and reverse-sorted inputs.
+- All eleven algorithms on empty, single, two-element, random, sorted, and reverse-sorted inputs.
 - Step/sample mode equivalence and event-stream replay.
 - Instrumentation counters and per-event deltas.
 - Event application to the working permutation.
@@ -136,6 +155,7 @@ The unit suite covers:
 - Workload guardrails and registry quadratic-flag parity.
 - Pass-label localization drift guard (every algorithm's emitted labels) and EN/ID dictionary key parity.
 - Playback-speed presets and overlay/range geometry.
+- Preset gallery registry and thumbnail wiring.
 
 The optional `scripts/verify-*.mjs` files drive the app in headless Chrome with `playwright-core` for visual and integration checks. They require a local Chrome install and a dev server on `127.0.0.1:5173` (`bun run dev --host 127.0.0.1`). They are not part of the unit test suite. `verify-upload`, `verify-state` and `verify-interrupt` currently fail on stale expectations that predate the current UI.
 
@@ -162,7 +182,7 @@ The header dropdown, persistence, CSS variables, and canvas palette derive from 
 
 ## Known limitations and post-MVP work
 
-- The UI supports English and Bahasa Indonesia. The first visit follows the browser language when it is Indonesian; the header selector overrides and persists the choice locally.
+- The UI ships English and Bahasa Indonesia only; other languages are not yet available. The first visit follows the browser language when it is Indonesian, and the header selector overrides and persists the choice locally.
 - Pseudocode highlighting, race mode, side-by-side metric comparison, and export are post-MVP.
 - Performance thresholds are initial guardrails; benchmark on representative desktop and mobile devices before treating them as final.
 - Fully transparent pixels may have their RGB values normalized by the browser's canvas pipeline. The visible result matches the browser-decoded image, not necessarily the original file bytes.
