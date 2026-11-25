@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
   import { HotkeysProvider } from '@tanstack/svelte-hotkeys';
   import type { CustomHotkeys } from '@tanstack/svelte-hotkeys';
   import Header from './lib/components/Header.svelte';
@@ -7,6 +6,8 @@
   import HotkeySummary from './lib/components/HotkeySummary.svelte';
   import ImageWorkspace from './lib/components/ImageWorkspace.svelte';
   import PlaybackControls from './lib/components/PlaybackControls.svelte';
+  import PlaybackActions from './lib/components/PlaybackActions.svelte';
+  import PlaybackSettings from './lib/components/PlaybackSettings.svelte';
   import GranularitySelector from './lib/components/GranularitySelector.svelte';
   import AlgorithmSelector from './lib/components/AlgorithmSelector.svelte';
   import StatisticsPanel from './lib/components/StatisticsPanel.svelte';
@@ -17,10 +18,11 @@
   import Lock from '@lucide/svelte/icons/lock';
   import { app } from './lib/stores/appState.svelte';
   import { i18n } from './lib/i18n/index.svelte';
+  import { initialBreakpoint, BREAKPOINTS } from './lib/utils/breakpoints.svelte';
   import { appHotkeys } from './lib/hotkeys/appHotkeys';
 
   let guideOpen = $state(false);
-  let compactLayout = $state(false);
+  let compactLayout = $state(initialBreakpoint('compact'));
 
   function readSavedHotkeys(): CustomHotkeys {
     try {
@@ -37,16 +39,17 @@
     window.localStorage.setItem('pixel-sort-hotkeys', JSON.stringify(custom));
   }
 
-  onMount(() => {
+  $effect(() => {
+    const mq = window.matchMedia(BREAKPOINTS.compact);
+    const update = () => (compactLayout = mq.matches);
+    update();
+    mq.addEventListener('change', update);
+    return () => mq.removeEventListener('change', update);
+  });
+
+  $effect(() => {
     app.start();
-    const compactQuery = window.matchMedia('(max-width: 700px)');
-    const updateCompactLayout = () => (compactLayout = compactQuery.matches);
-    updateCompactLayout();
-    compactQuery.addEventListener('change', updateCompactLayout);
-    return () => {
-      compactQuery.removeEventListener('change', updateCompactLayout);
-      app.dispose();
-    };
+    return () => app.dispose();
   });
 
   $effect(() => {
@@ -92,7 +95,7 @@
           <ImageWorkspace />
         </section>
         <div class="hidden shell:order-2 shell:grid compact:grid compact:hidden">
-          <PlaybackControls inline zone="actions" />
+          <PlaybackActions />
         </div>
         <div class="shell:order-5">
           <AlgorithmInspector />
@@ -108,7 +111,7 @@
         </div>
 
         <div class="shell:hidden">
-          <PlaybackControls inline zone="actions" />
+          <PlaybackActions />
         </div>
 
         <section class="panel shell:order-3" aria-labelledby="conditions-title">
@@ -139,7 +142,7 @@
             <div class="grid gap-3 p-4 compact:pt-3.5">
               <GranularitySelector inline />
               <AlgorithmSelector inline onopenGuide={() => (guideOpen = true)} />
-              <PlaybackControls inline zone="settings" />
+              <PlaybackSettings />
             </div>
           </details>
         </section>

@@ -7,6 +7,8 @@
   import { PRESET_IMAGES } from '../core/image/presets';
   import { app } from '../stores/appState.svelte';
   import { i18n } from '../i18n/index.svelte';
+  import { trapFocus, focusFirst } from '../utils/trapFocus';
+  import { untrack } from 'svelte';
 
   let { compact = false }: { compact?: boolean } = $props();
 
@@ -60,44 +62,23 @@
     if (event.target === dialog) close();
   }
 
-  // Keep Tab focus inside the modal. The native :dialog trap can leak a stop
-  // onto <body> once per lap (Chromium + scrollable region), so wrap at edges.
-  function handleDialogKeydown(event: KeyboardEvent): void {
-    if (event.key !== 'Tab' || !dialog) return;
-    const focusables = Array.from(
-      dialog.querySelectorAll<HTMLElement>(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
-      ),
-    ).filter((el) => !el.hasAttribute('disabled') && el.getClientRects().length > 0);
-    if (focusables.length === 0) return;
-    const first = focusables[0];
-    const last = focusables[focusables.length - 1];
-    const active = document.activeElement;
-    if (event.shiftKey) {
-      if (active === first || active === dialog) {
-        event.preventDefault();
-        last.focus();
-      }
-    } else if (active === last || active === dialog) {
-      event.preventDefault();
-      first.focus();
-    }
-  }
-
   $effect(() => {
     if (!dialog) return;
     if (open && !dialog.open) {
       dialog.showModal();
-      dialog.querySelector<HTMLElement>('button')?.focus();
+      focusFirst(dialog);
     } else if (!open && dialog.open) {
       dialog.close();
     }
   });
 
   $effect(() => {
-    if (!open && lastTrigger && lastTrigger.isConnected) {
+    const wasOpen = open;
+    if (!wasOpen && lastTrigger && lastTrigger.isConnected) {
       lastTrigger.focus({ preventScroll: true });
     }
+    // Untrack the trigger: only the open→closed transition should refocus.
+    untrack(() => lastTrigger);
   });
 </script>
 
@@ -200,12 +181,12 @@
 
 <dialog
   bind:this={dialog}
+  {@attach trapFocus}
   class="m-auto max-h-[88vh] w-[min(480px,calc(100vw-28px))] rounded-[12px] border border-rule-strong bg-panel p-0 text-text shadow-[0_24px_70px_rgba(0,0,0,0.55)] backdrop:bg-black/70 backdrop:backdrop-blur-[4px]"
   aria-labelledby={pendingPreset ? replaceTitleId : titleId}
   aria-describedby={pendingPreset ? replaceIntroId : introId}
   onclose={close}
   onclick={handleDialogClick}
-  onkeydown={handleDialogKeydown}
 >
   <div class="grid max-h-[88vh] grid-rows-[auto_minmax(0,1fr)]">
     <header

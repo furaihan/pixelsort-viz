@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
   import X from '@lucide/svelte/icons/x';
   import Info from '@lucide/svelte/icons/info';
   import Lock from '@lucide/svelte/icons/lock';
@@ -9,19 +8,21 @@
   import { HotkeysProvider } from '@tanstack/svelte-hotkeys';
   import { ALGORITHM_GROUPS } from '../core/sorting/registry';
   import { i18n } from '../i18n/index.svelte';
+  import { initialBreakpoint, BREAKPOINTS } from '../utils/breakpoints.svelte';
+  import { trapFocus, focusFirst } from '../utils/trapFocus';
   import type { TranslationKey } from '../i18n/messages';
 
   let { open = $bindable(false) }: { open?: boolean } = $props();
 
   let dialog = $state<HTMLDialogElement | null>(null);
-  let compactLayout = $state(false);
+  let compactLayout = $state(initialBreakpoint('compact'));
 
-  onMount(() => {
-    const compactQuery = window.matchMedia('(max-width: 700px)');
-    const updateCompactLayout = () => (compactLayout = compactQuery.matches);
-    updateCompactLayout();
-    compactQuery.addEventListener('change', updateCompactLayout);
-    return () => compactQuery.removeEventListener('change', updateCompactLayout);
+  $effect(() => {
+    const mq = window.matchMedia(BREAKPOINTS.compact);
+    const update = () => (compactLayout = mq.matches);
+    update();
+    mq.addEventListener('change', update);
+    return () => mq.removeEventListener('change', update);
   });
 
   const tableClass =
@@ -55,30 +56,6 @@
     if (event.target === dialog) close();
   }
 
-  // Keep Tab focus inside the modal. The native :dialog trap can leak a stop onto
-  // <body> once per lap (Chromium + scrollable region), so wrap at the boundaries.
-  function handleDialogKeydown(event: KeyboardEvent): void {
-    if (event.key !== 'Tab' || !dialog) return;
-    const focusables = Array.from(
-      dialog.querySelectorAll<HTMLElement>(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
-      ),
-    ).filter((el) => !el.hasAttribute('disabled') && el.getClientRects().length > 0);
-    if (focusables.length === 0) return;
-    const first = focusables[0];
-    const last = focusables[focusables.length - 1];
-    const active = document.activeElement;
-    if (event.shiftKey) {
-      if (active === first || active === dialog) {
-        event.preventDefault();
-        last.focus();
-      }
-    } else if (active === last || active === dialog) {
-      event.preventDefault();
-      first.focus();
-    }
-  }
-
   function propertyLabel(value: boolean | 'depends'): string {
     return i18n.propertyLabel(value);
   }
@@ -94,12 +71,12 @@
   <GuideDialogHotkeys onclose={close} />
   <dialog
     bind:this={dialog}
+    {@attach trapFocus}
     class="m-auto max-h-[88vh] w-[min(980px,calc(100vw-28px))] rounded-[12px] border border-rule-strong bg-panel p-0 text-text shadow-[0_24px_70px_rgba(0,0,0,0.55)] backdrop:bg-black/70 backdrop:backdrop-blur-[4px]"
     aria-labelledby="guide-title"
     aria-describedby="guide-intro"
     onclose={handleClose}
     onclick={handleDialogClick}
-    onkeydown={handleDialogKeydown}
   >
     <div class="grid max-h-[88vh] grid-rows-[auto_minmax(0,1fr)]">
       <header

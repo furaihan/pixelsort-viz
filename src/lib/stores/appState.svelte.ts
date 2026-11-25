@@ -187,13 +187,31 @@ export class AppState {
     return getAlgorithm(this.algorithmId);
   }
 
+  /** Memoized assessment keyed by its inputs; recomputed only when they change. */
+  private workloadKey: string | null = null;
+  private workloadCache: WorkloadAssessment | null = null;
+
   get workload(): WorkloadAssessment | null {
-    return this.gridInfo ? assessWorkload(this.gridInfo, this.algorithmId, this.mode) : null;
+    if (!this.gridInfo) {
+      this.workloadKey = null;
+      this.workloadCache = null;
+      return null;
+    }
+    const key = `${this.gridInfo.elementCount}|${this.gridInfo.columns}x${this.gridInfo.rows}|${this.algorithmId}|${this.mode}`;
+    if (key === this.workloadKey && this.workloadCache) {
+      return this.workloadCache;
+    }
+    const result = assessWorkload(this.gridInfo, this.algorithmId, this.mode);
+    this.workloadKey = key;
+    this.workloadCache = result;
+    return result;
   }
 
   get canStart(): boolean {
     return (
-      Boolean(this.permutation) && (this.workload?.canStart ?? false) && this.status !== 'running'
+      Boolean(this.permutation) &&
+      (this.workload?.canStart ?? false) &&
+      this.status !== 'running'
     );
   }
 
@@ -209,45 +227,83 @@ export class AppState {
     return this.status === 'completed';
   }
 
+  /** Memoized counters projection (invalidated by reference). */
+  private totalOpsCache: { counters: Counters; value: number } | null = null;
+
   get totalOps(): number {
-    return this.counters.comparisons + this.counters.reads + this.counters.writes;
+    if (this.totalOpsCache?.counters === this.counters) {
+      return this.totalOpsCache.value;
+    }
+    const value = this.counters.comparisons + this.counters.reads + this.counters.writes;
+    this.totalOpsCache = { counters: this.counters, value };
+    return value;
   }
+
+  private alignedCache: { total: number; aligned: number; value: number } | null = null;
 
   get alignedPercent(): number {
     const total = this.gridInfo?.elementCount ?? 0;
     if (total === 0) return 0;
-    return Math.floor((this.alignedCount / total) * 100);
+    if (this.alignedCache?.total === total && this.alignedCache.aligned === this.alignedCount) {
+      return this.alignedCache.value;
+    }
+    const value = Math.floor((this.alignedCount / total) * 100);
+    this.alignedCache = { total, aligned: this.alignedCount, value };
+    return value;
   }
 
-  get statusLabel(): string {
-    return i18n.statusLabel(this.status);
-  }
+  private statusToneCache: { status: RunStatus; value: 'idle' | 'live' | 'paused' | 'done' | 'error' } | null = null;
 
   get statusTone(): 'idle' | 'live' | 'paused' | 'done' | 'error' {
+    if (this.statusToneCache?.status === this.status) return this.statusToneCache.value;
+    let value: 'idle' | 'live' | 'paused' | 'done' | 'error';
     switch (this.status) {
       case 'running':
-        return 'live';
+        value = 'live';
+        break;
       case 'paused':
-        return 'paused';
+        value = 'paused';
+        break;
       case 'completed':
-        return 'done';
+        value = 'done';
+        break;
       case 'error':
-        return 'error';
+        value = 'error';
+        break;
       default:
-        return 'idle';
+        value = 'idle';
     }
+    this.statusToneCache = { status: this.status, value };
+    return value;
   }
+
+  private modeLabelCache: { mode: PlaybackMode; locale: string; value: string } | null = null;
 
   get modeLabel(): string {
-    return i18n.t(this.mode === 'educational' ? 'mode.educational' : 'mode.performance');
+    if (this.modeLabelCache?.mode === this.mode && this.modeLabelCache.locale === i18n.locale) {
+      return this.modeLabelCache.value;
+    }
+    const value = i18n.t(this.mode === 'educational' ? 'mode.educational' : 'mode.performance');
+    this.modeLabelCache = { mode: this.mode, locale: i18n.locale, value };
+    return value;
   }
+
+  private speedCache: { speed: number; value: string } | null = null;
 
   get speedLabel(): string {
-    return speedLabel(this.speed);
+    if (this.speedCache?.speed === this.speed) return this.speedCache.value;
+    const value = speedLabel(this.speed);
+    this.speedCache = { speed: this.speed, value };
+    return value;
   }
 
+  private sampleFpsCache: { speed: number; value: number } | null = null;
+
   get sampleFps(): number {
-    return Math.round(1000 / Math.max(16, this.sampleIntervalMs()));
+    if (this.sampleFpsCache?.speed === this.speed) return this.sampleFpsCache.value;
+    const value = Math.round(1000 / Math.max(16, this.sampleIntervalMs()));
+    this.sampleFpsCache = { speed: this.speed, value };
+    return value;
   }
 
   attachRenderer(renderer: CanvasRenderer): void {

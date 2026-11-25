@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
   import ChevronDown from '@lucide/svelte/icons/chevron-down';
   import Info from '@lucide/svelte/icons/info';
   import { app } from '../stores/appState.svelte';
   import { formatNumber, formatTime } from '../utils/format';
   import { i18n } from '../i18n/index.svelte';
+  import { initialBreakpoint, BREAKPOINTS } from '../utils/breakpoints.svelte';
   import type { TranslationKey } from '../i18n/messages';
 
   const rowLabel = 'stats-row-label py-[5px] pr-3 text-left align-middle';
@@ -15,7 +15,7 @@
   const totalValue =
     'mono border-t border-rule-strong px-2.5 py-[7px] text-right align-middle text-[20px] font-bold';
 
-  let compactLayout = $state(false);
+  let compactLayout = $state(initialBreakpoint('compact'));
   let hasRunData = $derived(
     app.currentEvent !== null ||
       app.isRunning ||
@@ -27,16 +27,14 @@
     app.isRunning || app.isComplete ? 'text-focal' : hasRunData ? 'text-text' : 'text-muted-2',
   );
 
-  function statValue(value: number): string {
-    return hasRunData ? formatNumber(value) : '—';
-  }
+  let statValue = $derived((value: number) => (hasRunData ? formatNumber(value) : '—'));
 
-  onMount(() => {
-    const compactQuery = window.matchMedia('(max-width: 700px)');
-    const updateCompactLayout = () => (compactLayout = compactQuery.matches);
-    updateCompactLayout();
-    compactQuery.addEventListener('change', updateCompactLayout);
-    return () => compactQuery.removeEventListener('change', updateCompactLayout);
+  $effect(() => {
+    const mq = window.matchMedia(BREAKPOINTS.compact);
+    const update = () => (compactLayout = mq.matches);
+    update();
+    mq.addEventListener('change', update);
+    return () => mq.removeEventListener('change', update);
   });
 
   const definitions: [TranslationKey, TranslationKey][] = [

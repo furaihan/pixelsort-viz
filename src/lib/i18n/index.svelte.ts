@@ -58,6 +58,16 @@ class I18n {
     }
   }
 
+  /** Svelte {$effect} sync: called whenever `locale` changes, including via `bind:value`. */
+  syncLocale(): void {
+    if (this.locale !== 'en' && this.locale !== 'id') return;
+    try {
+      window.localStorage.setItem(STORAGE_KEY, this.locale);
+    } catch {
+      // The UI still works when persistence is unavailable.
+    }
+  }
+
   t(key: TranslationKey, params?: MessageParams): string {
     const dictionary = this.locale === 'id' ? ID : EN;
     return interpolate(dictionary[key] ?? key, this.locale, params);

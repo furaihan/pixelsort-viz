@@ -33,6 +33,17 @@ class ThemeStore {
     }
   }
 
+  /** Svelte {$effect} sync: called whenever `current` changes, including via `bind:value`. */
+  syncCurrent(): void {
+    this.apply();
+    if (typeof window === 'undefined') return;
+    try {
+      window.localStorage.setItem(STORAGE_KEY, this.current);
+    } catch {
+      // The UI still works when persistence is unavailable.
+    }
+  }
+
   private apply(): void {
     if (typeof document === 'undefined') return;
     const definition = THEMES[this.current];

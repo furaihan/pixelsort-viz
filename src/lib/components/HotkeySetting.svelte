@@ -41,14 +41,15 @@
     },
   }));
 
-  function displayHotkey(): string {
-    if (recorder.isRecording) {
-      return recorder.steps.length > 0
+  let displayHotkey = $derived(
+    recorder.isRecording
+      ? recorder.steps.length > 0
         ? formatForDisplay(recorder.steps)
-        : i18n.t('hotkeys.pressKeys');
-    }
-    return current.hotkey ? formatForDisplay(current.hotkey) : i18n.t('hotkeys.unassigned');
-  }
+        : i18n.t('hotkeys.pressKeys')
+      : current.hotkey
+        ? formatForDisplay(current.hotkey)
+        : i18n.t('hotkeys.unassigned'),
+  );
 </script>
 
 <div
@@ -61,7 +62,7 @@
     {/if}
   </div>
   <div class="flex flex-wrap items-center justify-end gap-2">
-    <kbd class="chip min-w-[72px] justify-center text-center">{displayHotkey()}</kbd>
+    <kbd class="chip min-w-[72px] justify-center text-center">{displayHotkey}</kbd>
     {#if recorder.isRecording}
       <button class="btn btn-small btn-ghost" type="button" onclick={recorder.cancelRecording}>
         {i18n.t('common.dismiss')}

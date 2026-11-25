@@ -5,9 +5,17 @@
   import { i18n } from '../i18n/index.svelte';
   import type { TranslationKey } from '../i18n/messages';
   import { theme } from '../theme/index.svelte';
-  import { THEME_LIST, type ThemeId } from '../theme/palettes';
+  import { THEME_LIST } from '../theme/palettes';
 
   let { onopenGuide }: { onopenGuide: () => void } = $props();
+
+  $effect(() => {
+    theme.syncCurrent();
+  });
+
+  $effect(() => {
+    i18n.syncLocale();
+  });
 
   const statusTone =
     'data-[tone=live]:border-focal/60 data-[tone=live]:text-focal data-[tone=paused]:border-rule-strong data-[tone=paused]:text-muted data-[tone=done]:border-accent/60 data-[tone=done]:text-accent data-[tone=error]:border-danger/60 data-[tone=error]:text-danger';
@@ -62,9 +70,7 @@
     <select
       id="theme-select"
       class="btn btn-small max-w-[150px] min-w-0 mono text-[11px] narrow:min-h-11 tight:max-w-[112px]"
-      value={theme.current}
-      onchange={(event) =>
-        theme.setTheme((event.currentTarget as HTMLSelectElement).value as ThemeId)}
+      bind:value={theme.current}
       aria-label={i18n.t('theme.label')}
     >
       {#each THEME_LIST as option}
@@ -75,9 +81,7 @@
     <select
       id="language-select"
       class="btn btn-small max-w-[150px] min-w-0 mono text-[11px] narrow:min-h-11 tight:max-w-[112px]"
-      value={i18n.locale}
-      onchange={(event) =>
-        i18n.setLocale((event.currentTarget as HTMLSelectElement).value as 'en' | 'id')}
+      bind:value={i18n.locale}
       aria-label={i18n.t('language.label')}
     >
       <option value="en">{i18n.t('language.english')}</option>

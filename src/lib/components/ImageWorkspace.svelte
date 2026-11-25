@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
   import Check from '@lucide/svelte/icons/check';
   import TriangleAlert from '@lucide/svelte/icons/triangle-alert';
   import Crosshair from '@lucide/svelte/icons/crosshair';
@@ -19,12 +18,14 @@
   import { i18n } from '../i18n/index.svelte';
   import { theme } from '../theme/index.svelte';
   import { getCanvasPalette } from '../theme/palettes';
+  import { canvasRenderer } from '../utils/canvasRenderer';
 
   let mainCanvas: HTMLCanvasElement;
   let overlayCanvas: HTMLCanvasElement;
-  let wrapper: HTMLElement;
-  let renderer: CanvasRenderer | null = null;
 
+  // Canvas lifecycle is declarative via `{@attach canvasRenderer}` on the
+  // wrapper: it creates the renderer, sets the palette, and attaches it to
+  // `app` — no `onMount` needed here.
   let aspect = $derived(app.imageInfo ? app.imageInfo.width / app.imageInfo.height : 1.6);
 
   let canvasLabel = $derived(
@@ -80,20 +81,8 @@
       .reverse(),
   );
 
-  onMount(() => {
-    renderer = new CanvasRenderer();
-    renderer.attach(mainCanvas, overlayCanvas, wrapper);
-    renderer.setPalette(getCanvasPalette(theme.current));
-    app.attachRenderer(renderer);
-    return () => {
-      app.detachRenderer();
-      renderer = null;
-    };
-  });
-
-  $effect(() => {
-    renderer?.setPalette(getCanvasPalette(theme.current));
-  });
+  // Lifecycle is now declarative: `{@attach canvasRenderer}` on the wrapper
+  // creates/destroys the renderer with the element and syncs palette + attach.
 </script>
 
 <section class="grid min-w-0 gap-3" id="specimen" aria-label={i18n.t('workspace.aria')}>
@@ -168,18 +157,20 @@
       ></span>
 
       <div
-        bind:this={wrapper}
+        {@attach canvasRenderer}
         class="relative size-full overflow-hidden border border-rule-strong checkerboard [--checker-size:16px]"
         role="img"
         aria-label={canvasLabel}
       >
         <canvas
           bind:this={mainCanvas}
+          data-canvas-main
           class="absolute inset-0 block size-full [image-rendering:pixelated]"
           aria-hidden="true"
         ></canvas>
         <canvas
           bind:this={overlayCanvas}
+          data-canvas-overlay
           class="pointer-events-none absolute inset-0 block size-full"
           aria-hidden="true"
         ></canvas>
