@@ -1,6 +1,9 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import Icon from './Icon.svelte';
+  import X from '@lucide/svelte/icons/x';
+  import Info from '@lucide/svelte/icons/info';
+  import Lock from '@lucide/svelte/icons/lock';
+  import ChevronDown from '@lucide/svelte/icons/chevron-down';
   import GuideDialogHotkeys from './GuideDialogHotkeys.svelte';
   import HotkeySetting from './HotkeySetting.svelte';
   import { HotkeysProvider } from '@tanstack/svelte-hotkeys';
@@ -116,7 +119,7 @@
           aria-label={i18n.t('guide.close')}
           onclick={close}
         >
-          <Icon name="x" size={18} />
+          <X size={18} aria-hidden="true" focusable="false" />
         </button>
       </header>
 
@@ -158,7 +161,7 @@
           <div
             class="flex items-start gap-2 rounded-[8px] border border-rule bg-inset px-3 py-[11px] [&_svg]:mt-px [&_svg]:flex-none [&_svg]:text-structure"
           >
-            <Icon name="info" size={15} />
+            <Info size={15} aria-hidden="true" focusable="false" />
             <p class="text-[11px] leading-[1.5] text-muted">
               {i18n.t('guide.counterNote')}
             </p>
@@ -166,7 +169,7 @@
           <div
             class="flex items-start gap-2 rounded-[8px] border border-rule bg-inset px-3 py-[11px] [&_svg]:mt-px [&_svg]:flex-none [&_svg]:text-structure"
           >
-            <Icon name="lock" size={15} />
+            <Lock size={15} aria-hidden="true" focusable="false" />
             <p class="text-[11px] leading-[1.5] text-muted">
               {i18n.t('guide.localNote')}
             </p>
@@ -200,10 +203,11 @@
             <span>{i18n.t('guide.reference')}</span>
             <span class="flex items-center gap-2">
               <span class="chip">{i18n.t('guide.algorithmCount')}</span>
-              <Icon
-                name="chevron-down"
+              <ChevronDown
                 size={15}
-                className="text-structure transition-transform group-open:rotate-180"
+                class="text-structure transition-transform group-open:rotate-180"
+                aria-hidden="true"
+                focusable="false"
               />
             </span>
           </summary>

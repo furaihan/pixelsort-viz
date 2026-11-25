@@ -12,7 +12,9 @@
   import StatisticsPanel from './lib/components/StatisticsPanel.svelte';
   import AlgorithmInspector from './lib/components/AlgorithmInspector.svelte';
   import GuideDialog from './lib/components/GuideDialog.svelte';
-  import Icon from './lib/components/Icon.svelte';
+  import Layers from '@lucide/svelte/icons/layers';
+  import ChevronDown from '@lucide/svelte/icons/chevron-down';
+  import Lock from '@lucide/svelte/icons/lock';
   import { app } from './lib/stores/appState.svelte';
   import { i18n } from './lib/i18n/index.svelte';
   import { appHotkeys } from './lib/hotkeys/appHotkeys';
@@ -112,7 +114,7 @@
         <section class="panel shell:order-3" aria-labelledby="conditions-title">
           <div class="panel-head">
             <h2 class="panel-title" id="conditions-title">
-              <Icon name="layers" size={16} />
+              <Layers size={16} aria-hidden="true" focusable="false" />
               {i18n.t('conditions.title')}
             </h2>
           </div>
@@ -127,10 +129,11 @@
                 {i18n.algorithmName(app.algorithmId)} · {app.blockSize}
                 {i18n.t('workspace.px')} · {app.modeLabel}
               </span>
-              <Icon
-                name="chevron-down"
+              <ChevronDown
                 size={15}
-                className="flex-none text-structure transition-transform group-open:rotate-180"
+                class="flex-none text-structure transition-transform group-open:rotate-180"
+                aria-hidden="true"
+                focusable="false"
               />
             </summary>
             <div class="grid gap-3 p-4 compact:pt-3.5">
@@ -147,7 +150,7 @@
       class="flex items-center justify-between gap-3.5 border-t border-rule px-6 py-3 text-[10px] font-bold tracking-[0.1em] text-muted-2 compact:px-3.5"
     >
       <div class="flex items-center gap-2 mono">
-        <Icon name="lock" size={12} />
+        <Lock size={12} aria-hidden="true" focusable="false" />
         {i18n.t('app.footerLocal')}
       </div>
       <div class="flex gap-3.5 mono compact:hidden">

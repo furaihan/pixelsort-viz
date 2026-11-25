@@ -1,5 +1,9 @@
 <script lang="ts">
-  import Icon from './Icon.svelte';
+  import Check from '@lucide/svelte/icons/check';
+  import ImageIcon from '@lucide/svelte/icons/image';
+  import ChevronDown from '@lucide/svelte/icons/chevron-down';
+  import TriangleAlert from '@lucide/svelte/icons/triangle-alert';
+  import X from '@lucide/svelte/icons/x';
   import { PRESET_IMAGES } from '../core/image/presets';
   import { app } from '../stores/appState.svelte';
   import { i18n } from '../i18n/index.svelte';
@@ -128,7 +132,7 @@
             <span
               class="absolute top-1.5 left-1.5 inline-flex items-center gap-1 rounded-[3px] border border-accent/60 bg-ground/90 px-1 py-0.5 mono text-[10px] font-bold tracking-[0.08em] text-accent"
             >
-              <Icon name="check" size={11} strokeWidth={2.4} />
+              <Check size={11} aria-hidden="true" focusable="false" />
               {i18n.t('presets.current')}
             </span>
           {/if}
@@ -160,16 +164,16 @@
     aria-controls={titleId}
     title={i18n.t('presets.openTitle')}
   >
-    <Icon name="image" size={15} />
+    <ImageIcon size={15} aria-hidden="true" focusable="false" />
     {i18n.t('presets.open')}
-    <Icon name="chevron-down" size={13} className="text-muted" />
+    <ChevronDown size={13} class="text-muted" aria-hidden="true" focusable="false" />
   </button>
 {:else}
   <div
     class="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-[12px] border border-rule bg-inset/40 px-4 py-3"
   >
     <span class="panel-title">
-      <Icon name="image" size={16} />
+      <ImageIcon size={16} aria-hidden="true" focusable="false" />
       {i18n.t('presets.title')}
     </span>
     <span class="max-w-[44ch] flex-1 text-[11px] leading-[1.4] text-muted">
@@ -186,9 +190,9 @@
         aria-controls={titleId}
         title={i18n.t('presets.openTitle')}
       >
-        <Icon name="image" size={15} />
+        <ImageIcon size={15} aria-hidden="true" focusable="false" />
         {i18n.t('presets.open')}
-        <Icon name="chevron-down" size={13} className="text-muted" />
+        <ChevronDown size={13} class="text-muted" aria-hidden="true" focusable="false" />
       </button>
     </span>
   </div>
@@ -213,12 +217,12 @@
             {@const pending = PRESET_IMAGES.find((preset) => preset.id === pendingPreset)}
             {@const name = pending ? i18n.t(pending.nameKey) : pendingPreset}
             <span class="panel-title">
-              <Icon name="alert" size={16} />
+              <TriangleAlert size={16} aria-hidden="true" focusable="false" />
               {i18n.t('presets.replaceAction')}
             </span>
           {:else}
             <span class="panel-title">
-              <Icon name="image" size={16} />
+              <ImageIcon size={16} aria-hidden="true" focusable="false" />
               {i18n.t('presets.title')}
             </span>
             <span class="mt-1.5 block max-w-[40ch] text-[11px] leading-[1.4] text-muted">
@@ -238,7 +242,7 @@
               type="button"
               onclick={() => pendingPreset && load(pendingPreset)}
             >
-              <Icon name="image" size={15} />
+              <ImageIcon size={15} aria-hidden="true" focusable="false" />
               {i18n.t('presets.replaceAction')}
             </button>
             <button
@@ -257,7 +261,7 @@
         aria-label={i18n.t('presets.close')}
         onclick={close}
       >
-        <Icon name="x" size={15} />
+        <X size={15} aria-hidden="true" focusable="false" />
       </button>
     </header>
     <!-- svelte-ignore a11y_no_noninteractive_tabindex -->

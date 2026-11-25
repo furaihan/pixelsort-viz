@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Icon from './Icon.svelte';
+  import Grid2x2 from '@lucide/svelte/icons/grid-2x2';
   import { app } from '../stores/appState.svelte';
   import { BLOCK_SIZES } from '../core/image/imageTypes';
   import { formatNumber } from '../utils/format';
@@ -27,7 +27,7 @@
       class={inline ? 'label' : 'panel-title'}
       id="granularity-title"
     >
-      {#if !inline}<Icon name="grid" size={16} />{/if}
+      {#if !inline}<Grid2x2 size={16} aria-hidden="true" focusable="false" />{/if}
       {i18n.t('granularity.title')}
     </svelte:element>
     <span class="chip chip-soft">{`${app.blockSize} ${i18n.t('workspace.px')}`}</span>

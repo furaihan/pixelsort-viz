@@ -1,6 +1,15 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import Icon from './Icon.svelte';
+  import Check from '@lucide/svelte/icons/check';
+  import TriangleAlert from '@lucide/svelte/icons/triangle-alert';
+  import Crosshair from '@lucide/svelte/icons/crosshair';
+  import Layers from '@lucide/svelte/icons/layers';
+  import ChevronDown from '@lucide/svelte/icons/chevron-down';
+  import Eye from '@lucide/svelte/icons/eye';
+  import EyeOff from '@lucide/svelte/icons/eye-off';
+  import Trash from '@lucide/svelte/icons/trash';
+  import Info from '@lucide/svelte/icons/info';
+  import X from '@lucide/svelte/icons/x';
   import ImageUploader from './ImageUploader.svelte';
   import PresetGallery from './PresetGallery.svelte';
   import PlaybackControls from './PlaybackControls.svelte';
@@ -101,7 +110,11 @@
         data-tone={verified ? 'accent' : 'danger'}
         role="status"
       >
-        <Icon name={verified ? 'check' : 'alert'} size={14} />
+        {#if verified}
+          <Check size={14} aria-hidden="true" focusable="false" />
+        {:else}
+          <TriangleAlert size={14} aria-hidden="true" focusable="false" />
+        {/if}
         {verified ? i18n.t('workspace.verified') : i18n.t('workspace.notVerified')}
       </span>
     {/if}
@@ -125,7 +138,7 @@
       <span
         class="inline-flex items-center gap-2 mono text-[11px] font-bold tracking-[0.12em] text-muted-2"
       >
-        <Icon name="pivot" size={13} className="text-structure" />
+        <Crosshair size={13} class="text-structure" aria-hidden="true" focusable="false" />
         {i18n.t('workspace.ruling', { size: app.blockSize })}
         {#if app.isRunning}
           <span class="size-1.5 animate-pulse-soft rounded-full bg-focal" aria-hidden="true"></span>
@@ -212,7 +225,7 @@
             class="mt-0.5 inline-flex size-5 flex-none items-center justify-center rounded-full border border-accent/60 text-accent"
             aria-hidden="true"
           >
-            <Icon name="check" size={13} strokeWidth={2.2} />
+            <Check size={13} aria-hidden="true" focusable="false" />
           </span>
           <div class="grid min-w-0 gap-0.5">
             <strong class="text-[13px] font-bold text-text">
@@ -253,12 +266,13 @@
         <summary
           class="btn flex btn-small min-h-10 cursor-pointer list-none btn-ghost compact:min-h-11 [&::-webkit-details-marker]:hidden"
         >
-          <Icon name="layers" size={15} />
+          <Layers size={15} aria-hidden="true" focusable="false" />
           {i18n.t('image.options')}
-          <Icon
-            name="chevron-down"
+          <ChevronDown
             size={13}
-            className="text-muted transition-transform group-open:rotate-180"
+            class="text-muted transition-transform group-open:rotate-180"
+            aria-hidden="true"
+            focusable="false"
           />
         </summary>
         <div
@@ -270,7 +284,11 @@
             onclick={() => app.toggleGhost()}
             aria-pressed={app.ghostOriginal}
           >
-            <Icon name={app.ghostOriginal ? 'eye-off' : 'eye'} size={15} />
+            {#if app.ghostOriginal}
+              <EyeOff size={15} aria-hidden="true" focusable="false" />
+            {:else}
+              <Eye size={15} aria-hidden="true" focusable="false" />
+            {/if}
             {app.ghostOriginal
               ? i18n.t('workspace.hideOriginalGhost')
               : i18n.t('workspace.showOriginalGhost')}
@@ -284,7 +302,7 @@
             onclick={() => app.clearImage()}
             title={i18n.t('image.removeTitle')}
           >
-            <Icon name="trash" size={14} />
+            <Trash size={14} aria-hidden="true" focusable="false" />
             {i18n.t('image.removeImage')}
           </button>
         </div>
@@ -316,7 +334,7 @@
 
     {#if app.notice}
       <div class="alert items-center alert-warning [&>span]:flex-1" role="status">
-        <Icon name="info" size={15} />
+        <Info size={15} aria-hidden="true" focusable="false" />
         <span>{i18n.text(app.notice)}</span>
         <button
           class="inline-flex size-8 flex-none cursor-pointer items-center justify-center rounded border-0 bg-transparent p-0 text-inherit hover:bg-text/10 compact:size-11"
@@ -324,7 +342,7 @@
           aria-label={i18n.t('image.dismissNotice')}
           onclick={() => app.dismissNotice()}
         >
-          <Icon name="x" size={13} />
+          <X size={13} aria-hidden="true" focusable="false" />
         </button>
       </div>
     {/if}

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import Icon from './Icon.svelte';
+  import ChevronDown from '@lucide/svelte/icons/chevron-down';
+  import Info from '@lucide/svelte/icons/info';
   import { app } from '../stores/appState.svelte';
   import { formatNumber, formatTime } from '../utils/format';
   import { i18n } from '../i18n/index.svelte';
@@ -76,10 +77,11 @@
       class="hidden min-h-11 cursor-pointer list-none items-center justify-between gap-3 border-b border-rule px-4 py-3 text-[12px] font-semibold text-muted compact:flex [&::-webkit-details-marker]:hidden"
     >
       <span>{i18n.t('stats.breakdown')}</span>
-      <Icon
-        name="chevron-down"
+      <ChevronDown
         size={15}
-        className="text-structure transition-transform group-open:rotate-180"
+        class="text-structure transition-transform group-open:rotate-180"
+        aria-hidden="true"
+        focusable="false"
       />
     </summary>
     <div class="panel-body">
@@ -167,11 +169,11 @@
           class="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 py-2 text-[12px] font-semibold text-muted [&_svg]:text-structure [&::-webkit-details-marker]:hidden"
         >
           <span class="inline-flex items-center gap-1.5">
-            <Icon name="info" size={13} />
+            <Info size={13} aria-hidden="true" focusable="false" />
             {i18n.t('stats.howCounters')}
           </span>
           <span class="inline-flex transition-transform duration-[160ms] group-open:rotate-180">
-            <Icon name="chevron-down" size={14} />
+            <ChevronDown size={14} aria-hidden="true" focusable="false" />
           </span>
         </summary>
         <dl class="mt-3 grid gap-2">

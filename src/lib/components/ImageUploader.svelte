@@ -1,5 +1,9 @@
 <script lang="ts">
-  import Icon from './Icon.svelte';
+  import Upload from '@lucide/svelte/icons/upload';
+  import ArrowRight from '@lucide/svelte/icons/arrow-right';
+  import Sparkles from '@lucide/svelte/icons/sparkles';
+  import TriangleAlert from '@lucide/svelte/icons/triangle-alert';
+  import X from '@lucide/svelte/icons/x';
   import { app } from '../stores/appState.svelte';
   import { i18n } from '../i18n/index.svelte';
 
@@ -107,7 +111,7 @@
         <span
           class="inline-flex size-[30px] flex-none items-center justify-center rounded-[6px] bg-accent/10 text-accent"
         >
-          <Icon name="upload" size={16} />
+          <Upload size={16} aria-hidden="true" focusable="false" />
         </span>
         <span class="grid min-w-0 flex-1 gap-px">
           <strong class="text-[12px] font-bold">
@@ -119,14 +123,14 @@
           </strong>
           <span class="text-[11px] text-muted">{i18n.t('upload.formatsLocal')}</span>
         </span>
-        <Icon name="arrow-right" size={16} />
+        <ArrowRight size={16} aria-hidden="true" focusable="false" />
       </div>
     {:else}
       <div class="flex flex-wrap items-center gap-3">
         <span
           class="inline-flex min-h-[38px] items-center gap-2 rounded-[6px] border border-focal bg-focal px-3.5 text-[12.5px] font-bold text-ground"
         >
-          <Icon name="upload" size={16} />
+          <Upload size={16} aria-hidden="true" focusable="false" />
           {app.isLoadingImage ? i18n.t('upload.decoding') : i18n.t('upload.choose')}
         </span>
         <span class="text-[12.5px] font-semibold text-text">
@@ -152,7 +156,7 @@
         onclick={loadStarterRun}
         disabled={app.isLoadingImage}
       >
-        <Icon name="sparkles" size={15} />
+        <Sparkles size={15} aria-hidden="true" focusable="false" />
         {i18n.t('upload.trySample')}
       </button>
       <span class="max-w-[42ch] text-[11px] leading-[1.4] text-muted">
@@ -163,7 +167,7 @@
 
   {#if showError && app.uploadError}
     <div class="alert items-center [&>span]:flex-1" role="alert">
-      <Icon name="alert" size={16} />
+      <TriangleAlert size={16} aria-hidden="true" focusable="false" />
       <span>{i18n.text(app.uploadError)}</span>
       <button
         class="inline-flex size-6 cursor-pointer items-center justify-center rounded border-0 bg-transparent p-0 text-inherit hover:bg-text/10"
@@ -171,7 +175,7 @@
         aria-label={i18n.t('upload.dismissError')}
         onclick={() => app.dismissUploadError()}
       >
-        <Icon name="x" size={14} />
+        <X size={14} aria-hidden="true" focusable="false" />
       </button>
     </div>
   {/if}

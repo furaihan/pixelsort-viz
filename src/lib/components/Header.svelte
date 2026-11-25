@@ -1,5 +1,6 @@
 <script lang="ts">
-  import Icon from './Icon.svelte';
+  import Lock from '@lucide/svelte/icons/lock';
+  import CircleQuestionMark from '@lucide/svelte/icons/circle-question-mark';
   import { app } from '../stores/appState.svelte';
   import { i18n } from '../i18n/index.svelte';
   import type { TranslationKey } from '../i18n/messages';
@@ -34,7 +35,7 @@
     <span
       class="inline-flex items-center gap-1.5 mono text-[11px] font-bold tracking-[0.1em] text-muted-2 narrow:hidden [&_svg]:text-structure"
     >
-      <Icon name="lock" size={12} />
+      <Lock size={12} aria-hidden="true" focusable="false" />
       {i18n.t('common.local100')}
     </span>
     <span
@@ -54,7 +55,7 @@
       type="button"
       onclick={onopenGuide}
     >
-      <Icon name="help" size={15} />
+      <CircleQuestionMark size={15} aria-hidden="true" focusable="false" />
       {i18n.t('common.howWorks')}
     </button>
     <label class="sr-only" for="theme-select">{i18n.t('theme.label')}</label>

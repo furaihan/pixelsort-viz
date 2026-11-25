@@ -1,5 +1,14 @@
 <script lang="ts">
-  import Icon, { type IconName } from './Icon.svelte';
+  import Play from '@lucide/svelte/icons/play';
+  import Pause from '@lucide/svelte/icons/pause';
+  import StepForward from '@lucide/svelte/icons/step-forward';
+  import Shuffle from '@lucide/svelte/icons/shuffle';
+  import RotateCcw from '@lucide/svelte/icons/rotate-ccw';
+  import ImageIcon from '@lucide/svelte/icons/image';
+  import Layers from '@lucide/svelte/icons/layers';
+  import ChevronDown from '@lucide/svelte/icons/chevron-down';
+  import TriangleAlert from '@lucide/svelte/icons/triangle-alert';
+  import Info from '@lucide/svelte/icons/info';
   import { getAppHotkeys, getHotkeyHint, getFormatForDisplay } from '@tanstack/svelte-hotkeys';
   import HotkeySummary from './HotkeySummary.svelte';
   import { app, SPEED_PRESETS, speedToSampleFps } from '../stores/appState.svelte';
@@ -36,7 +45,7 @@
             : i18n.t('playback.start'),
   );
 
-  let primaryIcon = $derived((app.status === 'running' ? 'pause' : 'play') as IconName);
+  let isRunning = $derived(app.status === 'running');
 
   let primaryDisabled = $derived(
     !app.hasImage || (app.status !== 'running' && app.status !== 'paused' && !app.canStart),
@@ -109,14 +118,18 @@
   {#if showActions}
     {#if app.error}
       <div class="alert" role="alert">
-        <Icon name="alert" size={16} />
+        <TriangleAlert size={16} aria-hidden="true" focusable="false" />
         <span>{i18n.text(app.error)}</span>
       </div>
     {/if}
 
     {#if warning}
       <div class="alert {warningIsBlocker ? '' : 'alert-warning'}" role="status">
-        <Icon name={warningIsBlocker ? 'alert' : 'info'} size={16} />
+        {#if warningIsBlocker}
+          <TriangleAlert size={16} aria-hidden="true" focusable="false" />
+        {:else}
+          <Info size={16} aria-hidden="true" focusable="false" />
+        {/if}
         <span>{i18n.text(warning)}</span>
       </div>
     {/if}
@@ -128,7 +141,11 @@
         onclick={primaryAction}
         disabled={primaryDisabled}
       >
-        <Icon name={primaryIcon} size={17} />
+        {#if isRunning}
+          <Pause size={17} aria-hidden="true" focusable="false" />
+        {:else}
+          <Play size={17} aria-hidden="true" focusable="false" />
+        {/if}
         {primaryLabel}
         {#if toggleHint.visible && appHotkeys.current['playback.toggle'].hotkey}
           <kbd class="ml-1 text-[10px] opacity-80">
@@ -146,7 +163,7 @@
           ? i18n.t('playback.performanceStepTitle')
           : i18n.t('playback.stepTitle')}
       >
-        <Icon name="step" size={16} />
+        <StepForward size={16} aria-hidden="true" focusable="false" />
         {i18n.t('playback.step')}
         {#if stepHint.visible && appHotkeys.current['playback.step'].hotkey}
           <kbd class="ml-1 text-[10px] opacity-80">
@@ -163,7 +180,7 @@
           disabled={!app.hasImage}
           title={i18n.t('playback.shuffleTitle')}
         >
-          <Icon name="shuffle" size={16} />
+          <Shuffle size={16} aria-hidden="true" focusable="false" />
           {i18n.t('playback.shuffle')}
         </button>
 
@@ -174,7 +191,7 @@
           disabled={!app.hasImage}
           title={i18n.t('playback.resetTitle')}
         >
-          <Icon name="reset" size={16} />
+          <RotateCcw size={16} aria-hidden="true" focusable="false" />
           {i18n.t('playback.reset')}
         </button>
 
@@ -185,7 +202,7 @@
           disabled={!app.hasImage}
           title={i18n.t('playback.restoreTitle')}
         >
-          <Icon name="image" size={16} />
+          <ImageIcon size={16} aria-hidden="true" focusable="false" />
           {i18n.t('playback.restore')}
         </button>
       </div>
@@ -194,12 +211,13 @@
         <summary
           class="flex min-h-11 cursor-pointer list-none items-center gap-2 rounded-[6px] border border-rule px-3 text-[12px] font-semibold text-muted [&::-webkit-details-marker]:hidden"
         >
-          <Icon name="layers" size={15} />
+          <Layers size={15} aria-hidden="true" focusable="false" />
           {i18n.t('playback.moreRunOptions')}
-          <Icon
-            name="chevron-down"
+          <ChevronDown
             size={14}
-            className="ml-auto text-structure transition-transform group-open:rotate-180"
+            class="ml-auto text-structure transition-transform group-open:rotate-180"
+            aria-hidden="true"
+            focusable="false"
           />
         </summary>
         <div class="mt-2 grid gap-2">
@@ -210,7 +228,7 @@
             disabled={!app.hasImage}
             title={i18n.t('playback.shuffleTitle')}
           >
-            <Icon name="shuffle" size={16} />
+            <Shuffle size={16} aria-hidden="true" focusable="false" />
             {i18n.t('playback.shuffle')}
           </button>
           <button
@@ -220,7 +238,7 @@
             disabled={!app.hasImage}
             title={i18n.t('playback.resetTitle')}
           >
-            <Icon name="reset" size={16} />
+            <RotateCcw size={16} aria-hidden="true" focusable="false" />
             {i18n.t('playback.reset')}
           </button>
           <button
@@ -230,7 +248,7 @@
             disabled={!app.hasImage}
             title={i18n.t('playback.restoreTitle')}
           >
-            <Icon name="image" size={16} />
+            <ImageIcon size={16} aria-hidden="true" focusable="false" />
             {i18n.t('playback.restore')}
           </button>
         </div>

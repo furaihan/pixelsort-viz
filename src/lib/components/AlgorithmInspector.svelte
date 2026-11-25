@@ -1,5 +1,6 @@
 <script lang="ts">
-  import Icon from './Icon.svelte';
+  import MoveHorizontal from '@lucide/svelte/icons/move-horizontal';
+  import Check from '@lucide/svelte/icons/check';
   import { app } from '../stores/appState.svelte';
   import { i18n } from '../i18n/index.svelte';
 
@@ -13,7 +14,7 @@
 <section class="panel" aria-labelledby="inspector-title">
   <div class="panel-head">
     <h2 class="panel-title" id="inspector-title">
-      <Icon name="compare" size={16} />
+      <MoveHorizontal size={16} aria-hidden="true" focusable="false" />
       {i18n.t('inspector.marginTitle')}
     </h2>
   </div>
@@ -51,7 +52,7 @@
       </div>
       <div class="flex items-center gap-1.5 text-[11px] text-muted">
         <span class="{swatch} border-accent text-accent" aria-hidden="true">
-          <Icon name="check" size={10} />
+          <Check size={10} aria-hidden="true" focusable="false" />
         </span>
         <span>{i18n.t('inspector.sorted')}</span>
       </div>

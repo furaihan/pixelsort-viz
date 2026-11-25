@@ -1,5 +1,10 @@
 <script lang="ts">
-  import Icon from './Icon.svelte';
+  import Code from '@lucide/svelte/icons/code';
+  import ChevronDown from '@lucide/svelte/icons/chevron-down';
+  import CircleQuestionMark from '@lucide/svelte/icons/circle-question-mark';
+  import X from '@lucide/svelte/icons/x';
+  import Info from '@lucide/svelte/icons/info';
+  import ArrowRight from '@lucide/svelte/icons/arrow-right';
   import { app } from '../stores/appState.svelte';
   import { ALGORITHM_GROUPS } from '../core/sorting/registry';
   import type { AlgorithmId } from '../core/sorting/types';
@@ -62,7 +67,7 @@
       class={inline ? 'label' : 'panel-title'}
       id="algorithm-title"
     >
-      {#if !inline}<Icon name="code" size={16} />{/if}
+      {#if !inline}<Code size={16} aria-hidden="true" focusable="false" />{/if}
       {i18n.t('conditions.method')}
     </svelte:element>
     <div class="flex flex-wrap items-center justify-end gap-[5px]">
@@ -93,7 +98,7 @@
         <span
           class="pointer-events-none absolute top-1/2 right-3 inline-flex -translate-y-1/2 text-muted"
         >
-          <Icon name="chevron-down" size={16} />
+          <ChevronDown size={16} aria-hidden="true" focusable="false" />
         </span>
       </div>
 
@@ -104,7 +109,7 @@
         aria-expanded={infoOpen}
         onclick={toggleInfo}
       >
-        <Icon name="help" size={18} />
+        <CircleQuestionMark size={18} aria-hidden="true" focusable="false" />
       </button>
     </div>
 
@@ -130,7 +135,7 @@
           aria-label={i18n.t('common.dismiss')}
           onclick={closeInfo}
         >
-          <Icon name="x" size={14} />
+          <X size={14} aria-hidden="true" focusable="false" />
         </button>
       </div>
 
@@ -167,7 +172,7 @@
               <li
                 class="flex items-start gap-[7px] text-[12px] leading-[1.45] text-muted [&_svg]:mt-px [&_svg]:flex-none [&_svg]:text-structure"
               >
-                <Icon name="info" size={13} />
+                <Info size={13} aria-hidden="true" focusable="false" />
                 <span>{note}</span>
               </li>
             {/each}
@@ -180,7 +185,7 @@
           onclick={openReference}
         >
           {i18n.t('algorithm.reference')}
-          <Icon name="arrow-right" size={14} />
+          <ArrowRight size={14} aria-hidden="true" focusable="false" />
         </button>
       </div>
     </div>
