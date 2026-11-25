@@ -8,7 +8,8 @@ export type AlgorithmId =
   | 'heap'
   | 'counting'
   | 'radix'
-  | 'bucket';
+  | 'bucket'
+  | 'pancake';
 
 export type AlgorithmCategory = 'beginner' | 'intermediate' | 'advanced';
 

@@ -8,6 +8,7 @@ import { heapSort } from './algorithms/heapSort';
 import { countingSort } from './algorithms/countingSort';
 import { radixSort } from './algorithms/radixSort';
 import { bucketSort } from './algorithms/bucketSort';
+import { pancakeSort } from './algorithms/pancakeSort';
 import type { AlgorithmCategory, AlgorithmDefinition, AlgorithmId } from './types';
 
 export const ALGORITHMS: Record<AlgorithmId, AlgorithmDefinition> = {
@@ -230,6 +231,28 @@ export const ALGORITHMS: Record<AlgorithmId, AlgorithmDefinition> = {
       ],
     },
     run: bucketSort,
+  },
+  pancake: {
+    metadata: {
+      id: 'pancake',
+      name: 'Pancake Sort',
+      category: 'intermediate',
+      description:
+        'Finds the largest unsorted target index, flips the prefix to bring it to the front, then flips a longer prefix to place it at the end, shrinking the unsorted region.',
+      bestTime: 'O(n²)',
+      averageTime: 'O(n²)',
+      worstTime: 'O(n²)',
+      spaceComplexity: 'O(1)',
+      stable: false,
+      inPlace: true,
+      quadratic: true,
+      superlinear: false,
+      notes: [
+        'At most two prefix flips per element; each flip reverses a range.',
+        'Prefix reversal uses only swaps inward from both ends.',
+      ],
+    },
+    run: pancakeSort,
   },
 };
 

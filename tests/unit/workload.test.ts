@@ -11,10 +11,10 @@ import {
   MAX_ELEMENTS,
 } from '../../src/lib/utils/workload';
 
-const QUADRATIC: AlgorithmId[] = ['bubble', 'selection', 'insertion'];
+const QUADRATIC: AlgorithmId[] = ['bubble', 'selection', 'insertion', 'pancake'];
 
 describe('registry quadratic flags', () => {
-  it('marks exactly bubble/selection/insertion as quadratic', () => {
+  it('marks exactly bubble/selection/insertion/pancake as quadratic', () => {
     // The workload guard derives isQuadratic from these flags; pin them so a
     // future metadata edit cannot silently change the guardrails.
     const flagged = (Object.keys(ALGORITHMS) as AlgorithmId[]).filter(

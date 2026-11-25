@@ -238,7 +238,7 @@ export const EN = {
   'guide.localNote':
     'Everything runs in this browser. Image bytes, thumbnails, and pixel data are never sent to a server.',
   'guide.reference': 'Full algorithm reference',
-  'guide.algorithmCount': '10 ALGORITHMS',
+  'guide.algorithmCount': '11 ALGORITHMS',
   'guide.algorithm': 'Algorithm',
   'guide.stable': 'Stable',
   'guide.inPlace': 'In-place',
@@ -392,6 +392,7 @@ export const EN = {
   'pass.extract': 'Extract max → {index}',
   'pass.countTargets': 'Count target indices',
   'pass.writeBucketsBack': 'Write buckets back to the image',
+  'pass.pancake': 'Pancake prefix · end {end}',
   'canvas.key': 'KEY',
   'canvas.aux': 'AUX',
   'canvas.write': 'W',
@@ -460,6 +461,11 @@ export const EN = {
   'algorithm.bucket.note1': 'Uses sqrt(n) buckets and insertion sort inside each bucket.',
   'algorithm.bucket.note2':
     'Performance depends on how evenly the target indices are distributed; the initial shuffle makes the distribution uniform.',
+  'algorithm.pancake.name': 'Pancake Sort',
+  'algorithm.pancake.description':
+    'Finds the largest unsorted target index, flips the prefix to bring it to the front, then flips a longer prefix to place it at the end, shrinking the unsorted region.',
+  'algorithm.pancake.note1': 'At most two prefix flips per element; each flip reverses a range.',
+  'algorithm.pancake.note2': 'Prefix reversal uses only swaps inward from both ends.',
   'algorithm.complexity.dependsGap': 'Depends on gap sequence',
   'algorithm.complexity.nEarlyExit': 'O(n) with early exit',
   'algorithm.complexity.nkUniform': 'O(n + k) average under uniform distribution',
@@ -733,7 +739,7 @@ export const ID: Record<TranslationKey, string> = {
   'guide.localNote':
     'Semuanya berjalan di browser ini. Byte gambar, thumbnail, dan data piksel tidak pernah dikirim ke server.',
   'guide.reference': 'Referensi algoritma lengkap',
-  'guide.algorithmCount': '10 ALGORITMA',
+  'guide.algorithmCount': '11 ALGORITMA',
   'guide.algorithm': 'Algoritma',
   'guide.stable': 'Stabil',
   'guide.inPlace': 'In-place',
@@ -888,6 +894,7 @@ export const ID: Record<TranslationKey, string> = {
   'pass.extract': 'Ambil maks → {index}',
   'pass.countTargets': 'Hitung indeks target',
   'pass.writeBucketsBack': 'Tulis bucket kembali ke gambar',
+  'pass.pancake': 'Pancake prefix · akhir {end}',
   'canvas.key': 'KUNCI',
   'canvas.aux': 'BANTU',
   'canvas.write': 'T',
@@ -958,6 +965,13 @@ export const ID: Record<TranslationKey, string> = {
   'algorithm.bucket.note1': 'Menggunakan √n bucket dan insertion sort di dalam setiap bucket.',
   'algorithm.bucket.note2':
     'Performa bergantung pada pemerataan indeks target; pengacakan awal membuat distribusinya seragam.',
+  'algorithm.pancake.name': 'Pancake Sort',
+  'algorithm.pancake.description':
+    'Mencari indeks target terbesar yang belum terurut, membalikkan prefix untuk membawanya ke depan, lalu membalikkan prefix yang lebih panjang untuk menempatkannya di akhir, menyusutkan wilayah yang belum terurut.',
+  'algorithm.pancake.note1':
+    'Paling banyak dua balik prefix per elemen; setiap balik membalikkan sebuah rentang.',
+  'algorithm.pancake.note2':
+    'Pembalikan prefix hanya menggunakan pertukaran ke arah dalam dari kedua ujung.',
   'algorithm.complexity.dependsGap': 'Tergantung urutan gap',
   'algorithm.complexity.nEarlyExit': 'O(n) dengan penghentian awal',
   'algorithm.complexity.nkUniform': 'O(n + k) rata-rata pada distribusi seragam',
