@@ -17,7 +17,7 @@ describe('preset image registry', () => {
   });
 
   it('ships every full image and its thumbnail', () => {
-    expect(PRESET_IMAGES).toHaveLength(9);
+    expect(PRESET_IMAGES).toHaveLength(15);
     for (const preset of PRESET_IMAGES) {
       expect(existsSync(path.join(root, preset.file)), preset.file).toBe(true);
       expect(existsSync(path.join(root, 'thumbs', `${preset.id}.jpg`)), preset.id).toBe(true);

@@ -20,11 +20,13 @@ const PRESET_DATA = [
   { id: 'macaron-box', file: 'macaron-box.jpg', nameKey: 'presets.macaronBox' },
   { id: 'origami-crane-field', file: 'origami-crane-field.jpg', nameKey: 'presets.origamiCranes' },
   { id: 'dahlia-rosette', file: 'dahlia-rosette.jpg', nameKey: 'presets.dahliaRosette' },
-  {
-    id: 'impossible-staircase',
-    file: 'impossible-staircase.png',
-    nameKey: 'presets.impossibleStaircase',
-  },
+  { id: 'impossible-staircase', file: 'impossible-staircase.png', nameKey: 'presets.impossibleStaircase' },
+  { id: 'ebru-feather-wave', file: 'ebru-feather-wave.png', nameKey: 'presets.ebruFeatherWave' },
+  { id: 'fluted-glass-refraction', file: 'fluted-glass-refraction.png', nameKey: 'presets.flutedGlassRefraction' },
+  { id: 'kinetic-louver-wave', file: 'kinetic-louver-wave.png', nameKey: 'presets.kineticLouverWave' },
+  { id: 'salt-pan-geometry', file: 'salt-pan-geometry.png', nameKey: 'presets.saltPanGeometry' },
+  { id: 'caustic-mosaic-steps', file: 'caustic-mosaic-steps.png', nameKey: 'presets.causticMosaicSteps' },
+  { id: 'hyperbolic-string-loom', file: 'hyperbolic-string-loom.png', nameKey: 'presets.hyperbolicStringLoom' },
 ] as const satisfies readonly {
   readonly id: string;
   readonly file: string;
