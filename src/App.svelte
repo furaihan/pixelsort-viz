@@ -60,12 +60,7 @@
       ?.setAttribute('content', i18n.t('app.description'));
   });
 
-  // The sheet's ruling is the sorting grid: re-rule the page when the block
-  // size changes, clamped so the finest grids stay legible as paper rhythm.
-  $effect(() => {
-    const pitch = Math.min(128, Math.max(8, app.blockSize));
-    document.documentElement.style.setProperty('--ruling-pitch', `${pitch}px`);
-  });
+  // Block size is read in the plate caption; the sheet itself is ungridded.
 </script>
 
 <HotkeysProvider {appHotkeys} customHotkeys={savedHotkeys} onCustomHotkeysChange={saveHotkeys}>

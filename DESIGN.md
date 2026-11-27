@@ -140,12 +140,12 @@ components:
 
 **Creative North Star: "The Run Ledger"**
 
-The interface is a student's lab notebook on graph paper. Every sort is a numbered, dated experiment entry: the uploaded image is the specimen plate taped to the sheet with registration corners, the counters are a right-aligned tabular data table, the current operation is a margin observation with proportional cost ticks, and completion presses a VERIFIED sign-off stamp. The sheet's graph ruling is not decoration — it is drawn at the current block pitch, so the paper itself re-rules when the sorting grid changes. The world lends type, palette, density, and the ruling/stamp signature; the controls underneath stay standard, scanable web controls (Operate mode). No costume, no theme-park chrome.
+The interface is a student's lab notebook on matte graphite cardstock. Every sort is a numbered, dated experiment entry: the uploaded image is the specimen plate taped to the sheet with registration corners, the counters are a right-aligned tabular data table, the current operation is a margin observation with proportional cost ticks, and completion presses a VERIFIED sign-off stamp. The sheet is a surface, not a diagram — a soft lamp washes down matte cardstock with fine paper tooth, with no page-wide grid or lattice; the sorting blocks live on the specimen alone. The world lends type, palette, density, and the stamp/sign-off signature; the controls underneath stay standard, scanable web controls (Operate mode). No costume, no theme-park chrome.
 
 This world replaced the incumbent "Quantum Signal" neon-dashboard look; there was no seeded catalog world and no prior DESIGN.md. The pinned palette is a binding product commitment (PRODUCT.md): Warm Minimalist Dark Mode in Midnight Graphite, Dark Slate, Misty Blue, Soft Coral, and Cloud Cream — warm, minimal, sophisticated, calming. The build honors it with matte pastel accents on graphite, two self-hosted type voices, and a flat tonal surface ladder instead of glow. Three sibling themes (Warm Graphite default, Misty Blue, Coral Dusk) live inside the same world: same roles, same form language, different light.
 
 **Key Characteristics:**
-- Graph-paper body ruling at `--ruling-pitch` = block size clamped 8–128px; the grid IS the paper.
+- Matte graphite sheet with fine paper tooth under a single soft overhead light; no page-wide grid or dot lattice. Sorting blocks live on the specimen, never in the wallpaper.
 - Two primary type voices: Schibsted Grotesk speaks the UI; Courier Prime types every number, stamp, and metadata line. Atkinson Hyperlegible is reserved for the data-table row labels for legibility.
 - Two accents with fixed roles: coral is the verb (active operation, primary action), mist is the noun (selection, focus, sorted/verified).
 - Flat tonal depth (ground → panel → inset → raised) with 1px pencil rules; shadows only on floating layers.
@@ -169,7 +169,7 @@ A warm graphite night desk: matte mist and coral on deep slate, cream ink, and p
 - **Dark Slate** (`inset`): inset surfaces — fields, metric cells, plate backing, idle granularity cells, button hover.
 - **Raised Slate** (`raised`): the highest tonal step — empty-state mosaic cells, active-cell backing.
 - **Pencil Rule** (`rule`): subtle 1px borders and dividers — panel frames, row lines (at 60%), section separators, footer border.
-- **Cloud Cream** (`text`): primary ink — headings, body copy, counter values; also the 5%-opacity graph ruling and the translucent tape strips.
+- **Cloud Cream** (`text`): primary ink — headings, body copy, counter values; also the soft light and paper tooth of the sheet, and the translucent tape strips.
 - **Mist Muted** (`muted`): secondary copy — labels, panel notes, descriptions, idle chip text.
 - **Slate Metadata** (`muted-2`): tertiary copy — timestamps, file metadata, footer, speed presets, log type tags.
 
@@ -207,7 +207,7 @@ The world themes the browser chrome itself: `::selection` is accent on ground; t
 - **Data** (700, 22px/1.1, mono, tabular): the sortable-element count in the granularity panel — the big pre-run figure.
 - **Data-sm** (700, 15px/1.2, mono, tabular): secondary figures — aux writes, passes, max depth, grid dimensions, the observation-strip count.
 
-Micro-labels and metadata sit on an 11px floor: status chips, speed-scale ticks, the playback status and shortcut lines, the ruling readout, file meta, the source-resolution label, legend labels, the total formula, and definition terms all set 11px. Statistics-table row labels are 14px for legibility. A compact 10px tier survives for secondary accents only — the footer, PX unit suffixes, log type tokens, the in-place percent, the guide subtitle and step badges. Two 9px spots (the guide's reference-table headers, the uploader's size-limit tag) are carried drift below the floor, not ramp steps.
+Micro-labels and metadata sit on an 11px floor: status chips, speed-scale ticks, the playback status and shortcut lines, the block-size readout, file meta, the source-resolution label, legend labels, the total formula, and definition terms all set 11px. Statistics-table row labels are 14px for legibility. A compact 10px tier survives for secondary accents only — the footer, PX unit suffixes, log type tokens, the in-place percent, the guide subtitle and step badges. Two 9px spots (the guide's reference-table headers, the uploader's size-limit tag) are carried drift below the floor, not ramp steps.
 
 ### Named Rules
 **The Two-Voice Rule.** The grotesque speaks; the typewriter types. Every figure that is read, compared, or counted — counters, seeds, dates, dimensions, complexity, stamps — is Courier Prime with tabular numerals. Atkinson Hyperlegible is a narrow exception for statistics-table row labels only. Prose paragraphs never set in mono.
@@ -231,7 +231,7 @@ Breakpoints are **inclusive max-width** custom variants (deliberately not Tailwi
 The page never narrows below 320px. The specimen plate sizes as `min(100%, 48vh × aspect)` with the image's own aspect ratio, so the picture stays the star without pushing the controls off-screen.
 
 ### Named Rules
-**The Ruling Rule.** The body's graph ruling is drawn at `--ruling-pitch`, set from the current block size clamped to 8–128px, in cream at 5% opacity. Change the granularity and the whole sheet re-rules (240ms ease-out). The grid is the paper, not a widget; never draw a second, unrelated background grid.
+**The Matte Sheet Rule.** The body is matte graphite cardstock: one broad cream wash from the top of the sheet (5% at center, stepping down through 3% and 1% to nothing at the corners) over `public/textures/paper-tooth.png`, a seamless 256px white-on-alpha fibre texture generated by `scripts/generate-paper-tooth.py` (seed 20261127). No two-axis grid, dot lattice, or geometric pattern. The image is the only geometry; block size is read in the plate caption, never painted on the wallpaper.
 
 ## Elevation & Depth
 
@@ -290,7 +290,7 @@ Ruled notices, not banners: 6px corners, 10px/12px padding, 12px/1.45 text, a 15
 The margin note: a 12px-rounded panel at 70% tone with a `label` caption, the current operation in 13px bold over a 12px muted detail (two-line clamp), and up to eight proportional cost ticks — 5px wide, height 6 + 4×weight capped at 24px, toned focal (compare/swap/pivot), accent (sorted/complete), or structure (reads/writes). The element count sits right in 15px mono over a 10px aligned-percent caption. `aria-live` is polite at rest and off while running, so the stream never floods screen readers.
 
 ### Specimen plate
-The taped image: aspect-locked wrapper, checkerboard backing, 1px rule-strong frame, pixelated main canvas plus a pointer-events-none overlay canvas, tape strips and registration crosses as described in Shapes. The wrapper is `role="img"` with a live label naming the current operation; a ruling caption above states the block pitch, and a pulsing focal dot marks a live run. Unmounted, the plate gives way to the empty mount: a 440px-min dashed panel (panel at 60%, 12px corners, rule-strong dashes) with centered content — a 4×4 mosaic of 14px cells in the tonal ladder sparked with accent/focal/structure, a 20px headline, a 13px description capped at 54ch, and the full uploader.
+The taped image: aspect-locked wrapper, checkerboard backing, 1px rule-strong frame, pixelated main canvas plus a pointer-events-none overlay canvas, tape strips and registration crosses as described in Shapes. The wrapper is `role="img"` with a live label naming the current operation; a block-size caption above states the block pitch, and a pulsing focal dot marks a live run. Unmounted, the plate gives way to the empty mount: a 440px-min dashed panel (panel at 60%, 12px corners, rule-strong dashes) with centered content — a 4×4 mosaic of 14px cells in the tonal ladder sparked with accent/focal/structure, a 20px headline, a 13px description capped at 54ch, and the full uploader.
 
 ### Inspector legend & log
 Margin notes below the plate: six legend marks pair a distinct shape with each color (dashed inset = compare, corner dot = swap, dotted frame = write, dashed P = pivot, check = sorted, center dot = read), so state is never color-alone; legend labels set 11px. The recent log lists type tokens (10px mono uppercase, toned by operation) beside truncated 11px descriptions.
@@ -313,7 +313,7 @@ Full mode: a dashed rule-strong dropzone (126px min, 12px corners, inset at 40%)
 ### Do:
 - **Do** set every counted figure in Courier Prime with `tabular-nums`, right-aligned in the data table, and turn total ops/compute focal only while running or complete.
 - **Do** consume colors exclusively as `--color-*` tokens so all three themes (and the derived canvas palette) stay in sync; add new themes only in `palettes.ts`.
-- **Do** keep the body ruling tied to the block size (clamped 8–128px) and let it transition 240ms when granularity changes.
+- **Do** keep the sheet matte and ungridded — one soft light, irregular paper tooth, no geometric pattern — and read the block size in the plate caption, not in the wallpaper.
 - **Do** press the VERIFIED stamp exactly once at completion (220ms stamp-press) and keep its content visible without animation.
 - **Do** pair every state color with a word, icon, or distinct shape (chips carry labels; the legend pairs marks with names).
 - **Do** draw focus as a 2px accent outline at 2px offset, and honor the global reduced-motion clamp for any new motion.
@@ -325,7 +325,7 @@ Full mode: a dashed rule-strong dropzone (126px min, 12px corners, inset at 40%)
 - **Don't** put drop shadows on resting surfaces, and never use hard offset shadows; only popovers and dialogs float.
 - **Don't** hardcode palette hexes in components or set prose paragraphs in the mono voice.
 - **Don't** add a third accent hue or let coral mark selection: focal is the verb, accent is the noun, in every theme.
-- **Don't** loop the stamp press, animate the ruling pitch outside its 240ms transition, or introduce motion that survives `prefers-reduced-motion`.
+- **Don't** loop the stamp press, reintroduce a page-wide grid or dot lattice behind the workspace, or introduce motion that survives `prefers-reduced-motion`.
 - **Don't** communicate compare/swap/write/pivot/sorted state by color alone, and don't let live regions stream during a run.
 - **Don't** smooth the specimen canvas; pixels render pixelated, and partial edge tiles render without cropping or stretching.
 - **Don't** set new micro-labels below 11px, or reach for the 10px accent tier outside its established uses (unit suffixes, log type tokens, the footer, the in-place percent).
